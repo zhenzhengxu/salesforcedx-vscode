@@ -22,6 +22,7 @@ import {
   forceOrgCreate,
   forceOrgDisplay,
   forceOrgOpen,
+  forceSObjectDescribeAccount,
   forceSourcePull,
   forceSourcePush,
   forceSourceStatus,
@@ -115,6 +116,10 @@ function registerCommands(): vscode.Disposable {
     'sfdx.force.lightning.interface.create',
     forceLightningInterfaceCreate
   );
+  const forceSObjectDescribeAccountCmd = vscode.commands.registerCommand(
+    'sfdx.force.sobject.describe.account',
+    forceSObjectDescribeAccount
+  );
 
   const forceDebuggerStopCmd = vscode.commands.registerCommand(
     'sfdx.force.debugger.stop',
@@ -167,6 +172,7 @@ function registerCommands(): vscode.Disposable {
     forceLightningComponentCreateCmd,
     forceLightningEventCreateCmd,
     forceLightningInterfaceCreateCmd,
+    forceSObjectDescribeAccountCmd,
     forceSourceStatusLocalCmd,
     forceSourceStatusRemoteCmd,
     forceDebuggerStopCmd,

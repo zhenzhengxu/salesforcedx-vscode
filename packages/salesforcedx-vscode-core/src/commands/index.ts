@@ -27,3 +27,4 @@ export { forceDebuggerStop } from './forceDebuggerStop';
 export { forceConfigList } from './forceConfigList';
 export { forceAliasList } from './forceAliasList';
 export { forceOrgDisplay } from './forceOrgDisplay';
+export { forceSObjectDescribeAccount } from './forceSObjectDescribeAccount';

@@ -206,6 +206,10 @@
         {
           "command": "sfdx.force.internal.refreshsobjects",
           "when": "config.sfdx.refreshSObjects.enabled"
+        },
+        {
+          "command": "sfdx.force.sobject.describe.account",
+          "when": "sfdx:project_opened"
         }
       ]
     },
@@ -309,6 +313,10 @@
       {
         "command": "sfdx.force.internal.refreshsobjects",
         "title": "%force_refresh_sobjects%"
+      },
+      {
+        "command": "sfdx.force.sobject.describe.account",
+        "title": "SFDX: SObject Describe Account"
       }
     ]
   }
