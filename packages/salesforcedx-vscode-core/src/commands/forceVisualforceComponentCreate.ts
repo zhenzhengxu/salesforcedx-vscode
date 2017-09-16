@@ -21,7 +21,6 @@ import {
   CompositeParametersGatherer,
   ContinueResponse,
   DirFileNameSelection,
-  FilePathExistsChecker,
   SelectDirPath,
   SelectFileName,
   SfdxCommandlet,
@@ -82,7 +81,6 @@ class ForceVisualForceComponentCreateExecutor extends SfdxCommandletExecutor<
 
 const workspaceChecker = new SfdxWorkspaceChecker();
 const fileNameGatherer = new SelectFileName();
-const filePathExistsChecker = new FilePathExistsChecker(VF_CMP_EXTENSION);
 
 export async function forceVisualforceComponentCreate(explorerDir?: any) {
   const outputDirGatherer = new SelectDirPath(explorerDir, 'components');
@@ -92,8 +90,7 @@ export async function forceVisualforceComponentCreate(explorerDir?: any) {
   const commandlet = new SfdxCommandlet(
     workspaceChecker,
     parameterGatherer,
-    new ForceVisualForceComponentCreateExecutor(),
-    filePathExistsChecker
+    new ForceVisualForceComponentCreateExecutor()
   );
   commandlet.run();
 }

@@ -21,7 +21,6 @@ import {
   CompositeParametersGatherer,
   ContinueResponse,
   DirFileNameSelection,
-  LightningFilePathExistsChecker,
   SelectDirPath,
   SelectFileName,
   SfdxCommandlet,
@@ -83,7 +82,6 @@ class ForceLightningAppCreateExecutor extends SfdxCommandletExecutor<
 
 const workspaceChecker = new SfdxWorkspaceChecker();
 const fileNameGatherer = new SelectFileName();
-const lightningFilePathExistsChecker = new LightningFilePathExistsChecker();
 
 export async function forceLightningAppCreate(explorerDir?: any) {
   const outputDirGatherer = new SelectDirPath(explorerDir, 'aura');
@@ -93,8 +91,7 @@ export async function forceLightningAppCreate(explorerDir?: any) {
   const commandlet = new SfdxCommandlet(
     workspaceChecker,
     parameterGatherer,
-    new ForceLightningAppCreateExecutor(),
-    lightningFilePathExistsChecker
+    new ForceLightningAppCreateExecutor()
   );
   commandlet.run();
 }

@@ -21,7 +21,6 @@ import {
   CompositeParametersGatherer,
   ContinueResponse,
   DirFileNameSelection,
-  FilePathExistsChecker,
   SelectDirPath,
   SelectFileName,
   SfdxCommandlet,
@@ -82,7 +81,6 @@ class ForceApexClassCreateExecutor extends SfdxCommandletExecutor<
 
 const workspaceChecker = new SfdxWorkspaceChecker();
 const fileNameGatherer = new SelectFileName();
-const filePathExistsChecker = new FilePathExistsChecker(APEX_FILE_EXTENSION);
 
 export async function forceApexClassCreate(explorerDir?: any) {
   const outputDirGatherer = new SelectDirPath(explorerDir, 'classes');
@@ -92,8 +90,7 @@ export async function forceApexClassCreate(explorerDir?: any) {
   const commandlet = new SfdxCommandlet(
     workspaceChecker,
     parameterGatherer,
-    new ForceApexClassCreateExecutor(),
-    filePathExistsChecker
+    new ForceApexClassCreateExecutor()
   );
   commandlet.run();
 }
