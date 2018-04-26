@@ -10,6 +10,7 @@ import { ConfigurationTarget } from 'vscode';
 import { channelService } from './channels';
 import {
   CompositeParametersGatherer,
+  forceAccountDescribe,
   forceAliasList,
   forceApexClassCreate,
   forceApexExecute,
@@ -249,6 +250,11 @@ function registerCommands(): vscode.Disposable {
     forceApexLogGet
   );
 
+  const forceAccountDescribeCmd = vscode.commands.registerCommand(
+    'sfdx.force.account.describe',
+    forceAccountDescribe
+  );
+
   // Internal commands
   const internalCancelCommandExecution = vscode.commands.registerCommand(
     CANCEL_EXECUTION_COMMAND,
@@ -298,6 +304,7 @@ function registerCommands(): vscode.Disposable {
     forceStopApexDebugLoggingCmd,
     isvDebugBootstrapCmd,
     forceApexLogGetCmd,
+    forceAccountDescribeCmd,
     internalCancelCommandExecution
   );
 }

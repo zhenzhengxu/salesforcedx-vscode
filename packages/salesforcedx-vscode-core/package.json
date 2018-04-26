@@ -287,6 +287,10 @@
         {
           "command": "sfdx.force.apex.log.get",
           "when": "sfdx:project_opened"
+        },
+        {
+          "command": "sfdx.force.account.describe",
+          "when": "sfdx:project_opened"
         }
       ]
     },
@@ -450,6 +454,10 @@
       {
         "command": "sfdx.force.apex.log.get",
         "title": "%force_apex_log_get_text%"
+      },
+      {
+        "command": "sfdx.force.account.describe",
+        "title": "Describe Account SObject"
       }
     ],
     "configuration": {

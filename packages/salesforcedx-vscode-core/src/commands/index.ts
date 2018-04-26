@@ -45,6 +45,7 @@ export { forceAliasList } from './forceAliasList';
 export { forceOrgDisplay } from './forceOrgDisplay';
 export { forceProjectCreate } from './forceProjectCreate';
 export { forceApexTriggerCreate } from './forceApexTriggerCreate';
+export { forceAccountDescribe } from './forceAccountDescribe';
 export { forceStartApexDebugLogging } from './forceStartApexDebugLogging';
 export {
   forceStopApexDebugLogging,
