@@ -9,7 +9,6 @@ import {
   Command,
   SfdxCommandBuilder
 } from '@salesforce/salesforcedx-utils-vscode/out/src/cli';
-import { nls } from '../messages';
 import {
   EmptyParametersGatherer,
   SfdxCommandlet,
