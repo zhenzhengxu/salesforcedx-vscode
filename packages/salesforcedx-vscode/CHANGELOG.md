@@ -1,3 +1,10 @@
+## 42.15.0 - May 10, 2018
+### Fixed
+
+#### salesforcedx-vscode-core
+
+* Make extension resilient against Salesforce CLI's STDERR messages (warnings and available updates) when parsing `--json` output. ([PR #406](https://github.com/forcedotcom/salesforcedx-vscode/pull/406))
+
 ## 42.14.0 - May 3, 2018
 ### Fixed
 
