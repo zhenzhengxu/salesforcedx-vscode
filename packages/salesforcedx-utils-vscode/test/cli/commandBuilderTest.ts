@@ -9,6 +9,12 @@ import { expect } from 'chai';
 
 import { Command, CommandBuilder, SfdxCommandBuilder } from '../../src/cli';
 
+describe('Failure', () => {
+  it('Should fail', () => {
+    // tslint:disable-next-line:no-unused-expression
+    expect(true).to.be.false;
+  });
+});
 describe('CommandBuilder tests', () => {
   describe('CommandBuilder initialization', () => {
     it('Should store the command string', () => {
