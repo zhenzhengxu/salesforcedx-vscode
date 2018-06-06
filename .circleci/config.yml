@@ -12,7 +12,15 @@ jobs:
 
      steps:
        - checkout
-       - run: echo "hello world"
+       - run: npm install
+       - run: npm install -g junit-merge
+       - run: npm compile
+       - run: npm run test:unit
+       - run:  junit-merge -d packages -r -C -o junit-results/junit.xml junit-custom.xml
+       - store_test_results:
+          path: ~/junit-results/
+      - store_artifacts:
+          path: ~/junit-results/
 workflows:
   version: 2
   commit-workflow:

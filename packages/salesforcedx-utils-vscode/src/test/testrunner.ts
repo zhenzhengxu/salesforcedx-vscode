@@ -32,7 +32,15 @@ let mocha = new Mocha({
 function configure(mochaOpts: any): void {
   if (mochaOpts.reporter == null) {
     // default to 'mocha-multi-reporters' (to get xunit.xml result)
-    mochaOpts.reporter = 'mocha-multi-reporters';
+    mochaOpts.reporter = 'mocha-junit-reporter';
+  }
+  if (mochaOpts.reporterOptions == null) {
+    mochaOpts.reporterOptions = {
+      reporterEnabled: 'mocha-junit-reporter',
+      mochaJunitReporterReporterOptions: {
+        mochaFile: 'junit-custom.xml'
+      }
+    };
   }
   mocha = new Mocha(mochaOpts);
 }
