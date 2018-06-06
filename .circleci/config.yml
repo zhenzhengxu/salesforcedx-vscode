@@ -14,7 +14,7 @@ jobs:
        - checkout
        - run: npm install
        - run: sudo npm install -g junit-merge
-       - run: npm compile
+       - run: npm run compile
        - run: npm run test:unit
        - run: junit-merge -d packages -r -C -o junit-results/junit.xml junit-custom.xml
        - store_test_results:
