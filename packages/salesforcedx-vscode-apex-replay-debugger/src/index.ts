@@ -182,10 +182,12 @@ function registerDebugHandlers(): vscode.Disposable {
 export async function activate(context: vscode.ExtensionContext) {
   console.log('Apex Replay Debugger Extension Activated');
 
+  // Telemetry
   const sfdxCoreExt = vscode.extensions.getExtension(
     'salesforce.salesforcedx-vscode-core'
   );
   let isTelemetryEnabled = false;
+
   if (sfdxCoreExt && sfdxCoreExt.exports) {
     sfdxCoreExt.exports.telemetryService.showTelemetryMessage();
     isTelemetryEnabled = sfdxCoreExt.exports.telemetryService.isTelemetryEnabled();
@@ -353,4 +355,5 @@ export function writeToDebuggerOutputWindow(
 export function deactivate() {
   console.log('Apex Replay Debugger Extension Deactivated');
   telemetryService.sendExtensionDeactivationEvent();
+  telemetryService.dispose();
 }

@@ -15,6 +15,7 @@
     "color": "#ECECEC",
     "theme": "light"
   },
+  "aiKey": "b093559c-0c91-43cb-ad24-67bb5a5cbc80",
   "version": "43.6.0",
   "publisher": "salesforce",
   "license": "BSD-3-Clause",
@@ -35,6 +36,7 @@
     "typescript": "2.6.2",
     "vscode": "1.1.17"
   },
+  "extensionDependencies": ["salesforce.salesforcedx-vscode-core"],
   "scripts": {
     "vscode:prepublish": "npm prune --production",
     "vscode:package": "vsce package",
@@ -92,6 +94,7 @@
     "expand-home-dir": "0.0.3",
     "find-java-home": "0.2.0",
     "path-exists": "3.0.0",
+    "vscode-extension-telemetry": "0.0.17",
     "vscode-languageclient": "3.5.1"
   }
 }

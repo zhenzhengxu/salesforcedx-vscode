@@ -1,8 +1,14 @@
+/*
+ * Copyright (c) 2017, salesforce.com, inc.
+ * All rights reserved.
+ * Licensed under the BSD 3-Clause license.
+ * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+ */
 import * as path from 'path';
 import { ExtensionContext, Memento } from 'vscode';
 
 class MockMemento implements Memento {
-  private telemetryGS: boolean;
+  private readonly telemetryGS: boolean;
 
   constructor(setGlobalState: boolean) {
     this.telemetryGS = setGlobalState;

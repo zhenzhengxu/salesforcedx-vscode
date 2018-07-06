@@ -6,5 +6,4 @@
  */
 import { TelemetryService } from './telemetry';
 
-export { SfdxTelemetry } from './sfdxTelemetry';
 export const telemetryService = TelemetryService.getInstance();

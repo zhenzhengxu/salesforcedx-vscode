@@ -1,14 +1,20 @@
-import vscode = require('vscode');
+/*
+ * Copyright (c) 2017, salesforce.com, inc.
+ * All rights reserved.
+ * Licensed under the BSD 3-Clause license.
+ * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+ */
+
+import { ExtensionContext, window } from 'vscode';
 import TelemetryReporter from 'vscode-extension-telemetry';
 import { nls } from '../messages';
 import { sfdxCoreSettings } from '../settings';
+import { SfdxTelemetry } from './sfdxTelemetry';
 
 const TELEMETRY_GLOBAL_VALUE = 'sfdxTelemetryMessage14'; // TODO: this will change until dev process of the feature is done.
 
-export class TelemetryService {
+export class TelemetryService extends SfdxTelemetry {
   private static instance: TelemetryService;
-  private context: vscode.ExtensionContext | undefined;
-  private reporter: TelemetryReporter | undefined;
 
   public static getInstance() {
     if (!TelemetryService.instance) {
@@ -18,29 +24,10 @@ export class TelemetryService {
   }
 
   public initializeService(
-    context: vscode.ExtensionContext
+    context: ExtensionContext
   ): TelemetryReporter | undefined {
-    this.context = context;
-
-    // TelemetryReporter is not initialized if user has disabled telemetry setting.
-    if (this.reporter === undefined && this.isTelemetryEnabled()) {
-      const extensionPackage = require(this.context.asAbsolutePath(
-        './package.json'
-      ));
-
-      this.reporter = new TelemetryReporter(
-        extensionPackage.name,
-        extensionPackage.version,
-        extensionPackage.aiKey
-      );
-      this.context.subscriptions.push(this.reporter);
-    }
-
-    return this.reporter;
-  }
-
-  public isTelemetryEnabled(): boolean {
-    return sfdxCoreSettings.getTelemetryEnabled();
+    this.setTelemetryEnabled(sfdxCoreSettings.getTelemetryEnabled());
+    return this.initializeReporter(context);
   }
 
   private getHasTelemetryMessageBeenShown(): boolean {
@@ -69,31 +56,12 @@ export class TelemetryService {
 
     if (showTelemetryMessage) {
       // this means we need to show the message and set telemetry to true;
-      const readMoreBtn = 'Read More';
-      vscode.window.showInformationMessage(
+      window.showInformationMessage(
         nls.localize('telemetry_legal_dialog_message'),
-        readMoreBtn
+        nls.localize('telemetry_legal_dialog_button_text')
       );
 
       this.setTelemetryMessageShowed();
-    }
-  }
-
-  public sendExtensionActivationEvent(): void {
-    if (this.reporter !== undefined && this.isTelemetryEnabled()) {
-      this.reporter.sendTelemetryEvent('activationEvent');
-    }
-  }
-
-  public sendExtensionDeactivationEvent(): void {
-    if (this.reporter !== undefined && this.isTelemetryEnabled()) {
-      this.reporter.sendTelemetryEvent('deactivationEvent');
-    }
-  }
-
-  public sendCommandEvent(commandName: string): void {
-    if (this.reporter !== undefined && this.isTelemetryEnabled()) {
-      this.reporter.sendTelemetryEvent('commandExecution', { commandName });
     }
   }
 }

@@ -67,7 +67,7 @@ import { isDemoMode } from './modes/demo-mode';
 import { notificationService } from './notifications';
 import { CANCEL_EXECUTION_COMMAND, cancelCommandExecution } from './statuses';
 import { CancellableStatusBar, taskViewService } from './statuses';
-import { createReporter, reporterMessage } from './telemetry';
+import { SfdxTelemetry, telemetryService } from './telemetry';
 
 function registerCommands(
   extensionContext: vscode.ExtensionContext
@@ -435,7 +435,8 @@ export async function activate(context: vscode.ExtensionContext) {
     notificationService,
     taskViewService,
     telemetryService,
-    getUserId
+    getUserId,
+    SfdxTelemetry
   };
 
   return api;
