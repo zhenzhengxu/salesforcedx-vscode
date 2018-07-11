@@ -445,8 +445,10 @@ export async function activate(context: vscode.ExtensionContext) {
 export function deactivate(): Promise<void> {
   console.log('SFDX CLI Extension Deactivated');
 
-  // Send metric data.
+  // Send deactivation event and dispose telemetry service.
   telemetryService.sendExtensionDeactivationEvent();
+  telemetryService.dispose();
+
   decorators.disposeTraceFlagExpiration();
   return turnOffLogging();
 }

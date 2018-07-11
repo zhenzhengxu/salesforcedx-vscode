@@ -16,9 +16,6 @@ import { telemetryService } from './telemetry';
 
 let languageClient: LanguageClient | undefined;
 let languageClientReady = false;
-const sfdxCoreExt = vscode.extensions.getExtension(
-  'salesforce.salesforcedx-vscode-core'
-);
 
 export async function activate(context: vscode.ExtensionContext) {
   languageClient = await languageServer.createLanguageServer(context);
@@ -30,6 +27,9 @@ export async function activate(context: vscode.ExtensionContext) {
   });
 
   // Telemetry
+  const sfdxCoreExt = vscode.extensions.getExtension(
+    'salesforce.salesforcedx-vscode-core'
+  );
   let isTelemetryEnabled = false;
   if (sfdxCoreExt && sfdxCoreExt.exports) {
     sfdxCoreExt.exports.telemetryService.showTelemetryMessage();

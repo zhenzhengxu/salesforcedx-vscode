@@ -11,7 +11,7 @@ import { nls } from '../messages';
 import { sfdxCoreSettings } from '../settings';
 import { SfdxTelemetry } from './sfdxTelemetry';
 
-const TELEMETRY_GLOBAL_VALUE = 'sfdxTelemetryMessage14'; // TODO: this will change until dev process of the feature is done.
+const TELEMETRY_GLOBAL_VALUE = 'sfdxTelemetryMessage15'; // TODO: this will change until dev process of the feature is done.
 
 export class TelemetryService extends SfdxTelemetry {
   private static instance: TelemetryService;
