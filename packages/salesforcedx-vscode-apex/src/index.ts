@@ -12,7 +12,7 @@ import {
   DEBUGGER_LINE_BREAKPOINTS
 } from './constants';
 import * as languageServer from './languageServer';
-import { telemetryService } from './telemetry';
+// import { telemetryService } from './telemetry';
 
 let languageClient: LanguageClient | undefined;
 let languageClientReady = false;
@@ -27,7 +27,7 @@ export async function activate(context: vscode.ExtensionContext) {
   });
 
   // Telemetry
-  const sfdxCoreExt = vscode.extensions.getExtension(
+  /* const sfdxCoreExt = vscode.extensions.getExtension(
     'salesforce.salesforcedx-vscode-core'
   );
   let isTelemetryEnabled = false;
@@ -37,7 +37,7 @@ export async function activate(context: vscode.ExtensionContext) {
   }
 
   telemetryService.initializeService(context, isTelemetryEnabled);
-  telemetryService.sendExtensionActivationEvent();
+  telemetryService.sendExtensionActivationEvent(); */
 
   const exportedApi = {
     getLineBreakpointInfo,
@@ -69,6 +69,6 @@ function isLanguageClientReady(): boolean {
 
 // tslint:disable-next-line:no-empty
 export function deactivate() {
-  telemetryService.sendExtensionDeactivationEvent();
-  telemetryService.dispose();
+  // telemetryService.sendExtensionDeactivationEvent();
+  // telemetryService.dispose();
 }

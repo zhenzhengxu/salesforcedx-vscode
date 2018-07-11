@@ -36,7 +36,6 @@
     "typescript": "2.6.2",
     "vscode": "1.1.17"
   },
-  "extensionDependencies": ["salesforce.salesforcedx-vscode-core"],
   "scripts": {
     "vscode:prepublish": "npm prune --production",
     "vscode:package": "vsce package",
@@ -94,7 +93,6 @@
     "expand-home-dir": "0.0.3",
     "find-java-home": "0.2.0",
     "path-exists": "3.0.0",
-    "vscode-extension-telemetry": "0.0.17",
     "vscode-languageclient": "3.5.1"
   }
 }
