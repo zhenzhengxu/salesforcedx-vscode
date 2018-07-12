@@ -2,6 +2,9 @@
 # https://github.com/github/gitignore/blob/master/Node.gitignore
 #
 
+# System generated files
+.DS_Store
+
 # TypeScript generated files
 dist/
 out/
