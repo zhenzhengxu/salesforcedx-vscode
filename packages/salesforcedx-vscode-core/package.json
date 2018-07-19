@@ -122,8 +122,7 @@
       "editor/context": [
         {
           "command": "sfdx.force.source.retrieve.current.file",
-          "when":
-            "sfdx:project_opened && config.salesforcedx-vscode-core.change_set_based_tools.enabled"
+          "when": "sfdx:project_opened && config.salesforcedx-vscode-core.change_set_based_tools.enabled"
         }
       ],
       "explorer/context": [
@@ -157,17 +156,11 @@
         },
         {
           "command": "sfdx.force.apex.trigger.create",
-<<<<<<< HEAD
           "when": "explorerResourceIsFolder && resourceFilename != aura && resourceFilename != lightningcomponents && sfdx:project_opened"
-=======
-          "when":
-            "explorerResourceIsFolder && resourceFilename != aura && resourceFilename != lightningcomponents && sfdx:project_opened"
         },
         {
           "command": "sfdx.force.source.retrieve",
-          "when":
-            "sfdx:project_opened && config.salesforcedx-vscode-core.change_set_based_tools.enabled"
->>>>>>> upstream/develop
+          "when": "sfdx:project_opened && config.salesforcedx-vscode-core.change_set_based_tools.enabled"
         }
       ],
       "commandPalette": [
