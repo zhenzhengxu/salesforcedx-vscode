@@ -14,7 +14,7 @@
     "color": "#ECECEC",
     "theme": "light"
   },
-  "version": "43.6.0",
+  "version": "43.8.0",
   "publisher": "salesforce",
   "license": "BSD-3-Clause",
   "engines": {
@@ -24,8 +24,8 @@
     "Other"
   ],
   "dependencies": {
-    "@salesforce/salesforcedx-sobjects-faux-generator": "43.6.0",
-    "@salesforce/salesforcedx-utils-vscode": "43.6.0",
+    "@salesforce/salesforcedx-sobjects-faux-generator": "43.8.0",
+    "@salesforce/salesforcedx-utils-vscode": "43.8.0",
     "adm-zip": "0.4.7",
     "glob": "^7.1.2",
     "moment": "2.20.1",
@@ -119,6 +119,13 @@
           "when": "view == sfdx.force.test.view && viewItem == apexTest"
         }
       ],
+      "editor/context": [
+        {
+          "command": "sfdx.force.source.retrieve.current.file",
+          "when":
+            "sfdx:project_opened && config.salesforcedx-vscode-core.change_set_based_tools.enabled"
+        }
+      ],
       "explorer/context": [
         {
           "command": "sfdx.force.apex.class.create",
@@ -150,7 +157,17 @@
         },
         {
           "command": "sfdx.force.apex.trigger.create",
+<<<<<<< HEAD
           "when": "explorerResourceIsFolder && resourceFilename != aura && resourceFilename != lightningcomponents && sfdx:project_opened"
+=======
+          "when":
+            "explorerResourceIsFolder && resourceFilename != aura && resourceFilename != lightningcomponents && sfdx:project_opened"
+        },
+        {
+          "command": "sfdx.force.source.retrieve",
+          "when":
+            "sfdx:project_opened && config.salesforcedx-vscode-core.change_set_based_tools.enabled"
+>>>>>>> upstream/develop
         }
       ],
       "commandPalette": [
@@ -319,6 +336,14 @@
         {
           "command": "sfdx.force.apex.log.get",
           "when": "sfdx:project_opened"
+        },
+        {
+          "command": "sfdx.force.source.retrieve",
+          "when": "false"
+        },
+        {
+          "command": "sfdx.force.source.retrieve.current.file",
+          "when": "false"
         }
       ]
     },
@@ -510,6 +535,14 @@
       {
         "command": "sfdx.force.apex.log.get",
         "title": "%force_apex_log_get_text%"
+      },
+      {
+        "command": "sfdx.force.source.retrieve",
+        "title": "%force_source_retrieve_text%"
+      },
+      {
+        "command": "sfdx.force.source.retrieve.current.file",
+        "title": "%force_source_retrieve_this_source_file_text%"
       }
     ],
     "configuration": {
