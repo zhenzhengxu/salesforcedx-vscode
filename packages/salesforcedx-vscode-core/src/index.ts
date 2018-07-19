@@ -428,9 +428,6 @@ export async function activate(context: vscode.ExtensionContext) {
     testOutlineProvider.updateDecorations();
   });
 
-  vscode.window.onDidChangeTextEditorSelection(() => {
-    testOutlineProvider.clearDecorations();
-  });
   // Task View
   const treeDataProvider = vscode.window.registerTreeDataProvider(
     'sfdx.force.tasks.view',

@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import crypto = require('crypto');
 import fs = require('fs');
 import ospath = require('path');
+// import rimraf = require('rimraf');
 import {
   CliCommandExecutor,
   Command
@@ -15,9 +16,13 @@ import { EmptyParametersGatherer } from '../commands/commands';
 import { ForceApexTestRunCodeActionExecutor } from '../commands/forceApexTestRunCodeAction';
 import { nls } from '../messages';
 
-const BLUE_BUTTON = ospath.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'BlueButton.svg');
-const RED_BUTTON = ospath.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'RedButton.svg');
-const GREEN_BUTTON = ospath.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'GreenButton.svg');
+const LIGHT_BLUE_BUTTON = ospath.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'light', 'testNotRun.svg');
+const LIGHT_RED_BUTTON = ospath.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'light', 'testFail.svg');
+const LIGHT_GREEN_BUTTON = ospath.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'light', 'testPass.svg');
+
+const DARK_BLUE_BUTTON = ospath.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'dark', 'testNotRun.svg');
+const DARK_RED_BUTTON = ospath.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'dark', 'testFail.svg');
+const DARK_GREEN_BUTTON = ospath.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'dark', 'testPass.svg');
 
 export type FullTestResult = {
   summary: TestSummary,
@@ -69,7 +74,6 @@ export type ApexGroupInfo = {
 };
 
 export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
-  private decorationsDisposable: vscode.Disposable[] = [];
   private _onDidChangeTreeData: vscode.EventEmitter<Test | undefined> = new vscode.EventEmitter<Test | undefined>();
   public readonly onDidChangeTreeData: vscode.Event<Test | undefined> = this._onDidChangeTreeData.event;
 
@@ -186,21 +190,12 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
       console.log('Error on line:' + this.errorLineNum);
       const editor = vscode.window.activeTextEditor;
       if (editor) {
-        const startPos = new vscode.Position(this.errorLineNum - 1, 0);
-        const endPos = new vscode.Position(this.errorLineNum - 1, 1);
-        const newDecoration = { range: new vscode.Range(startPos, endPos) };
-        const decoration = this.getErrorDecoration();
-        this.decorationsDisposable.push(decoration);
-        editor.setDecorations(decoration, [newDecoration]);
+        const line = editor.document.lineAt(this.errorLineNum - 1);
+        const startPos = new vscode.Position(this.errorLineNum - 1, line.firstNonWhitespaceCharacterIndex);
+        editor.selection = new vscode.Selection(startPos, line.range.end);
       }
     }
     this.errorLineNum = 0;
-  }
-
-  public clearDecorations() {
-    this.decorationsDisposable.forEach(decoration => {
-      decoration.dispose();
-    });
   }
 
   private getTempFolder(): string {
@@ -317,23 +312,23 @@ export abstract class Test extends vscode.TreeItem {
   }
 
   public iconPath = {
-    light: BLUE_BUTTON,
-    dark: BLUE_BUTTON
+    light: LIGHT_BLUE_BUTTON,
+    dark: DARK_BLUE_BUTTON
   };
 
   public updateIcon(outcome: string) {
     if (outcome === 'Pass') {
       // Passed Test
       this.iconPath = {
-        light: GREEN_BUTTON,
-        dark: GREEN_BUTTON
+        light: LIGHT_GREEN_BUTTON,
+        dark: DARK_GREEN_BUTTON
       };
 
     } else {
       // Failed test
       this.iconPath = {
-        light: RED_BUTTON,
-        dark: RED_BUTTON
+        light: LIGHT_RED_BUTTON,
+        dark: DARK_RED_BUTTON
       };
     }
   }

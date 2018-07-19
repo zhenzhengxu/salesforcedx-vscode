@@ -349,8 +349,8 @@
         "command": "sfdx.force.test.view.run",
         "title": "Run Tests",
         "icon": {
-          "light": "../../resources/run.svg",
-          "dark": "../../resources/run.svg"
+          "light": "../../resources/light/play-button.svg",
+          "dark": "../../resources/dark/play-button.svg"
         }
       },
       {
