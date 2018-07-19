@@ -209,15 +209,6 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
     return '';
   }
 
-  private getErrorDecoration(): vscode.TextEditorDecorationType {
-    const decorationType = vscode.window.createTextEditorDecorationType({
-      isWholeLine: true,
-      backgroundColor: '#FF6666',
-      borderColor: '#FF6666'
-    });
-    return decorationType;
-  }
-
   public async runApexTests(): Promise<void> {
     const tmpFolder = this.getTempFolder();
     const builder = new ReadableApexTestRunCodeActionExecutor(ApexTestOutlineProvider.testStrings, true, tmpFolder, this);
@@ -422,6 +413,7 @@ export class ReadableApexTestRunCodeActionExecutor extends ForceApexTestRunCodeA
     const execution = new CliCommandExecutor(this.build(response.data), {
       cwd: vscode.workspace.rootPath
     }).execute(cancellationToken);
+
     this.attachExecution(execution, cancellationTokenSource, cancellationToken);
 
     execution.processExitSubject.subscribe(status => {
