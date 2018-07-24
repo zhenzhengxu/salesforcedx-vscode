@@ -116,7 +116,13 @@
         },
         {
           "command": "sfdx.force.test.view.showError",
-          "when": "view == sfdx.force.test.view && viewItem == apexTest"
+          "when": "view == sfdx.force.test.view && viewItem == apexTest",
+          "group": "inline"
+        },
+        {
+          "command": "sfdx.force.test.view.runSingleTest",
+          "when": "view == sfdx.force.test.view && viewItem == apexTest",
+          "group": "inline"
         }
       ],
       "editor/context": [
@@ -363,7 +369,19 @@
       },
       {
         "command": "sfdx.force.test.view.showError",
-        "title": "Display Errors"
+        "title": "Display Errors",
+        "icon": {
+          "light": "../../resources/light/document/notRun.svg",
+          "dark": "../../resources/dark/document/notRun.svg"
+        }
+      },
+      {
+        "command": "sfdx.force.test.view.runSingleTest",
+        "title": "Run Single Test",
+        "icon": {
+          "light": "../../resources/light/play-side.svg",
+          "dark": "../../resources/dark/play-side.svg"
+        }
       },
       {
         "command": "sfdx.force.auth.web.login",

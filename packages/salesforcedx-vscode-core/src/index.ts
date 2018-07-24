@@ -8,6 +8,7 @@
 import * as path from 'path';
 import { ConfigurationTarget } from 'vscode';
 import * as vscode from 'vscode';
+// import * as languageServer from '../../salesforcedx-vscode-apex/src/languageServer';
 import { channelService } from './channels';
 import {
   CompositeParametersGatherer,
@@ -339,6 +340,16 @@ function registerIsvAuthWatcher(): vscode.Disposable {
 export async function activate(context: vscode.ExtensionContext) {
   console.log('SFDX CLI Extension Activated');
 
+  // const languageClient = await languageServer.createLanguageServer(context);
+  // const handle = languageClient.start();
+
+  // context.subscriptions.push(handle);
+
+  // let languageClientReady = false;
+  // languageClient.onReady().then(() => {
+  //   languageClientReady = true;
+  // });
+
   // Context
   let sfdxProjectOpened = false;
   if (vscode.workspace.rootPath) {
@@ -411,6 +422,10 @@ export async function activate(context: vscode.ExtensionContext) {
 
   // Test View
   const rootPath = vscode.workspace.rootPath || '';
+  // let response = {};
+  // if (languageClient) {
+  //   response = await languageClient.sendRequest();
+  // }
   const apexClasses = await vscode.workspace.findFiles('**/*.cls');
   const testOutlineProvider = new ApexTestOutlineProvider(rootPath, apexClasses);
   const testProvider = vscode.window.registerTreeDataProvider('sfdx.force.test.view', testOutlineProvider);
@@ -420,13 +435,11 @@ export async function activate(context: vscode.ExtensionContext) {
   vscode.commands.registerCommand('sfdx.force.test.view.run', () => testOutlineProvider.runApexTests());
   // Show Error Message command
   vscode.commands.registerCommand('sfdx.force.test.view.showError', test => testOutlineProvider.showErrorMessage(test));
+  // Run Single Test command
+  vscode.commands.registerCommand('sfdx.force.test.view.runSingleTest', test => testOutlineProvider.runSingleTest(test));
   // Refresh Test View command
   vscode.commands.registerCommand('sfdx.force.test.view.refresh', () => testOutlineProvider.refresh());
 
-  // Editor change
-  vscode.window.onDidChangeActiveTextEditor(() => {
-    testOutlineProvider.updateDecorations();
-  });
 
   // Task View
   const treeDataProvider = vscode.window.registerTreeDataProvider(

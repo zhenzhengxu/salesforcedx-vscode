@@ -10,9 +10,11 @@ import {
   SfdxCommandBuilder
 } from '@salesforce/salesforcedx-utils-vscode/out/src/cli';
 import * as vscode from 'vscode';
+// import { testOutlineProvider } from '..';
 import { nls } from '../messages';
 import { notificationService } from '../notifications';
 import { sfdxCoreSettings } from '../settings';
+import { ApexTestOutlineProvider, ReadableApexTestRunCodeActionExecutor } from '../views/testOutline';
 import {
   EmptyParametersGatherer,
   SfdxCommandlet,
@@ -93,11 +95,20 @@ async function forceApexTestRunCodeAction(test: string) {
   const getCodeCoverage: boolean = sfdxCoreSettings
     .getConfiguration()
     .get('retrieve-test-code-coverage') as boolean;
-  const commandlet = new SfdxCommandlet(
+  let commandlet: SfdxCommandlet<{}>;
+  // if (vscode.workspace.rootPath) {
+  //   commandlet = new SfdxCommandlet(
+  //     new SfdxWorkspaceChecker(),
+  //     new EmptyParametersGatherer(),
+  //     new ReadableApexTestRunCodeActionExecutor([test], getCodeCoverage, testOutlineProvider.getTempFolder(), testOutlineProvider)
+  //   );
+  // } else {
+  commandlet = new SfdxCommandlet(
     new SfdxWorkspaceChecker(),
     new EmptyParametersGatherer(),
     new ForceApexTestRunCodeActionExecutor(test, getCodeCoverage)
   );
+  // }
   await commandlet.run();
 }
 
