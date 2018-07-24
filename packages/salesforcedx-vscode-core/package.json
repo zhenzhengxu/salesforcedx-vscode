@@ -128,17 +128,11 @@
       "editor/context": [
         {
           "command": "sfdx.force.source.retrieve.current.file",
-<<<<<<< HEAD
           "when": "sfdx:project_opened && config.salesforcedx-vscode-core.change_set_based_tools.enabled"
-=======
-          "when":
-            "sfdx:project_opened && config.salesforcedx-vscode-core.change_set_based_tools.enabled"
         },
         {
           "command": "sfdx.force.source.deploy.current.file",
-          "when":
-            "sfdx:project_opened && config.salesforcedx-vscode-core.change_set_based_tools.enabled"
->>>>>>> db32fe1ac65c5a995078559ba5a5a7b12a5280ef
+          "when": "sfdx:project_opened && config.salesforcedx-vscode-core.change_set_based_tools.enabled"
         }
       ],
       "explorer/context": [
@@ -176,17 +170,11 @@
         },
         {
           "command": "sfdx.force.source.retrieve",
-<<<<<<< HEAD
           "when": "sfdx:project_opened && config.salesforcedx-vscode-core.change_set_based_tools.enabled"
-=======
-          "when":
-            "sfdx:project_opened && config.salesforcedx-vscode-core.change_set_based_tools.enabled"
         },
         {
           "command": "sfdx.force.source.deploy",
-          "when":
-            "sfdx:project_opened && config.salesforcedx-vscode-core.change_set_based_tools.enabled"
->>>>>>> db32fe1ac65c5a995078559ba5a5a7b12a5280ef
+          "when": "sfdx:project_opened && config.salesforcedx-vscode-core.change_set_based_tools.enabled"
         }
       ],
       "commandPalette": [
