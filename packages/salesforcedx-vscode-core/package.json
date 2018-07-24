@@ -128,7 +128,17 @@
       "editor/context": [
         {
           "command": "sfdx.force.source.retrieve.current.file",
+<<<<<<< HEAD
           "when": "sfdx:project_opened && config.salesforcedx-vscode-core.change_set_based_tools.enabled"
+=======
+          "when":
+            "sfdx:project_opened && config.salesforcedx-vscode-core.change_set_based_tools.enabled"
+        },
+        {
+          "command": "sfdx.force.source.deploy.current.file",
+          "when":
+            "sfdx:project_opened && config.salesforcedx-vscode-core.change_set_based_tools.enabled"
+>>>>>>> db32fe1ac65c5a995078559ba5a5a7b12a5280ef
         }
       ],
       "explorer/context": [
@@ -166,7 +176,17 @@
         },
         {
           "command": "sfdx.force.source.retrieve",
+<<<<<<< HEAD
           "when": "sfdx:project_opened && config.salesforcedx-vscode-core.change_set_based_tools.enabled"
+=======
+          "when":
+            "sfdx:project_opened && config.salesforcedx-vscode-core.change_set_based_tools.enabled"
+        },
+        {
+          "command": "sfdx.force.source.deploy",
+          "when":
+            "sfdx:project_opened && config.salesforcedx-vscode-core.change_set_based_tools.enabled"
+>>>>>>> db32fe1ac65c5a995078559ba5a5a7b12a5280ef
         }
       ],
       "commandPalette": [
@@ -341,7 +361,15 @@
           "when": "false"
         },
         {
+          "command": "sfdx.force.source.deploy",
+          "when": "false"
+        },
+        {
           "command": "sfdx.force.source.retrieve.current.file",
+          "when": "false"
+        },
+        {
+          "command": "sfdx.force.source.deploy.current.file",
           "when": "false"
         }
       ]
@@ -554,6 +582,14 @@
       {
         "command": "sfdx.force.source.retrieve.current.file",
         "title": "%force_source_retrieve_this_source_file_text%"
+      },
+      {
+        "command": "sfdx.force.source.deploy",
+        "title": "%force_source_deploy_text%"
+      },
+      {
+        "command": "sfdx.force.source.deploy.current.file",
+        "title": "%force_source_deploy_this_source_file_text%"
       }
     ],
     "configuration": {
