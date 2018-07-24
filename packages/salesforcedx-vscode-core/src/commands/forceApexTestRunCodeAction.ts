@@ -14,7 +14,7 @@ import * as vscode from 'vscode';
 import { nls } from '../messages';
 import { notificationService } from '../notifications';
 import { sfdxCoreSettings } from '../settings';
-import { ApexTestOutlineProvider, ReadableApexTestRunCodeActionExecutor } from '../views/testOutline';
+// import { ApexTestOutlineProvider, ReadableApexTestRunCodeActionExecutor } from '../views/testOutline';
 import {
   EmptyParametersGatherer,
   SfdxCommandlet,

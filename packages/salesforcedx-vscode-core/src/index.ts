@@ -440,7 +440,6 @@ export async function activate(context: vscode.ExtensionContext) {
   // Refresh Test View command
   vscode.commands.registerCommand('sfdx.force.test.view.refresh', () => testOutlineProvider.refresh());
 
-
   // Task View
   const treeDataProvider = vscode.window.registerTreeDataProvider(
     'sfdx.force.tasks.view',

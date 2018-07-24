@@ -498,7 +498,7 @@ export class ReadableApexTestRunCodeActionExecutor extends ForceApexTestRunCodeA
       this.apexTestOutline.readJSONFile(this.outputToJson);
     });
 
-    this.attachExecution(execution, cancellationTokenSource, cancellationToken);
+    await this.attachExecution(execution, cancellationTokenSource, cancellationToken);
   }
 
 }
