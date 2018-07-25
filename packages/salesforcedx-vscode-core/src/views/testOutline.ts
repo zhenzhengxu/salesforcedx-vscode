@@ -10,11 +10,14 @@ import {
 import {
   ContinueResponse
 } from '@salesforce/salesforcedx-utils-vscode/out/src/types';
+import { ApexTestInfo } from '..';
 import { channelService } from '../channels';
 import { SfdxCommandlet, SfdxWorkspaceChecker } from '../commands';
 import { EmptyParametersGatherer } from '../commands/commands';
 import { ForceApexTestRunCodeActionExecutor } from '../commands/forceApexTestRunCodeAction';
 import { nls } from '../messages';
+import { notificationService, ProgressNotification } from '../notifications';
+import { taskViewService } from '../statuses';
 
 const LIGHT_BLUE_BUTTON = ospath.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'light', 'testNotRun.svg');
 const LIGHT_RED_BUTTON = ospath.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'light', 'testFail.svg');
@@ -78,11 +81,14 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
 
   private apexTestMap: Map<string, Test> = new Map<string, Test>();
   private head: Test | null;
-  private static testStrings: string[] = new Array<string>();
+  private static testStrings: Set<string> = new Set<string>();
 
-  constructor(private path: string, private apexClasses: vscode.Uri[]) {
+  constructor(private path: string, private apexClasses: vscode.Uri[], private apexTestInfo: ApexTestInfo[] | null) {
     this.head = null;
     this.getAllApexTests(this.path);
+    // Now, activate events that we need
+    this.eventsEmitter.on('Delete Folder', this.deleteFolderRecursive); // Activate event to delete folder
+    this.eventsEmitter.on('Show Highlight', this.updateSelection);
   }
 
   public getChildren(element: Test): Thenable<Test[]> {
@@ -101,6 +107,13 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
 
   public async refresh() {
     this.head = null; // Reset tests
+    this.apexTestMap.clear();
+    ApexTestOutlineProvider.testStrings.clear();
+    const sfdxApex = vscode.extensions.getExtension('salesforce.salesforcedx-vscode-apex');
+    this.apexTestInfo = null;
+    if (sfdxApex && sfdxApex.exports.isLanguageClientReady()) {
+      this.apexTestInfo = (await sfdxApex.exports.getApexTests()) as ApexTestInfo[];
+    }
     this.apexClasses = await vscode.workspace.findFiles('**/*.cls');
     this.getAllApexTests(this.path);
     this._onDidChangeTreeData.fire();
@@ -123,23 +136,40 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
     if (this.head == null) { // Starting Out
       this.head = new ApexTestGroup('ApexTests', null, 0);
     }
-    this.apexClasses.forEach(apexClass => {
-      const fileContent = fs.readFileSync(apexClass.fsPath).toString();
-      if (fileContent && fileContent.toLowerCase().includes('@istest')) {
-        const testName = ospath.basename(apexClass.toString()).replace('.cls', '');
-        const newApexTestGroup = new ApexTestGroup(testName, apexClass, 0);
-        this.apexTestMap.set(testName, newApexTestGroup);
-        this.addTests(fileContent, newApexTestGroup);
-        ApexTestOutlineProvider.testStrings.push(testName);
-        if (this.head) {
-          this.head.children.push(newApexTestGroup);
+    if (this.apexTestInfo) {
+      // Do it the easy way
+      this.apexTestInfo.forEach(test => {
+        let apexGroup = this.apexTestMap.get(test.parent) as ApexTestGroup;
+        if (!apexGroup) {
+          apexGroup = new ApexTestGroup(test.parent, null, 0);
+          this.apexTestMap.set(test.parent, apexGroup);
         }
-      }
-    });
-    // Now, active events that we need
-    this.eventsEmitter.on('Delete Folder', this.deleteFolderRecursive); // Activate event to delete folder
-    this.eventsEmitter.on('Show Highlight', this.updateSelection);
+        const testUri = vscode.Uri.file(test.file);
+        const apexTest = new ApexTest(test.methodName, testUri, test.line);
+        apexTest.fullName = apexGroup.label + '.' + apexTest.label;
+        this.apexTestMap.set(apexTest.fullName, apexTest);
+        apexGroup.children.push(apexTest);
+        if (this.head && !this.head.children.includes(apexGroup)) {
+          this.head.children.push(apexGroup);
+        }
+        ApexTestOutlineProvider.testStrings.add(apexGroup.name);
 
+      });
+    } else {
+      this.apexClasses.forEach(apexClass => {
+        const fileContent = fs.readFileSync(apexClass.fsPath).toString();
+        if (fileContent && fileContent.toLowerCase().includes('@istest')) {
+          const testName = ospath.basename(apexClass.toString()).replace('.cls', '');
+          const newApexTestGroup = new ApexTestGroup(testName, apexClass, 0);
+          this.apexTestMap.set(testName, newApexTestGroup);
+          this.addTests(fileContent, newApexTestGroup);
+          ApexTestOutlineProvider.testStrings.add(testName);
+          if (this.head) {
+            this.head.children.push(newApexTestGroup);
+          }
+        }
+      });
+    }
   }
 
   private addTests(fileContent: string, apexTestGroup: ApexTestGroup): void {
@@ -191,12 +221,12 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
   public async showErrorMessage(test: ApexTest) {
     const errorMessage = test.errorMessage;
     let position = 0;
-    let isError = false;
+    let isRow = false;
 
     if (errorMessage && errorMessage !== '') {
       const stackTrace = test.stackTrace;
       position = parseInt(stackTrace.substring(stackTrace.indexOf('line') + 4, stackTrace.indexOf(',')), 10);
-      isError = true;
+      isRow = true;
       channelService.appendLine('-----------------------------------------------------------');
       channelService.appendLine(stackTrace);
       channelService.appendLine(errorMessage);
@@ -206,21 +236,14 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
       // Just go to the text
       if (test.file) {
         position = test.row;
-        isError = false;
+        isRow = (this.apexTestInfo !== null); // If I derived the test from Apex background, then I have line number. Othewise I have an index
       }
     }
 
     if (test.file) {
-      vscode.window.showTextDocument(test.file);
-      this.eventsEmitter.emit('Show Highlight', position, isError);
-      // if (vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.uri.toString() === test.file.toString()) {
-      //   // Don't need to wait to change
-      //   this.updateSelection(position, isError);
-      // } else { // Subscribe to window changing event
-      //   vscode.window.onDidChangeActiveTextEditor(() => {
-      //     this.updateSelection(position, isError);
-      //   });
-      // }
+      vscode.window.showTextDocument(test.file).then(() => {
+        this.eventsEmitter.emit('Show Highlight', position, isRow);
+      });
     }
   }
 
@@ -234,26 +257,24 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
     await commandlet.run();
   }
 
-  public updateSelection(position: number, isError: boolean) {
-    if (isError) { // here because of an error
-      console.log('Error on line:' + position);
+  public updateSelection(position: number, isRow: boolean) {
+    if (isRow) {
       const editor = vscode.window.activeTextEditor;
       if (editor) {
         const line = editor.document.lineAt(position - 1);
         const startPos = new vscode.Position(line.lineNumber, line.firstNonWhitespaceCharacterIndex);
         editor.selection = new vscode.Selection(startPos, line.range.end);
+        editor.revealRange(new vscode.Range(startPos, line.range.end)); // Show selection hopefully
       }
-    } else { // here to show something
+    } else {
       const editor = vscode.window.activeTextEditor;
       if (editor) {
         const pos = editor.document.positionAt(position);
         const line = editor.document.lineAt(pos.line);
         const startPos = new vscode.Position(line.lineNumber, line.firstNonWhitespaceCharacterIndex);
-        console.log(position);
-        console.log(line);
         editor.selection = new vscode.Selection(startPos, line.range.end);
+        editor.revealRange(new vscode.Range(startPos, line.range.end));
       }
-
     }
   }
 
@@ -269,8 +290,9 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
   }
 
   public async runApexTests(): Promise<void> {
+    await this.refresh();
     const tmpFolder = this.getTempFolder();
-    const builder = new ReadableApexTestRunCodeActionExecutor(ApexTestOutlineProvider.testStrings, false, tmpFolder, this);
+    const builder = new ReadableApexTestRunCodeActionExecutor(Array.from(ApexTestOutlineProvider.testStrings.values()), false, tmpFolder, this);
     const commandlet = new SfdxCommandlet(
       new SfdxWorkspaceChecker(),
       new EmptyParametersGatherer(),
@@ -281,46 +303,53 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
   public readJSONFile(folderName: string) {
     if (vscode.workspace.rootPath) {
       const fullFolderName = ospath.resolve(vscode.workspace.rootPath, folderName);
-      const files = fs.readdirSync(fullFolderName);
-      let fileName = files[0];
-      for (const file of files) {
-        if (file !== 'test-result-codecoverage.json' && ospath.extname(file) === '.json' && file.startsWith('test-result')) {
-          fileName = file;
-        }
-      }
-      fileName = ospath.join(fullFolderName, fileName);
-      const output = fs.readFileSync(fileName).toString();
-      const jsonSummary = JSON.parse(output) as FullTestResult;
-      const groupInfo = new Map<ApexTestGroup, TestSummary>();
-      for (const testResult of jsonSummary.tests) {
-        const apexGroupName = testResult.FullName.split('.')[0];
-        const apexGroup = this.apexTestMap.get(apexGroupName) as ApexTestGroup;
-        // Check if new group, if so, set to pass
-        if (apexGroup && !groupInfo.get(apexGroup)) {
-          groupInfo.set(apexGroup, jsonSummary.summary);
-        }
-        const currentInfo = groupInfo.get(apexGroup);
-        if (currentInfo) {
-          groupInfo.set(apexGroup, currentInfo);
-        }
-        const apexTest = this.apexTestMap.get(testResult.FullName) as ApexTest;
-        apexTest.passed = true;
-        if (apexTest) {
-          apexTest.updateIcon(testResult.Outcome);
-          if (testResult.Outcome === 'Fail') {
-            apexTest.passed = false;
-            apexTest.errorMessage = testResult.Message;
-            apexTest.stackTrace = testResult.StackTrace;
-          }
-        }
-      }
-      groupInfo.forEach((summary, group) => {
-        group.updatePassFailLabel();
-        group.description = this.summarize(summary);
-      });
+      const jsonSummary = this.getJSONFileOutput(folderName);
+      this.UpdateTestsFromJSON(jsonSummary);
       this._onDidChangeTreeData.fire();
       this.eventsEmitter.emit('Delete Folder', fullFolderName);
     }
+  }
+
+  private getJSONFileOutput(fullFolderName: string): FullTestResult {
+    const files = fs.readdirSync(fullFolderName);
+    let fileName = files[0];
+    for (const file of files) {
+      if (file !== 'test-result-codecoverage.json' && ospath.extname(file) === '.json' && file.startsWith('test-result')) {
+        fileName = file;
+      }
+    }
+    fileName = ospath.join(fullFolderName, fileName);
+    const output = fs.readFileSync(fileName).toString();
+    const jsonSummary = JSON.parse(output) as FullTestResult;
+    return jsonSummary;
+  }
+
+  private UpdateTestsFromJSON(jsonSummary: FullTestResult) {
+    const groups = new Set<ApexTestGroup>();
+    for (const testResult of jsonSummary.tests) {
+      const apexGroupName = testResult.FullName.split('.')[0];
+      const apexGroup = this.apexTestMap.get(apexGroupName) as ApexTestGroup;
+      // Check if new group, if so, set to pass
+      if (apexGroup) {
+        groups.add(apexGroup);
+      }
+      const apexTest = this.apexTestMap.get(testResult.FullName) as ApexTest;
+      apexTest.passed = true;
+      if (apexTest) {
+        apexTest.updateIcon(testResult.Outcome);
+        if (testResult.Outcome === 'Fail') {
+          apexTest.passed = false;
+          apexTest.errorMessage = testResult.Message;
+          apexTest.stackTrace = testResult.StackTrace;
+          apexTest.description = apexTest.stackTrace + '\n' +
+            apexTest.errorMessage;
+        }
+      }
+    }
+    groups.forEach(group => {
+      group.updatePassFailLabel();
+      group.description = this.summarize(jsonSummary.summary);
+    });
   }
 
   private summarize(summary: TestSummary): string {
@@ -348,6 +377,7 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
 
 export abstract class Test extends vscode.TreeItem {
   public children = new Array<Test>();
+  public description: string;
 
   constructor(
     public label: string,
@@ -356,12 +386,17 @@ export abstract class Test extends vscode.TreeItem {
     public row: number
   ) {
     super(label, collapsibleState);
+    this.description = label;
   }
 
   public iconPath = {
     light: LIGHT_BLUE_BUTTON,
     dark: DARK_BLUE_BUTTON
   };
+
+  get tooltip(): string {
+    return this.description;
+  }
 
   public updateIcon(outcome: string) {
     if (outcome === 'Pass') {
@@ -384,7 +419,6 @@ export abstract class Test extends vscode.TreeItem {
 }
 
 export class ApexTestGroup extends Test {
-  public description: string;
   public name: string;
 
   constructor(
@@ -394,7 +428,6 @@ export class ApexTestGroup extends Test {
   ) {
     super(label, vscode.TreeItemCollapsibleState.Expanded, file, row);
     this.name = label;
-    this.description = this.label;
   }
 
   public contextValue = 'apexTestGroup';
@@ -412,10 +445,6 @@ export class ApexTestGroup extends Test {
     } else {
       this.updateIcon('Fail');
     }
-  }
-
-  get tooltip(): string {
-    return this.description;
   }
 
   public updateIcon(outcome: string) {
@@ -443,10 +472,6 @@ export class ApexTest extends Test {
   ) {
     super(label, vscode.TreeItemCollapsibleState.None, file, row);
     this.fullName = label;
-  }
-
-  get tooltip(): string {
-    return this.label;
   }
 
   public updateIcon(outcome: string) {
@@ -498,7 +523,21 @@ export class ReadableApexTestRunCodeActionExecutor extends ForceApexTestRunCodeA
       this.apexTestOutline.readJSONFile(this.outputToJson);
     });
 
-    await this.attachExecution(execution, cancellationTokenSource, cancellationToken);
+    channelService.streamCommandOutput(execution);
+
+    if (this.showChannelOutput) {
+      channelService.showChannelOutput();
+    }
+
+    await ProgressNotification.show(execution, cancellationTokenSource);
+
+    notificationService.reportCommandExecutionStatus(
+      execution,
+      cancellationToken
+    );
+
+    taskViewService.addCommandExecution(execution, cancellationTokenSource);
+
   }
 
 }

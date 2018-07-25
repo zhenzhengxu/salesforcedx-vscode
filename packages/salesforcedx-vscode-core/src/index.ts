@@ -7,7 +7,7 @@
 import * as path from 'path';
 import { ConfigurationTarget } from 'vscode';
 import * as vscode from 'vscode';
-// import * as languageServer from '../../salesforcedx-vscode-apex/src/languageServer';
+// import { LanguageClient } from '../node_modules/vscode-languageclient/lib/main';
 import { channelService } from './channels';
 import {
   CompositeParametersGatherer,
@@ -70,6 +70,13 @@ import { isDemoMode } from './modes/demo-mode';
 import { notificationService, ProgressNotification } from './notifications';
 import { taskViewService } from './statuses';
 import { ApexTestOutlineProvider } from './views/testOutline';
+
+export type ApexTestInfo = {
+  methodName: string,
+  parent: string,
+  line: number,
+  file: string
+};
 
 function registerCommands(
   extensionContext: vscode.ExtensionContext
@@ -345,16 +352,6 @@ function registerIsvAuthWatcher(): vscode.Disposable {
 export async function activate(context: vscode.ExtensionContext) {
   console.log('SFDX CLI Extension Activated');
 
-  // const languageClient = await languageServer.createLanguageServer(context);
-  // const handle = languageClient.start();
-
-  // context.subscriptions.push(handle);
-
-  // let languageClientReady = false;
-  // languageClient.onReady().then(() => {
-  //   languageClientReady = true;
-  // });
-
   // Context
   let sfdxProjectOpened = false;
   if (vscode.workspace.rootPath) {
@@ -427,12 +424,15 @@ export async function activate(context: vscode.ExtensionContext) {
 
   // Test View
   const rootPath = vscode.workspace.rootPath || '';
-  // let response = {};
-  // if (languageClient) {
-  //   response = await languageClient.sendRequest();
-  // }
-  const apexClasses = await vscode.workspace.findFiles('**/*.cls');
-  const testOutlineProvider = new ApexTestOutlineProvider(rootPath, apexClasses);
+  const sfdxApex = vscode.extensions.getExtension('salesforce.salesforcedx-vscode-apex');
+
+  let apexClasses: ApexTestInfo[] | null = null;
+  if (sfdxApex && sfdxApex.exports.isLanguageClientReady()) {
+    apexClasses = (await sfdxApex.exports.getApexTests()) as ApexTestInfo[];
+  }
+
+  const apexClassesDocs = await vscode.workspace.findFiles('**/*.cls');
+  const testOutlineProvider = new ApexTestOutlineProvider(rootPath, apexClassesDocs, apexClasses);
   const testProvider = vscode.window.registerTreeDataProvider('sfdx.force.test.view', testOutlineProvider);
   context.subscriptions.push(testProvider);
 
@@ -464,6 +464,7 @@ export async function activate(context: vscode.ExtensionContext) {
   }
 
   const api: any = {
+    //  requestApexTests,
     ProgressNotification,
     CompositeParametersGatherer,
     SelectFileName,
@@ -479,6 +480,15 @@ export async function activate(context: vscode.ExtensionContext) {
 
   return api;
 }
+
+// export async function requestApexTests(): Promise<any> {
+//   let response = {};
+//   if (languageClient) {
+//     response = await languageClient.sendRequest('apexTests/getTestMethods');
+//   }
+//   console.log(response);
+//   return Promise.resolve(response);
+// }
 
 export function deactivate(): Promise<void> {
   console.log('SFDX CLI Extension Deactivated');

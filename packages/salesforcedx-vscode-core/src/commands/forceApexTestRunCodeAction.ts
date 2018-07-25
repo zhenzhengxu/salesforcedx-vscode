@@ -96,19 +96,11 @@ async function forceApexTestRunCodeAction(test: string) {
     .getConfiguration()
     .get('retrieve-test-code-coverage') as boolean;
   let commandlet: SfdxCommandlet<{}>;
-  // if (vscode.workspace.rootPath) {
-  //   commandlet = new SfdxCommandlet(
-  //     new SfdxWorkspaceChecker(),
-  //     new EmptyParametersGatherer(),
-  //     new ReadableApexTestRunCodeActionExecutor([test], getCodeCoverage, testOutlineProvider.getTempFolder(), testOutlineProvider)
-  //   );
-  // } else {
   commandlet = new SfdxCommandlet(
     new SfdxWorkspaceChecker(),
     new EmptyParametersGatherer(),
     new ForceApexTestRunCodeActionExecutor(test, getCodeCoverage)
   );
-  // }
   await commandlet.run();
 }
 
