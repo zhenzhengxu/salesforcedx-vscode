@@ -427,23 +427,30 @@ export async function activate(context: vscode.ExtensionContext) {
   const sfdxApex = vscode.extensions.getExtension('salesforce.salesforcedx-vscode-apex');
 
   let apexClasses: ApexTestInfo[] | null = null;
-  if (sfdxApex && sfdxApex.exports.isLanguageClientReady()) {
-    apexClasses = (await sfdxApex.exports.getApexTests()) as ApexTestInfo[];
+  if (sfdxApex && sfdxApex.isActive) {
+    if (sfdxApex.exports.isLanguageClientReady()) {
+      apexClasses = (await sfdxApex.exports.getApexTests()) as ApexTestInfo[];
+    }
   }
 
   const apexClassesDocs = await vscode.workspace.findFiles('**/*.cls');
   const testOutlineProvider = new ApexTestOutlineProvider(rootPath, apexClassesDocs, apexClasses);
+
+  const testViewItems = new Array<vscode.Disposable>();
+
   const testProvider = vscode.window.registerTreeDataProvider('sfdx.force.test.view', testOutlineProvider);
-  context.subscriptions.push(testProvider);
+  testViewItems.push(testProvider);
 
   // Run Test Button on Test View command
-  vscode.commands.registerCommand('sfdx.force.test.view.run', () => testOutlineProvider.runApexTests());
+  testViewItems.push(vscode.commands.registerCommand('sfdx.force.test.view.run', () => testOutlineProvider.runApexTests()));
   // Show Error Message command
-  vscode.commands.registerCommand('sfdx.force.test.view.showError', test => testOutlineProvider.showErrorMessage(test));
+  testViewItems.push(vscode.commands.registerCommand('sfdx.force.test.view.showError', test => testOutlineProvider.showErrorMessage(test)));
   // Run Single Test command
-  vscode.commands.registerCommand('sfdx.force.test.view.runSingleTest', test => testOutlineProvider.runSingleTest(test));
+  testViewItems.push(vscode.commands.registerCommand('sfdx.force.test.view.runSingleTest', test => testOutlineProvider.runSingleTest(test)));
   // Refresh Test View command
-  vscode.commands.registerCommand('sfdx.force.test.view.refresh', () => testOutlineProvider.refresh());
+  testViewItems.push(vscode.commands.registerCommand('sfdx.force.test.view.refresh', () => testOutlineProvider.refresh()));
+
+  context.subscriptions.push(...testViewItems);
 
   // Task View
   const treeDataProvider = vscode.window.registerTreeDataProvider(

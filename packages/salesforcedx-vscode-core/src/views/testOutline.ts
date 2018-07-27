@@ -91,6 +91,13 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
     this.eventsEmitter.on('Show Highlight', this.updateSelection);
   }
 
+  public getHead(): Test {
+    if (this.head === null) {
+      return this.getAllApexTests(this.path);
+    }
+    return this.head;
+  }
+
   public getChildren(element: Test): Thenable<Test[]> {
     if (element) {
       return Promise.resolve(element.children);
@@ -105,13 +112,26 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
     }
   }
 
+  public getTreeItem(element: Test): vscode.TreeItem {
+    if (element) {
+      return element;
+    } else {
+      this.getAllApexTests(this.path);
+      if (!(this.head && this.head.children.length > 0)) {
+        this.head = new ApexTest('No tests in folder', null, 0);
+        this.head.children.push(new ApexTest('No tests in folder', null, 0));
+      }
+      return this.head;
+    }
+  }
+
   public async refresh() {
     this.head = null; // Reset tests
     this.apexTestMap.clear();
     ApexTestOutlineProvider.testStrings.clear();
     const sfdxApex = vscode.extensions.getExtension('salesforce.salesforcedx-vscode-apex');
     this.apexTestInfo = null;
-    if (sfdxApex && sfdxApex.exports.isLanguageClientReady()) {
+    if (sfdxApex && sfdxApex.isActive && sfdxApex.exports.isLanguageClientReady()) {
       this.apexTestInfo = (await sfdxApex.exports.getApexTests()) as ApexTestInfo[];
     }
     this.apexClasses = await vscode.workspace.findFiles('**/*.cls');
@@ -119,20 +139,7 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
     this._onDidChangeTreeData.fire();
   }
 
-  public getTreeItem(element: Test): vscode.TreeItem {
-    if (element) {
-      return element;
-    } else {
-      this.getAllApexTests(this.path);
-      if (this.head && this.head.children.length > 0) {
-        return this.head;
-      } else {
-        return new ApexTest('No tests in folder', null, 0);
-      }
-    }
-  }
-
-  private getAllApexTests(path: string): void {
+  private getAllApexTests(path: string): Test {
     if (this.head == null) { // Starting Out
       this.head = new ApexTestGroup('ApexTests', null, 0);
     }
@@ -144,7 +151,7 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
           apexGroup = new ApexTestGroup(test.parent, null, 0);
           this.apexTestMap.set(test.parent, apexGroup);
         }
-        const testUri = vscode.Uri.file(test.file);
+        const testUri = vscode.Uri.file(test.file.substring(7));
         const apexTest = new ApexTest(test.methodName, testUri, test.line);
         apexTest.fullName = apexGroup.label + '.' + apexTest.label;
         this.apexTestMap.set(apexTest.fullName, apexTest);
@@ -170,6 +177,7 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
         }
       });
     }
+    return this.head;
   }
 
   private addTests(fileContent: string, apexTestGroup: ApexTestGroup): void {
@@ -348,19 +356,22 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
     }
     groups.forEach(group => {
       group.updatePassFailLabel();
-      group.description = this.summarize(jsonSummary.summary);
+      group.description = this.summarize(jsonSummary.summary, group);
     });
   }
 
-  private summarize(summary: TestSummary): string {
+  private summarize(summary: TestSummary, group: ApexTestGroup): string {
     let summString = '';
     summString = summString + 'Outcome: ' + summary.outcome + '\n';
-    summString = summString + 'Tests Ran: ' + summary.testsRan + '\n';
-    summString = summString + 'Passing: ' + summary.passing + '\n';
-    summString = summString + 'Failing: ' + summary.failing + '\n';
+    summString = summString + 'Tests Ran: ' + group.children.length + '\n';
+    summString = summString + 'Passing: ' + group.passing + '\n';
+    const failing = (group.children.length - group.passing);
+    summString = summString + 'Failing: ' + failing + '\n';
     summString = summString + 'Skipped: ' + summary.skipped + '\n';
-    summString = summString + 'Pass Rate: ' + summary.passRate + '\n';
-    summString = summString + 'Fail Rate: ' + summary.failRate + '\n';
+    const groupPassRate = ((group.passing * 100) / group.children.length) + '%';
+    const groupFailRate = ((failing * 100) / group.children.length) + '%';
+    summString = summString + 'Pass Rate: ' + groupPassRate + '\n';
+    summString = summString + 'Fail Rate: ' + groupFailRate + '\n';
     summString = summString + 'Test Start Time: ' + summary.testStartTime + '\n';
     summString = summString + 'Test Execution Time: ' + summary.testExecutionTime + '\n';
     summString = summString + 'Test Total Time: ' + summary.testTotalTime + '\n';
@@ -420,6 +431,7 @@ export abstract class Test extends vscode.TreeItem {
 
 export class ApexTestGroup extends Test {
   public name: string;
+  public passing: number = 0;
 
   constructor(
     public label: string,
@@ -433,14 +445,13 @@ export class ApexTestGroup extends Test {
   public contextValue = 'apexTestGroup';
 
   public updatePassFailLabel() {
-    let passed = 0;
     this.children.forEach(child => {
       if ((child as ApexTest).passed) {
-        passed++;
+        this.passing++;
       }
     });
-    this.label = this.name + ' (' + passed + '/' + this.children.length + ')';
-    if (passed === this.children.length) {
+    this.label = this.name + ' (' + this.passing + '/' + this.children.length + ')';
+    if (this.passing === this.children.length) {
       this.updateIcon('Pass');
     } else {
       this.updateIcon('Fail');
@@ -472,6 +483,11 @@ export class ApexTest extends Test {
   ) {
     super(label, vscode.TreeItemCollapsibleState.None, file, row);
     this.fullName = label;
+    this.command = {
+      command: 'sfdx.force.test.view.showError',
+      title: 'show error',
+      arguments: [this]
+    };
   }
 
   public updateIcon(outcome: string) {
@@ -519,7 +535,7 @@ export class ReadableApexTestRunCodeActionExecutor extends ForceApexTestRunCodeA
       cwd: vscode.workspace.rootPath
     }).execute(cancellationToken);
 
-    execution.processExitSubject.subscribe(async status => {
+    execution.processExitSubject.subscribe(async () => {
       this.apexTestOutline.readJSONFile(this.outputToJson);
     });
 
