@@ -153,8 +153,8 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
         }
         const testUri = vscode.Uri.file(test.file.substring(7));
         const apexTest = new ApexTest(test.methodName, testUri, test.line);
-        apexTest.fullName = apexGroup.label + '.' + apexTest.label;
-        this.apexTestMap.set(apexTest.fullName, apexTest);
+        apexTest.name = apexGroup.label + '.' + apexTest.label;
+        this.apexTestMap.set(apexTest.name, apexTest);
         apexGroup.children.push(apexTest);
         if (this.head && !this.head.children.includes(apexGroup)) {
           this.head.children.push(apexGroup);
@@ -202,8 +202,8 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
         }
         name = name.replace('()', ''); // Get rid
         const apexTest = new ApexTest(name, apexTestGroup.file, ind);
-        apexTest.fullName = apexTestGroup.label + '.' + name;
-        this.apexTestMap.set(apexTest.fullName, apexTest);
+        apexTest.name = apexTestGroup.label + '.' + name;
+        this.apexTestMap.set(apexTest.name, apexTest);
         apexTestGroup.children.push(apexTest);
       }
       match = regEx.exec(fileContent);
@@ -255,9 +255,9 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
     }
   }
 
-  public async runSingleTest(test: ApexTest) {
+  public async runSingleTest(test: Test) {
     const tmpFolder = this.getTempFolder();
-    const builder = new ReadableApexTestRunCodeActionExecutor([test.fullName], false, tmpFolder, this);
+    const builder = new ReadableApexTestRunCodeActionExecutor([test.name], false, tmpFolder, this);
     const commandlet = new SfdxCommandlet(
       new SfdxWorkspaceChecker(),
       new EmptyParametersGatherer(),
@@ -389,6 +389,7 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
 export abstract class Test extends vscode.TreeItem {
   public children = new Array<Test>();
   public description: string;
+  public name: string;
 
   constructor(
     public label: string,
@@ -398,6 +399,7 @@ export abstract class Test extends vscode.TreeItem {
   ) {
     super(label, collapsibleState);
     this.description = label;
+    this.name = label;
   }
 
   public iconPath = {
@@ -430,7 +432,6 @@ export abstract class Test extends vscode.TreeItem {
 }
 
 export class ApexTestGroup extends Test {
-  public name: string;
   public passing: number = 0;
 
   constructor(
@@ -439,7 +440,6 @@ export class ApexTestGroup extends Test {
     public row: number
   ) {
     super(label, vscode.TreeItemCollapsibleState.Expanded, file, row);
-    this.name = label;
   }
 
   public contextValue = 'apexTestGroup';
@@ -474,7 +474,6 @@ export class ApexTest extends Test {
   public errorMessage: string = '';
   public stackTrace: string = '';
   public passed = false;
-  public fullName: string;
 
   constructor(
     public label: string,
@@ -482,7 +481,6 @@ export class ApexTest extends Test {
     public row: number
   ) {
     super(label, vscode.TreeItemCollapsibleState.None, file, row);
-    this.fullName = label;
     this.command = {
       command: 'sfdx.force.test.view.showError',
       title: 'show error',
