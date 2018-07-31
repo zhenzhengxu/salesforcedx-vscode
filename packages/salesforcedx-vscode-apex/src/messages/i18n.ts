@@ -24,6 +24,7 @@ export const messages = {
   source_missing_text: '%s points to a missing folder',
   java_runtime_missing_text:
     'Java runtime could not be located. Set one using the salesforcedx-vscode-apex.java.home VS Code setting.',
+  force_apex_test_run_codeAction_description_text: 'Run Apex test(s)',
   wrong_java_version_text:
     'Java 8 is required to run. Download and install it from https://java.com/en/download/.',
 

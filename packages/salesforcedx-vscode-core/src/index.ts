@@ -11,6 +11,7 @@ import * as vscode from 'vscode';
 import { channelService } from './channels';
 import {
   CompositeParametersGatherer,
+  EmptyParametersGatherer,
   forceAliasList,
   forceApexClassCreate,
   forceApexExecute,
@@ -20,6 +21,7 @@ import {
   forceApexTestMethodRunCodeAction,
   forceApexTestMethodRunCodeActionDelegate,
   forceApexTestRun,
+  ForceApexTestRunCodeActionExecutor,
   forceApexTriggerCreate,
   forceAuthDevHub,
   forceAuthLogoutAll,
@@ -69,14 +71,6 @@ import { nls } from './messages';
 import { isDemoMode } from './modes/demo-mode';
 import { notificationService, ProgressNotification } from './notifications';
 import { taskViewService } from './statuses';
-import { ApexTestOutlineProvider } from './views/testOutline';
-
-export type ApexTestInfo = {
-  methodName: string,
-  parent: string,
-  line: number,
-  file: string
-};
 
 function registerCommands(
   extensionContext: vscode.ExtensionContext
@@ -422,36 +416,6 @@ export async function activate(context: vscode.ExtensionContext) {
   const commands = registerCommands(context);
   context.subscriptions.push(commands);
 
-  // Test View
-  const rootPath = vscode.workspace.rootPath || '';
-  const sfdxApex = vscode.extensions.getExtension('salesforce.salesforcedx-vscode-apex');
-
-  let apexClasses: ApexTestInfo[] | null = null;
-  if (sfdxApex && sfdxApex.isActive) {
-    if (sfdxApex.exports.isLanguageClientReady()) {
-      apexClasses = (await sfdxApex.exports.getApexTests()) as ApexTestInfo[];
-    }
-  }
-
-  const apexClassesDocs = await vscode.workspace.findFiles('**/*.cls');
-  const testOutlineProvider = new ApexTestOutlineProvider(rootPath, apexClassesDocs, apexClasses);
-
-  const testViewItems = new Array<vscode.Disposable>();
-
-  const testProvider = vscode.window.registerTreeDataProvider('sfdx.force.test.view', testOutlineProvider);
-  testViewItems.push(testProvider);
-
-  // Run Test Button on Test View command
-  testViewItems.push(vscode.commands.registerCommand('sfdx.force.test.view.run', () => testOutlineProvider.runApexTests()));
-  // Show Error Message command
-  testViewItems.push(vscode.commands.registerCommand('sfdx.force.test.view.showError', test => testOutlineProvider.showErrorMessage(test)));
-  // Run Single Test command
-  testViewItems.push(vscode.commands.registerCommand('sfdx.force.test.view.runSingleTest', test => testOutlineProvider.runSingleTest(test)));
-  // Refresh Test View command
-  testViewItems.push(vscode.commands.registerCommand('sfdx.force.test.view.refresh', () => testOutlineProvider.refresh()));
-
-  context.subscriptions.push(...testViewItems);
-
   // Task View
   const treeDataProvider = vscode.window.registerTreeDataProvider(
     'sfdx.force.tasks.view',
@@ -474,6 +438,8 @@ export async function activate(context: vscode.ExtensionContext) {
     //  requestApexTests,
     ProgressNotification,
     CompositeParametersGatherer,
+    EmptyParametersGatherer,
+    ForceApexTestRunCodeActionExecutor,
     SelectFileName,
     SelectStrictDirPath,
     SfdxCommandlet,

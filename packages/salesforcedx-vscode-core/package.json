@@ -69,61 +69,23 @@
   "activationEvents": [
     "workspaceContains:sfdx-project.json",
     "onCommand:sfdx.force.project.create",
-    "onCommand:sfdx.debug.isv.bootstrap",
-    "onCommand:sfdx.force.test.view.showError",
-    "onView:sfdx.force.test.view"
+    "onCommand:sfdx.debug.isv.bootstrap"
   ],
   "main": "./out/src",
   "contributes": {
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "test",
-          "title": "Test Viewer",
-          "icon": "media/dep.svg"
-        }
-      ]
-    },
     "views": {
       "explorer": [
         {
           "id": "sfdx.force.tasks.view",
           "name": "%running_tasks_title_text%"
         }
-      ],
-      "test": [
-        {
-          "id": "sfdx.force.test.view",
-          "name": "Apex Tests"
-        }
       ]
     },
     "menus": {
-      "view/title": [
-        {
-          "command": "sfdx.force.test.view.run",
-          "when": "view == sfdx.force.test.view",
-          "group": "navigation"
-        },
-        {
-          "command": "sfdx.force.test.view.refresh",
-          "when": "view == sfdx.force.test.view",
-          "group": "navigation"
-        }
-      ],
       "view/item/context": [
         {
           "command": "sfdx.force.task.stop",
           "when": "view == sfdx.force.tasks.view"
-        },
-        {
-          "command": "sfdx.force.test.view.showError",
-          "when": "view == sfdx.force.test.view && viewItem == apexTest"
-        },
-        {
-          "command": "sfdx.force.test.view.runSingleTest",
-          "when": "view == sfdx.force.test.view && viewItem == apexTest",
-          "group": "inline"
         }
       ],
       "editor/context": [
@@ -381,38 +343,6 @@
       {
         "command": "sfdx.force.auth.dev.hub",
         "title": "%force_auth_web_login_authorize_dev_hub_text%"
-      },
-      {
-        "command": "sfdx.force.test.view.run",
-        "title": "Run Tests",
-        "icon": {
-          "light": "../../resources/light/play-button.svg",
-          "dark": "../../resources/dark/play-button.svg"
-        }
-      },
-      {
-        "command": "sfdx.force.test.view.refresh",
-        "title": "Refresh Tests",
-        "icon": {
-          "light": "../../resources/light/refresh.svg",
-          "dark": "../../resources/dark/refresh.svg"
-        }
-      },
-      {
-        "command": "sfdx.force.test.view.showError",
-        "title": "Display Errors",
-        "icon": {
-          "light": "../../resources/light/document/notRun.svg",
-          "dark": "../../resources/dark/document/notRun.svg"
-        }
-      },
-      {
-        "command": "sfdx.force.test.view.runSingleTest",
-        "title": "Run Single Test",
-        "icon": {
-          "light": "../../resources/light/play-side.svg",
-          "dark": "../../resources/dark/play-side.svg"
-        }
       },
       {
         "command": "sfdx.force.auth.web.login",

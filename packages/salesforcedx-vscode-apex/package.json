@@ -21,13 +21,14 @@
   "engines": {
     "vscode": "^1.23.0"
   },
-  "categories": ["Languages"],
+  "categories": ["Programming Languages"],
   "devDependencies": {
     "@types/chai": "^4.0.0",
     "@types/mocha": "2.2.38",
     "@types/node": "^6.0.40",
     "@types/path-exists": "^1.0.29",
     "@types/shelljs": "^0.7.4",
+    "@types/sinon": "^2.3.2",
     "chai": "^4.0.2",
     "mocha": "3.2.0",
     "nyc": "^11.0.2",
@@ -35,6 +36,7 @@
     "typescript": "2.6.2",
     "vscode": "1.1.17"
   },
+  "extensionDependencies": ["salesforce.salesforcedx-vscode-core"],
   "scripts": {
     "vscode:prepublish": "npm prune --production",
     "vscode:package": "vsce package",
@@ -49,9 +51,89 @@
     "test": "node ./node_modules/vscode/bin/test",
     "test:unit": "node ./node_modules/vscode/bin/test"
   },
-  "activationEvents": ["workspaceContains:sfdx-project.json"],
+  "activationEvents": [
+    "workspaceContains:sfdx-project.json",
+    "onCommand:sfdx.force.test.view.showError",
+    "onView:sfdx.force.test.view"
+  ],
   "main": "./out/src",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "test",
+          "title": "Test Viewer",
+          "icon": "media/dep.svg"
+        }
+      ]
+    },
+    "views": {
+      "test": [
+        {
+          "id": "sfdx.force.test.view",
+          "name": "Apex Tests"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "sfdx.force.test.view.run",
+          "when": "view == sfdx.force.test.view",
+          "group": "navigation"
+        },
+        {
+          "command": "sfdx.force.test.view.refresh",
+          "when": "view == sfdx.force.test.view",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "sfdx.force.test.view.showError",
+          "when": "view == sfdx.force.test.view"
+        },
+        {
+          "command": "sfdx.force.test.view.runSingleTest",
+          "when": "view == sfdx.force.test.view",
+          "group": "inline"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "sfdx.force.test.view.run",
+        "title": "Run Tests",
+        "icon": {
+          "light": "resources/light/play-button.svg",
+          "dark": "resources/dark/play-button.svg"
+        }
+      },
+      {
+        "command": "sfdx.force.test.view.refresh",
+        "title": "Refresh Tests",
+        "icon": {
+          "light": "resources/light/refresh.svg",
+          "dark": "resources/dark/refresh.svg"
+        }
+      },
+      {
+        "command": "sfdx.force.test.view.showError",
+        "title": "Display Errors",
+        "icon": {
+          "light": "resources/light/document/notRun.svg",
+          "dark": "resources/dark/document/notRun.svg"
+        }
+      },
+      {
+        "command": "sfdx.force.test.view.runSingleTest",
+        "title": "Run Single Test",
+        "icon": {
+          "light": "resources/light/play-side.svg",
+          "dark": "resources/dark/play-side.svg"
+        }
+      }
+    ],
     "configuration": {
       "type": "object",
       "title": "%configuration_title%",
@@ -92,6 +174,7 @@
     "expand-home-dir": "0.0.3",
     "find-java-home": "0.2.0",
     "path-exists": "3.0.0",
+    "rxjs": "^5.4.1",
     "vscode-languageclient": "3.5.1"
   }
 }

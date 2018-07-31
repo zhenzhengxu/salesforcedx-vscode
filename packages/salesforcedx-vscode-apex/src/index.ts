@@ -12,18 +12,78 @@ import {
   DEBUGGER_LINE_BREAKPOINTS
 } from './constants';
 import * as languageServer from './languageServer';
+import { ApexTestOutlineProvider } from './views/testOutline';
+
+export type ApexTestRequestInfo = {
+  methodName: string;
+  parent: string;
+  line: number;
+  file: string;
+};
 
 let languageClient: LanguageClient | undefined;
 let languageClientReady = false;
 
 export async function activate(context: vscode.ExtensionContext) {
   languageClient = await languageServer.createLanguageServer(context);
-  const handle = languageClient.start();
-  context.subscriptions.push(handle);
+  if (languageClient) {
+    const handle = languageClient.start();
+    context.subscriptions.push(handle);
 
-  languageClient.onReady().then(() => {
-    languageClientReady = true;
-  });
+    languageClient.onReady().then(() => {
+      languageClientReady = true;
+    });
+  }
+
+  // Test View
+  const rootPath = vscode.workspace.rootPath || '';
+  let apexClasses: ApexTestRequestInfo[] | null = null;
+  if (isLanguageClientReady()) {
+    apexClasses = (await getApexTests()) as ApexTestRequestInfo[];
+  }
+
+  const apexClassesDocs = await vscode.workspace.findFiles('**/*.cls');
+  const testOutlineProvider = new ApexTestOutlineProvider(
+    rootPath,
+    apexClassesDocs,
+    apexClasses
+  );
+
+  const testViewItems = new Array<vscode.Disposable>();
+
+  const testProvider = vscode.window.registerTreeDataProvider(
+    'sfdx.force.test.view',
+    testOutlineProvider
+  );
+  testViewItems.push(testProvider);
+
+  // Run Test Button on Test View command
+  testViewItems.push(
+    vscode.commands.registerCommand('sfdx.force.test.view.run', () =>
+      testOutlineProvider.runApexTests()
+    )
+  );
+  // Show Error Message command
+  testViewItems.push(
+    vscode.commands.registerCommand('sfdx.force.test.view.showError', test =>
+      testOutlineProvider.showErrorMessage(test)
+    )
+  );
+  // Run Single Test command
+  testViewItems.push(
+    vscode.commands.registerCommand(
+      'sfdx.force.test.view.runSingleTest',
+      test => testOutlineProvider.runSingleTest(test)
+    )
+  );
+  // Refresh Test View command
+  testViewItems.push(
+    vscode.commands.registerCommand('sfdx.force.test.view.refresh', () =>
+      testOutlineProvider.refresh()
+    )
+  );
+
+  context.subscriptions.push(...testViewItems);
 
   const exportedApi = {
     getLineBreakpointInfo,
@@ -42,7 +102,7 @@ async function getLineBreakpointInfo(): Promise<{}> {
   return Promise.resolve(response);
 }
 
-async function getApexTests(): Promise<{}> {
+export async function getApexTests(): Promise<{}> {
   let response = {};
   if (languageClient) {
     response = await languageClient.sendRequest('apextest/getTestMethods');
@@ -58,9 +118,9 @@ async function getExceptionBreakpointInfo(): Promise<{}> {
   return Promise.resolve(response);
 }
 
-function isLanguageClientReady(): boolean {
+export function isLanguageClientReady(): boolean {
   return languageClientReady;
 }
 
 // tslint:disable-next-line:no-empty
-export function deactivate() { }
+export function deactivate() {}
