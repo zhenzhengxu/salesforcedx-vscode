@@ -7,7 +7,6 @@
 import * as path from 'path';
 import { ConfigurationTarget } from 'vscode';
 import * as vscode from 'vscode';
-// import { LanguageClient } from '../node_modules/vscode-languageclient/lib/main';
 import { channelService } from './channels';
 import {
   CompositeParametersGatherer,
@@ -435,7 +434,6 @@ export async function activate(context: vscode.ExtensionContext) {
   }
 
   const api: any = {
-    //  requestApexTests,
     ProgressNotification,
     CompositeParametersGatherer,
     EmptyParametersGatherer,
@@ -453,15 +451,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
   return api;
 }
-
-// export async function requestApexTests(): Promise<any> {
-//   let response = {};
-//   if (languageClient) {
-//     response = await languageClient.sendRequest('apexTests/getTestMethods');
-//   }
-//   console.log(response);
-//   return Promise.resolve(response);
-// }
 
 export function deactivate(): Promise<void> {
   console.log('SFDX CLI Extension Deactivated');
