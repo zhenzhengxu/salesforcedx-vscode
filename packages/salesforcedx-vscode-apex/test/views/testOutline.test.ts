@@ -22,9 +22,9 @@ describe('TestView', () => {
     let testOutline: ApexTestOutlineProvider;
     const uriList = new Array<Uri>();
     const file0Uri = Uri.file('/bogus/path/to/file0.cls');
-    const file1Uri = Uri.file('/bogus/path/to/file1.cls');
-    const file2Uri = Uri.file('/bogus/path/to/file2.cls');
-    const file3Uri = Uri.file('/bogus/path/to/file3.cls');
+    // const file1Uri = Uri.file('/bogus/path/to/file1.cls');
+    // const file2Uri = Uri.file('/bogus/path/to/file2.cls');
+    // const file3Uri = Uri.file('/bogus/path/to/file3.cls');
     const apexTestInfo: ApexTestRequestInfo[] = new Array<
       ApexTestRequestInfo
     >();
