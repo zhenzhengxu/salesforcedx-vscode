@@ -8,7 +8,7 @@ import {
   Command
 } from '@salesforce/salesforcedx-utils-vscode/out/src/cli';
 import { ContinueResponse } from '@salesforce/salesforcedx-utils-vscode/out/src/types';
-import { ApexTestRequestInfo } from '..';
+import { ApexTestRequestInfo, getApexTests, isLanguageClientReady } from '..';
 import { nls } from '../messages';
 
 // Import from core
@@ -196,16 +196,9 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
     this.head = null; // Reset tests
     this.apexTestMap.clear();
     ApexTestOutlineProvider.testStrings.clear();
-    const sfdxApex = vscode.extensions.getExtension(
-      'salesforce.salesforcedx-vscode-apex'
-    );
     this.apexTestInfo = null;
-    if (
-      sfdxApex &&
-      sfdxApex.isActive &&
-      sfdxApex.exports.isLanguageClientReady()
-    ) {
-      this.apexTestInfo = (await sfdxApex.exports.getApexTests()) as ApexTestRequestInfo[];
+    if (isLanguageClientReady()) {
+      this.apexTestInfo = (await getApexTests()) as ApexTestRequestInfo[];
     }
     this.apexClasses = await vscode.workspace.findFiles('**/*.cls');
     this.getAllApexTests(this.path);
@@ -217,6 +210,7 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
       // Starting Out
       this.head = new ApexTestGroup('ApexTests', null, 1);
     }
+    // Check if lsp worked, else parse files manually
     if (this.apexTestInfo) {
       // Do it the easy way
       this.apexTestInfo.forEach(test => {
@@ -261,8 +255,8 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
     let match = regEx.exec(fileContent);
     while (match) {
       const ind = match.index;
+      // Ignore class heading
       if (ind !== 0) {
-        // Ignore class heading
         // A test
         const restOfFile = fileContent.slice(match.index);
         const header = restOfFile.slice(0, restOfFile.indexOf('{'));

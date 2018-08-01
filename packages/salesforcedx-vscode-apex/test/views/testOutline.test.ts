@@ -29,6 +29,8 @@ describe('TestView', () => {
       ApexTestRequestInfo
     >();
 
+    const readFilestub = stub(fs, 'readFileSync');
+
     beforeEach(() => {
       // All test methods, has same info as file1, file2, file3, file4
       for (let i = 0; i < 8; i++) {
@@ -46,7 +48,7 @@ describe('TestView', () => {
       }
 
       // Stub out functions
-      stub(fs, 'readFileSync').callsFake(file => {
+      readFilestub.callsFake(file => {
         let ind = 0;
         if (file.includes('file0.cls')) {
           // Get File 0
@@ -66,10 +68,10 @@ describe('TestView', () => {
     });
 
     afterEach(() => {
-      stub(fs, 'readFileSync').restore();
+      readFilestub.restore();
     });
 
-    it('No tests in file', () => {
+    it.only('No tests in file', () => {
       testOutline = new ApexTestOutlineProvider('/bogus/path', uriList, null);
       expect(testOutline.getHead()).to.equal(
         new ApexTestGroup('ApexTests', null, 0)
