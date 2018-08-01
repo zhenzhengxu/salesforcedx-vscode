@@ -79,15 +79,13 @@ class ForceLightningLwcCreateExecutor extends (SfdxCommandletExecutor as {
     return new SfdxCommandBuilder()
       .withDescription(nls.localize('force_lightning_lwc_create_text'))
       .withArg('force:lightning:component:create')
-      .withFlag('--type', 'web')
+      .withFlag('--type', 'lwc')
       .withFlag('--componentname', data.fileName)
       .withFlag('--outputdir', data.outputdir)
       .build();
   }
 
-  public async execute(
-    response: ContinueResponse<DirFileNameSelection>
-  ): Promise<void> {
+  public execute(response: ContinueResponse<DirFileNameSelection>): void {
     const cancellationTokenSource = new vscode.CancellationTokenSource();
     const cancellationToken = cancellationTokenSource.token;
 
@@ -120,7 +118,7 @@ class ForceLightningLwcCreateExecutor extends (SfdxCommandletExecutor as {
       (execution.stderrSubject as any) as Observable<Error | undefined>
     );
     channelService.streamCommandOutput(execution);
-    await ProgressNotification.show(execution, cancellationTokenSource);
+    ProgressNotification.show(execution, cancellationTokenSource);
     taskViewService.addCommandExecution(execution, cancellationTokenSource);
   }
 }
