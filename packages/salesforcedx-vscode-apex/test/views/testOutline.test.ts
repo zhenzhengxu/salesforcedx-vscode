@@ -8,7 +8,7 @@
 // tslint:disable:no-unused-expression
 import { expect } from 'chai';
 import { stub } from 'sinon';
-import { Uri } from 'vscode';
+import { Position, Uri } from 'vscode';
 import { ApexTestRequestInfo } from '../../src';
 import { files } from './fakeFiles';
 import fs = require('fs');
@@ -35,13 +35,14 @@ describe('TestView', () => {
       // All test methods, has same info as file1, file2, file3, file4
       for (let i = 0; i < 8; i++) {
         const methodName = 'test' + i;
-        const parent = 'file' + i / 2; // Parent is either file1, file2, file3, or file4
+        const definingType = 'file' + i / 2; // Parent is either file1, file2, file3, or file4
         const line = i / 2 * 4 + 3;
+        const position = new Position(line, 0);
         const file = '/bogus/path/to/' + parent + '.cls';
         const testInfo: ApexTestRequestInfo = {
           methodName,
-          parent,
-          line,
+          definingType,
+          position,
           file
         };
         apexTestInfo.push(testInfo);

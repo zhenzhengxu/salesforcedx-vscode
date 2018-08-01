@@ -16,8 +16,8 @@ import { ApexTestOutlineProvider } from './views/testOutline';
 
 export type ApexTestRequestInfo = {
   methodName: string;
-  parent: string;
-  line: number;
+  definingType: string;
+  position: vscode.Position;
   file: string;
 };
 
@@ -35,8 +35,44 @@ export async function activate(context: vscode.ExtensionContext) {
     });
   }
 
+  context.subscriptions.push(...(await registerTestView()));
+
+  const exportedApi = {
+    getLineBreakpointInfo,
+    getExceptionBreakpointInfo,
+    isLanguageClientReady,
+    getApexTests
+  };
+  return exportedApi;
+}
+
+async function getLineBreakpointInfo(): Promise<{}> {
+  let response = {};
+  if (languageClient) {
+    response = await languageClient.sendRequest(DEBUGGER_LINE_BREAKPOINTS);
+  }
+  return Promise.resolve(response);
+}
+
+export async function getApexTests(): Promise<{}> {
+  let response = {};
+  if (languageClient) {
+    response = await languageClient.sendRequest('test/getTestMethods');
+  }
+  return Promise.resolve(response);
+}
+
+async function getExceptionBreakpointInfo(): Promise<{}> {
+  let response = {};
+  if (languageClient) {
+    response = await languageClient.sendRequest(DEBUGGER_EXCEPTION_BREAKPOINTS);
+  }
+  return Promise.resolve(response);
+}
+
+async function registerTestView(): Promise<vscode.Disposable[]> {
   // Test View
-  const rootPath = vscode.workspace.rootPath || '';
+  const rootPath = vscode.workspace.workspaceFolders![0].name;
   let apexClasses: ApexTestRequestInfo[] | null = null;
   if (isLanguageClientReady()) {
     apexClasses = (await getApexTests()) as ApexTestRequestInfo[];
@@ -83,39 +119,7 @@ export async function activate(context: vscode.ExtensionContext) {
     )
   );
 
-  context.subscriptions.push(...testViewItems);
-
-  const exportedApi = {
-    getLineBreakpointInfo,
-    getExceptionBreakpointInfo,
-    isLanguageClientReady,
-    getApexTests
-  };
-  return exportedApi;
-}
-
-async function getLineBreakpointInfo(): Promise<{}> {
-  let response = {};
-  if (languageClient) {
-    response = await languageClient.sendRequest(DEBUGGER_LINE_BREAKPOINTS);
-  }
-  return Promise.resolve(response);
-}
-
-export async function getApexTests(): Promise<{}> {
-  let response = {};
-  if (languageClient) {
-    response = await languageClient.sendRequest('apextest/getTestMethods');
-  }
-  return Promise.resolve(response);
-}
-
-async function getExceptionBreakpointInfo(): Promise<{}> {
-  let response = {};
-  if (languageClient) {
-    response = await languageClient.sendRequest(DEBUGGER_EXCEPTION_BREAKPOINTS);
-  }
-  return Promise.resolve(response);
+  return testViewItems;
 }
 
 export function isLanguageClientReady(): boolean {

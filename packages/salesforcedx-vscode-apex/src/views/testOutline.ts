@@ -165,16 +165,16 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
     return this.head;
   }
 
-  public getChildren(element: Test): Thenable<Test[]> {
+  public getChildren(element: Test): Test[] {
     if (element) {
-      return Promise.resolve(element.children);
+      return element.children;
     } else {
       if (this.head && this.head.children.length > 0) {
-        return Promise.resolve(this.head.children);
+        return this.head.children;
       } else {
         const emptyArray = new Array<ApexTest>();
         emptyArray.push(new ApexTest('No tests in folder', null, 0));
-        return Promise.resolve(emptyArray);
+        return emptyArray;
       }
     }
   }
@@ -214,13 +214,19 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
     if (this.apexTestInfo) {
       // Do it the easy way
       this.apexTestInfo.forEach(test => {
-        let apexGroup = this.apexTestMap.get(test.parent) as ApexTestGroup;
+        let apexGroup = this.apexTestMap.get(
+          test.definingType
+        ) as ApexTestGroup;
         if (!apexGroup) {
-          apexGroup = new ApexTestGroup(test.parent, null, 1);
-          this.apexTestMap.set(test.parent, apexGroup);
+          apexGroup = new ApexTestGroup(test.definingType, null, 1);
+          this.apexTestMap.set(test.definingType, apexGroup);
         }
         const testUri = vscode.Uri.file(test.file.substring(7));
-        const apexTest = new ApexTest(test.methodName, testUri, test.line);
+        const apexTest = new ApexTest(
+          test.methodName,
+          testUri,
+          test.position.line
+        );
         apexTest.name = apexGroup.label + '.' + apexTest.label;
         this.apexTestMap.set(apexTest.name, apexTest);
         apexGroup.children.push(apexTest);
