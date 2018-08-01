@@ -21,7 +21,7 @@
   "engines": {
     "vscode": "^1.23.0"
   },
-  "categories": ["Programming Languages"],
+  "categories": ["Languages"],
   "devDependencies": {
     "@types/chai": "^4.0.0",
     "@types/mocha": "2.2.38",
@@ -175,7 +175,6 @@
     "expand-home-dir": "0.0.3",
     "find-java-home": "0.2.0",
     "path-exists": "3.0.0",
-    "rxjs": "^5.4.1",
     "vscode-languageclient": "3.5.1"
   }
 }
