@@ -27,7 +27,7 @@ describe('TestView', () => {
     // const file3Uri = Uri.file('/bogus/path/to/file3.cls');
     const apexTestInfo: ApexTestRequestInfo[] = new Array<
       ApexTestRequestInfo
-    >();
+      >();
 
     const readFilestub = stub(fs, 'readFileSync');
 

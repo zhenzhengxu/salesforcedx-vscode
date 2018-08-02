@@ -5,6 +5,8 @@
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
+import * as fs from 'fs';
+import * as path from 'path';
 import * as vscode from 'vscode';
 import { LanguageClient } from 'vscode-languageclient';
 import {
@@ -35,7 +37,7 @@ export async function activate(context: vscode.ExtensionContext) {
     });
   }
 
-  context.subscriptions.push(...(await registerTestView()));
+  context.subscriptions.push(await registerTestView());
 
   const exportedApi = {
     getLineBreakpointInfo,
@@ -54,10 +56,12 @@ async function getLineBreakpointInfo(): Promise<{}> {
   return Promise.resolve(response);
 }
 
-export async function getApexTests(): Promise<{}> {
-  let response = {};
+export async function getApexTests(): Promise<ApexTestRequestInfo[]> {
+  let response = new Array<ApexTestRequestInfo>();
   if (languageClient) {
-    response = await languageClient.sendRequest('test/getTestMethods');
+    response = (await languageClient.sendRequest(
+      'test/getTestMethods'
+    )) as ApexTestRequestInfo[];
   }
   return Promise.resolve(response);
 }
@@ -70,15 +74,15 @@ async function getExceptionBreakpointInfo(): Promise<{}> {
   return Promise.resolve(response);
 }
 
-async function registerTestView(): Promise<vscode.Disposable[]> {
+async function registerTestView(): Promise<vscode.Disposable> {
   // Test View
   const rootPath = vscode.workspace.workspaceFolders![0].name;
   let apexClasses: ApexTestRequestInfo[] | null = null;
   if (isLanguageClientReady()) {
-    apexClasses = (await getApexTests()) as ApexTestRequestInfo[];
+    apexClasses = await getApexTests();
   }
 
-  const apexClassesDocs = await vscode.workspace.findFiles('**/*.cls');
+  const apexClassesDocs = await getApexClassFiles();
   const testOutlineProvider = new ApexTestOutlineProvider(
     rootPath,
     apexClassesDocs,
@@ -119,7 +123,21 @@ async function registerTestView(): Promise<vscode.Disposable[]> {
     )
   );
 
-  return testViewItems;
+  return vscode.Disposable.from(...testViewItems);
+}
+
+export async function getApexClassFiles(): Promise<vscode.Uri[]> {
+  const jsonProject = (await vscode.workspace.findFiles('**/sfdx-project.json'))[0];
+  const innerText = fs.readFileSync(jsonProject.path);
+  const jsonObject = JSON.parse(innerText.toString());
+  let packageDirectories = jsonObject.packageDirectories || jsonObject.PackageDirectories;
+  const allClasses = new Array<vscode.Uri>();
+  for (const packageDirectory of packageDirectories) {
+    const pattern = path.join(packageDirectory.path, '**/*.cls');
+    const apexClassFiles = await vscode.workspace.findFiles(pattern);
+    allClasses.push(...apexClassFiles);
+  }
+  return allClasses;
 }
 
 export function isLanguageClientReady(): boolean {
@@ -127,4 +145,4 @@ export function isLanguageClientReady(): boolean {
 }
 
 // tslint:disable-next-line:no-empty
-export function deactivate() {}
+export function deactivate() { }

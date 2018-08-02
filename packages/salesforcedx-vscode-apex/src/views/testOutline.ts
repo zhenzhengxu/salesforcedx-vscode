@@ -1,15 +1,31 @@
+/*
+ * Copyright (c) 2017, salesforce.com, inc.
+ * All rights reserved.
+ * Licensed under the BSD 3-Clause license.
+ * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+ */
 import * as vscode from 'vscode';
 import crypto = require('crypto');
 import events = require('events');
 import fs = require('fs');
+import shell = require('shelljs');
 import ospath = require('path');
 import {
   CliCommandExecutor,
   Command
 } from '@salesforce/salesforcedx-utils-vscode/out/src/cli';
 import { ContinueResponse } from '@salesforce/salesforcedx-utils-vscode/out/src/types';
-import { ApexTestRequestInfo, getApexTests, isLanguageClientReady } from '..';
+import { ApexTestRequestInfo, getApexClassFiles, getApexTests, isLanguageClientReady } from '..';
+import {
+  DARK_BLUE_BUTTON,
+  DARK_GREEN_BUTTON,
+  DARK_RED_BUTTON,
+  LIGHT_BLUE_BUTTON,
+  LIGHT_GREEN_BUTTON,
+  LIGHT_RED_BUTTON
+} from '../constants';
 import { nls } from '../messages';
+import { FullTestResult, TestSummarizer } from './TestDataAccessObjects';
 
 // Import from core
 const sfdxCoreExports = vscode.extensions.getExtension(
@@ -25,152 +41,49 @@ const channelService = sfdxCoreExports.channelService;
 const notificationService = sfdxCoreExports.notificationService;
 const taskViewService = sfdxCoreExports.taskViewService;
 
-const LIGHT_BLUE_BUTTON = ospath.join(
-  __filename,
-  '..',
-  '..',
-  '..',
-  '..',
-  'resources',
-  'light',
-  'testNotRun.svg'
-);
-const LIGHT_RED_BUTTON = ospath.join(
-  __filename,
-  '..',
-  '..',
-  '..',
-  '..',
-  'resources',
-  'light',
-  'testFail.svg'
-);
-const LIGHT_GREEN_BUTTON = ospath.join(
-  __filename,
-  '..',
-  '..',
-  '..',
-  '..',
-  'resources',
-  'light',
-  'testPass.svg'
-);
-
-const DARK_BLUE_BUTTON = ospath.join(
-  __filename,
-  '..',
-  '..',
-  '..',
-  '..',
-  'resources',
-  'dark',
-  'testNotRun.svg'
-);
-const DARK_RED_BUTTON = ospath.join(
-  __filename,
-  '..',
-  '..',
-  '..',
-  '..',
-  'resources',
-  'dark',
-  'testFail.svg'
-);
-const DARK_GREEN_BUTTON = ospath.join(
-  __filename,
-  '..',
-  '..',
-  '..',
-  '..',
-  'resources',
-  'dark',
-  'testPass.svg'
-);
-
-export type FullTestResult = {
-  summary: TestSummary;
-  tests: TestResult[];
-};
-
-export type TestSummary = {
-  outcome: string;
-  testsRan: number;
-  passing: number;
-  failing: number;
-  skipped: number;
-  passRate: string;
-  failRate: string;
-  testStartTime: string;
-  testExecutionTime: string;
-  testTotalTime: string;
-  commandTime: string;
-  hostname: string;
-  orgId: string;
-  username: string;
-  testRunId: string;
-  userId: string;
-};
-
-export type TestResult = {
-  ApexClass: ApexClass;
-  MethodName: string;
-  Outcome: string;
-  RunTime: number;
-  Message: string;
-  StackTrace: string;
-  FullName: string;
-};
-
-export type ApexClass = {
-  attributes: { type: string };
-  Id: string;
-  Name: string;
-  NamespacPrefix: string;
-};
-
-export type ApexGroupInfo = {
-  outcome: string;
-  summary: TestSummary;
-};
-
 export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
-  private _onDidChangeTreeData: vscode.EventEmitter<
+  private onDidChangeTestData: vscode.EventEmitter<
     Test | undefined
-  > = new vscode.EventEmitter<Test | undefined>();
-  public readonly onDidChangeTreeData: vscode.Event<Test | undefined> = this
-    ._onDidChangeTreeData.event;
+    > = new vscode.EventEmitter<Test | undefined>();
+  public onDidChangeTreeData = this.onDidChangeTestData.event;
 
   private eventsEmitter = new events.EventEmitter();
 
   private apexTestMap: Map<string, Test> = new Map<string, Test>();
-  private head: Test | null;
+  private container: Test | null;
   private static testStrings: Set<string> = new Set<string>();
+  private path: string;
+  private apexClasses: vscode.Uri[];
+  private apexTestInfo: ApexTestRequestInfo[] | null;
 
   constructor(
-    private path: string,
-    private apexClasses: vscode.Uri[],
-    private apexTestInfo: ApexTestRequestInfo[] | null
+    path: string,
+    apexClasses: vscode.Uri[],
+    apexTestInfo: ApexTestRequestInfo[] | null
   ) {
-    this.head = null;
+    this.container = null;
+    this.path = path;
+    this.apexClasses = apexClasses;
+    this.apexTestInfo = apexTestInfo;
     this.getAllApexTests(this.path);
     // Now, activate events that we need
-    this.eventsEmitter.on('Delete Folder', this.deleteFolderRecursive); // Activate event to delete folder
+    this.eventsEmitter.on('Delete Folder', this.deleteFolder); // Activate event to delete folder
     this.eventsEmitter.on('Show Highlight', this.updateSelection);
   }
 
   public getHead(): Test {
-    if (this.head === null) {
+    if (this.container === null) {
       return this.getAllApexTests(this.path);
     }
-    return this.head;
+    return this.container;
   }
 
   public getChildren(element: Test): Test[] {
     if (element) {
       return element.children;
     } else {
-      if (this.head && this.head.children.length > 0) {
-        return this.head.children;
+      if (this.container && this.container.children.length > 0) {
+        return this.container.children;
       } else {
         const emptyArray = new Array<ApexTest>();
         emptyArray.push(new ApexTest('No tests in folder', null, 0));
@@ -184,31 +97,31 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
       return element;
     } else {
       this.getAllApexTests(this.path);
-      if (!(this.head && this.head.children.length > 0)) {
-        this.head = new ApexTest('No tests in folder', null, 0);
-        this.head.children.push(new ApexTest('No tests in folder', null, 0));
+      if (!(this.container && this.container.children.length > 0)) {
+        this.container = new ApexTest('No tests in folder', null, 0);
+        this.container.children.push(new ApexTest('No tests in folder', null, 0));
       }
-      return this.head;
+      return this.container;
     }
   }
 
   public async refresh() {
-    this.head = null; // Reset tests
+    this.container = null; // Reset tests
     this.apexTestMap.clear();
     ApexTestOutlineProvider.testStrings.clear();
     this.apexTestInfo = null;
     if (isLanguageClientReady()) {
-      this.apexTestInfo = (await getApexTests()) as ApexTestRequestInfo[];
+      this.apexTestInfo = await getApexTests();
     }
-    this.apexClasses = await vscode.workspace.findFiles('**/*.cls');
+    this.apexClasses = await getApexClassFiles();
     this.getAllApexTests(this.path);
-    this._onDidChangeTreeData.fire();
+    this.onDidChangeTestData.fire();
   }
 
   private getAllApexTests(path: string): Test {
-    if (this.head == null) {
+    if (this.container == null) {
       // Starting Out
-      this.head = new ApexTestGroup('ApexTests', null, 1);
+      this.container = new ApexTestGroup('ApexTests', null, 1);
     }
     // Check if lsp worked, else parse files manually
     if (this.apexTestInfo) {
@@ -230,8 +143,8 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
         apexTest.name = apexGroup.label + '.' + apexTest.label;
         this.apexTestMap.set(apexTest.name, apexTest);
         apexGroup.children.push(apexTest);
-        if (this.head && !(this.head.children.indexOf(apexGroup) >= 0)) {
-          this.head.children.push(apexGroup);
+        if (this.container && !(this.container.children.indexOf(apexGroup) >= 0)) {
+          this.container.children.push(apexGroup);
         }
         ApexTestOutlineProvider.testStrings.add(apexGroup.name);
       });
@@ -246,13 +159,13 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
           this.apexTestMap.set(testName, newApexTestGroup);
           this.addTests(fileContent, newApexTestGroup);
           ApexTestOutlineProvider.testStrings.add(testName);
-          if (this.head) {
-            this.head.children.push(newApexTestGroup);
+          if (this.container) {
+            this.container.children.push(newApexTestGroup);
           }
         }
       });
     }
-    return this.head;
+    return this.container;
   }
 
   private addTests(fileContent: string, apexTestGroup: ApexTestGroup): void {
@@ -286,7 +199,7 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
     }
   }
 
-  private deleteFolderRecursive(path: string) {
+  private deleteFolder(path: string) {
     let files = [];
     if (fs.existsSync(path)) {
       files = fs.readdirSync(path);
@@ -294,7 +207,7 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
         const curPath = path + '/' + file;
         if (fs.lstatSync(curPath).isDirectory()) {
           // recurse
-          this.deleteFolderRecursive(curPath);
+          this.deleteFolder(curPath);
         } else {
           // delete file
           fs.unlinkSync(curPath);
@@ -382,14 +295,15 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
   }
 
   public getTempFolder(): string {
-    if (vscode.workspace.rootPath) {
-      let tempFolder = ospath.resolve(vscode.workspace.rootPath, 'tmp');
-      while (fs.existsSync(tempFolder)) {
-        tempFolder = tempFolder + crypto.randomBytes(16).toString('hex');
-      }
-      return tempFolder;
-    }
-    return '';
+    // let tempFolder = ospath.resolve(
+    //   vscode.workspace.workspaceFolders![0].uri.path,
+    //   'tmp'
+    // );
+    // while (fs.existsSync(tempFolder)) {
+    //   tempFolder = tempFolder + crypto.randomBytes(16).toString('hex');
+    // }
+    // return tempFolder;
+    return '/tmp';
   }
 
   public async runApexTests(): Promise<void> {
@@ -410,16 +324,14 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
   }
 
   public readJSONFile(folderName: string) {
-    if (vscode.workspace.rootPath) {
-      const fullFolderName = ospath.resolve(
-        vscode.workspace.rootPath,
-        folderName
-      );
-      const jsonSummary = this.getJSONFileOutput(folderName);
-      this.UpdateTestsFromJSON(jsonSummary);
-      this._onDidChangeTreeData.fire();
-      this.eventsEmitter.emit('Delete Folder', fullFolderName);
-    }
+    const fullFolderName = ospath.join(
+      vscode.workspace.workspaceFolders![0].uri.path,
+      folderName
+    );
+    const jsonSummary = this.getJSONFileOutput(folderName);
+    this.UpdateTestsFromJSON(jsonSummary);
+    this.onDidChangeTestData.fire();
+    this.eventsEmitter.emit('Delete Folder', fullFolderName);
   }
 
   private getJSONFileOutput(fullFolderName: string): FullTestResult {
@@ -450,11 +362,10 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
         groups.add(apexGroup);
       }
       const apexTest = this.apexTestMap.get(testResult.FullName) as ApexTest;
-      apexTest.passed = true;
       if (apexTest) {
-        apexTest.updateIcon(testResult.Outcome);
+        apexTest.outcome = testResult.Outcome;
+        apexTest.updateIcon();
         if (testResult.Outcome === 'Fail') {
-          apexTest.passed = false;
           apexTest.errorMessage = testResult.Message;
           apexTest.stackTrace = testResult.StackTrace;
           apexTest.description =
@@ -464,35 +375,8 @@ export class ApexTestOutlineProvider implements vscode.TreeDataProvider<Test> {
     }
     groups.forEach(group => {
       group.updatePassFailLabel();
-      group.description = this.summarize(jsonSummary.summary, group);
+      group.description = TestSummarizer.summarize(jsonSummary.summary, group);
     });
-  }
-
-  private summarize(summary: TestSummary, group: ApexTestGroup): string {
-    let summString = '';
-    summString = summString + 'Outcome: ' + summary.outcome + '\n';
-    summString = summString + 'Tests Ran: ' + group.children.length + '\n';
-    summString = summString + 'Passing: ' + group.passing + '\n';
-    const failing = group.children.length - group.passing;
-    summString = summString + 'Failing: ' + failing + '\n';
-    summString = summString + 'Skipped: ' + summary.skipped + '\n';
-    const groupPassRate = group.passing * 100 / group.children.length + '%';
-    const groupFailRate = failing * 100 / group.children.length + '%';
-    summString = summString + 'Pass Rate: ' + groupPassRate + '\n';
-    summString = summString + 'Fail Rate: ' + groupFailRate + '\n';
-    summString =
-      summString + 'Test Start Time: ' + summary.testStartTime + '\n';
-    summString =
-      summString + 'Test Execution Time: ' + summary.testExecutionTime + '\n';
-    summString =
-      summString + 'Test Total Time: ' + summary.testTotalTime + '\n';
-    summString = summString + 'Command Time: ' + summary.commandTime + '\n';
-    summString = summString + 'Hostname: ' + summary.hostname + '\n';
-    summString = summString + 'Org Id: ' + summary.orgId + '\n';
-    summString = summString + 'Username: ' + summary.username + '\n';
-    summString = summString + 'Test Run Id: ' + summary.testRunId + '\n';
-    summString = summString + 'User Id: ' + summary.userId;
-    return summString;
   }
 }
 
@@ -500,14 +384,18 @@ export abstract class Test extends vscode.TreeItem {
   public children = new Array<Test>();
   public description: string;
   public name: string;
+  public file: vscode.Uri | null;
+  public row: number;
 
   constructor(
-    public label: string,
-    public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-    public file: vscode.Uri | null,
-    public row: number
+    label: string,
+    collapsibleState: vscode.TreeItemCollapsibleState,
+    file: vscode.Uri | null,
+    row: number
   ) {
     super(label, collapsibleState);
+    this.file = file;
+    this.row = row;
     this.description = label;
     this.name = label;
     this.command = {
@@ -533,7 +421,7 @@ export abstract class Test extends vscode.TreeItem {
         light: LIGHT_GREEN_BUTTON,
         dark: DARK_GREEN_BUTTON
       };
-    } else {
+    } else if (outcome === 'Fail') {
       // Failed test
       this.iconPath = {
         light: LIGHT_RED_BUTTON,
@@ -548,11 +436,7 @@ export abstract class Test extends vscode.TreeItem {
 export class ApexTestGroup extends Test {
   public passing: number = 0;
 
-  constructor(
-    public label: string,
-    public file: vscode.Uri | null,
-    public row: number
-  ) {
+  constructor(label: string, file: vscode.Uri | null, row: number) {
     super(label, vscode.TreeItemCollapsibleState.Expanded, file, row);
   }
 
@@ -561,7 +445,7 @@ export class ApexTestGroup extends Test {
   public updatePassFailLabel() {
     this.passing = 0;
     this.children.forEach(child => {
-      if ((child as ApexTest).passed) {
+      if ((child as ApexTest).outcome == 'Pass') {
         this.passing++;
       }
     });
@@ -588,19 +472,15 @@ export class ApexTestGroup extends Test {
 export class ApexTest extends Test {
   public errorMessage: string = '';
   public stackTrace: string = '';
-  public passed = false;
+  public outcome = 'Not Run';
 
-  constructor(
-    public label: string,
-    public file: vscode.Uri | null,
-    public row: number
-  ) {
+  constructor(label: string, file: vscode.Uri | null, row: number) {
     super(label, vscode.TreeItemCollapsibleState.None, file, row);
   }
 
-  public updateIcon(outcome: string) {
-    super.updateIcon(outcome);
-    if (outcome === 'Pass') {
+  public updateIcon() {
+    super.updateIcon(this.outcome);
+    if (this.outcome === 'Pass') {
       this.errorMessage = '';
       this.errorMessage = '';
     }
@@ -610,7 +490,7 @@ export class ApexTest extends Test {
 }
 
 class ReadableApexTestRunCodeActionExecutor extends (ForceApexTestRunCodeActionExecutor as {
-  new (test: string, shouldGetCodeCoverage: boolean): any;
+  new(test: string, shouldGetCodeCoverage: boolean): any;
 }) {
   private outputToJson: string;
   private apexTestOutline: ApexTestOutlineProvider;
@@ -643,14 +523,14 @@ class ReadableApexTestRunCodeActionExecutor extends (ForceApexTestRunCodeActionE
     return this.builder.build();
   }
 
-  public async execute(response: ContinueResponse<{}>): Promise<void> {
+  public execute(response: ContinueResponse<{}>) {
     const cancellationTokenSource = new vscode.CancellationTokenSource();
     const cancellationToken = cancellationTokenSource.token;
     const execution = new CliCommandExecutor(this.build(response.data), {
-      cwd: vscode.workspace.rootPath
+      cwd: vscode.workspace.workspaceFolders![0].uri.path
     }).execute(cancellationToken);
 
-    execution.processExitSubject.subscribe(async () => {
+    execution.processExitSubject.subscribe(() => {
       this.apexTestOutline.readJSONFile(this.outputToJson);
     });
 
@@ -660,7 +540,7 @@ class ReadableApexTestRunCodeActionExecutor extends (ForceApexTestRunCodeActionE
       channelService.showChannelOutput();
     }
 
-    await ProgressNotification.show(execution, cancellationTokenSource);
+    ProgressNotification.show(execution, cancellationTokenSource);
 
     notificationService.reportCommandExecutionStatus(
       execution,
