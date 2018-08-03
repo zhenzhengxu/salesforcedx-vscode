@@ -14,30 +14,32 @@ import {
   DEBUGGER_LINE_BREAKPOINTS
 } from './constants';
 import * as languageServer from './languageServer';
+import {
+  ApexLSPConverter,
+  ApexTestMethod,
+  LSPApexTestMethod
+} from './views/LSPConverter';
 import { ApexTestOutlineProvider } from './views/testOutline';
-
-export type ApexTestRequestInfo = {
-  methodName: string;
-  definingType: string;
-  position: vscode.Position;
-  file: string;
-};
 
 let languageClient: LanguageClient | undefined;
 let languageClientReady = false;
 
 export async function activate(context: vscode.ExtensionContext) {
+  const rootPath = vscode.workspace.workspaceFolders![0].name;
+  const testOutlineProvider = new ApexTestOutlineProvider(rootPath, null);
+
   languageClient = await languageServer.createLanguageServer(context);
   if (languageClient) {
     const handle = languageClient.start();
     context.subscriptions.push(handle);
 
-    languageClient.onReady().then(() => {
+    languageClient.onReady().then(async () => {
       languageClientReady = true;
+      await testOutlineProvider.refresh();
     });
   }
 
-  context.subscriptions.push(await registerTestView());
+  context.subscriptions.push(await registerTestView(testOutlineProvider));
 
   const exportedApi = {
     getLineBreakpointInfo,
@@ -56,14 +58,18 @@ async function getLineBreakpointInfo(): Promise<{}> {
   return Promise.resolve(response);
 }
 
-export async function getApexTests(): Promise<ApexTestRequestInfo[]> {
-  let response = new Array<ApexTestRequestInfo>();
+export async function getApexTests(): Promise<ApexTestMethod[]> {
+  let response = new Array<LSPApexTestMethod>();
+  const ret = new Array<ApexTestMethod>();
   if (languageClient) {
     response = (await languageClient.sendRequest(
       'test/getTestMethods'
-    )) as ApexTestRequestInfo[];
+    )) as LSPApexTestMethod[];
   }
-  return Promise.resolve(response);
+  for (const requestInfo of response) {
+    ret.push(ApexLSPConverter.toApexTestMethod(requestInfo));
+  }
+  return Promise.resolve(ret);
 }
 
 async function getExceptionBreakpointInfo(): Promise<{}> {
@@ -74,21 +80,10 @@ async function getExceptionBreakpointInfo(): Promise<{}> {
   return Promise.resolve(response);
 }
 
-async function registerTestView(): Promise<vscode.Disposable> {
+async function registerTestView(
+  testOutlineProvider: ApexTestOutlineProvider
+): Promise<vscode.Disposable> {
   // Test View
-  const rootPath = vscode.workspace.workspaceFolders![0].name;
-  let apexClasses: ApexTestRequestInfo[] | null = null;
-  if (isLanguageClientReady()) {
-    apexClasses = await getApexTests();
-  }
-
-  const apexClassesDocs = await getApexClassFiles();
-  const testOutlineProvider = new ApexTestOutlineProvider(
-    rootPath,
-    apexClassesDocs,
-    apexClasses
-  );
-
   const testViewItems = new Array<vscode.Disposable>();
 
   const testProvider = vscode.window.registerTreeDataProvider(
@@ -127,10 +122,13 @@ async function registerTestView(): Promise<vscode.Disposable> {
 }
 
 export async function getApexClassFiles(): Promise<vscode.Uri[]> {
-  const jsonProject = (await vscode.workspace.findFiles('**/sfdx-project.json'))[0];
+  const jsonProject = (await vscode.workspace.findFiles(
+    '**/sfdx-project.json'
+  ))[0];
   const innerText = fs.readFileSync(jsonProject.path);
   const jsonObject = JSON.parse(innerText.toString());
-  let packageDirectories = jsonObject.packageDirectories || jsonObject.PackageDirectories;
+  const packageDirectories =
+    jsonObject.packageDirectories || jsonObject.PackageDirectories;
   const allClasses = new Array<vscode.Uri>();
   for (const packageDirectory of packageDirectories) {
     const pattern = path.join(packageDirectory.path, '**/*.cls');
@@ -145,4 +143,4 @@ export function isLanguageClientReady(): boolean {
 }
 
 // tslint:disable-next-line:no-empty
-export function deactivate() { }
+export function deactivate() {}

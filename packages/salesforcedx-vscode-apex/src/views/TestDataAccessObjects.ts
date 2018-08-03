@@ -1,4 +1,4 @@
-import { ApexTestGroup } from './testOutline';
+import { ApexTestGroupNode } from './testOutline';
 export type FullTestResult = {
   summary: TestSummary;
   tests: TestResult[];
@@ -24,7 +24,10 @@ export type TestSummary = {
 };
 
 export class TestSummarizer {
-  public static summarize(summary: TestSummary, group: ApexTestGroup): string {
+  public static summarize(
+    summary: TestSummary,
+    group: ApexTestGroupNode
+  ): string {
     let summString = '';
     const failing = group.children.length - group.passing;
     const groupPassRate = group.passing * 100 / group.children.length + '%';

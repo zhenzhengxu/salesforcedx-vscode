@@ -6,6 +6,7 @@
  */
 
 import * as path from 'path';
+import * as vscode from 'vscode';
 
 export const DEBUGGER_LINE_BREAKPOINTS = 'debugger/lineBreakpoints';
 export const DEBUGGER_EXCEPTION_BREAKPOINTS = 'debugger/exceptionBreakpoints';
@@ -66,3 +67,7 @@ export const DARK_GREEN_BUTTON = path.join(
   'dark',
   'testPass.svg'
 );
+
+const startPos = new vscode.Position(0, 0);
+const endPos = new vscode.Position(0, 1);
+export const APEX_GROUP_RANGE = new vscode.Range(startPos, endPos);

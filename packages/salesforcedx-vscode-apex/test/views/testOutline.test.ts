@@ -8,12 +8,12 @@
 // tslint:disable:no-unused-expression
 import { expect } from 'chai';
 import { stub } from 'sinon';
-import { Position, Uri } from 'vscode';
-import { ApexTestRequestInfo } from '../../src';
+import { Location, Position, Range, Uri } from 'vscode';
+import { ApexTestMethod } from '../../src/views/LSPConverter';
 import { files } from './fakeFiles';
 import fs = require('fs');
 import {
-  ApexTestGroup,
+  ApexTestGroupNode,
   ApexTestOutlineProvider
 } from '../../src/views/testOutline';
 
@@ -25,9 +25,7 @@ describe('TestView', () => {
     // const file1Uri = Uri.file('/bogus/path/to/file1.cls');
     // const file2Uri = Uri.file('/bogus/path/to/file2.cls');
     // const file3Uri = Uri.file('/bogus/path/to/file3.cls');
-    const apexTestInfo: ApexTestRequestInfo[] = new Array<
-      ApexTestRequestInfo
-      >();
+    const apexTestInfo: ApexTestMethod[] = new Array<ApexTestMethod>();
 
     const readFilestub = stub(fs, 'readFileSync');
 
@@ -37,13 +35,15 @@ describe('TestView', () => {
         const methodName = 'test' + i;
         const definingType = 'file' + i / 2; // Parent is either file1, file2, file3, or file4
         const line = i / 2 * 4 + 3;
-        const position = new Position(line, 0);
+        const startPos = new Position(line, 0);
+        const endPos = new Position(line, 5);
         const file = '/bogus/path/to/' + parent + '.cls';
-        const testInfo: ApexTestRequestInfo = {
+        const uri = Uri.file(file);
+        const location = new Location(uri, new Range(startPos, endPos));
+        const testInfo: ApexTestMethod = {
           methodName,
           definingType,
-          position,
-          file
+          location
         };
         apexTestInfo.push(testInfo);
       }
@@ -73,18 +73,26 @@ describe('TestView', () => {
     });
 
     it.only('No tests in file', () => {
-      testOutline = new ApexTestOutlineProvider('/bogus/path', uriList, null);
+      testOutline = new ApexTestOutlineProvider(
+        '/bogus/path',
+        // uriList,
+        null
+      );
       expect(testOutline.getHead()).to.equal(
-        new ApexTestGroup('ApexTests', null, 0)
+        new ApexTestGroupNode('ApexTests', null)
       );
     });
 
     it('One test in file', () => {
       uriList.push(file0Uri);
-      testOutline = new ApexTestOutlineProvider('/bogus/path', uriList, null);
+      testOutline = new ApexTestOutlineProvider(
+        '/bogus/path',
+        // uriList,
+        null
+      );
 
       expect(testOutline.getHead()).to.deep.equal(
-        new ApexTestGroup('ApexTests', null, 0)
+        new ApexTestGroupNode('ApexTests', null)
       );
       if (testOutline.getHead()) {
         expect(testOutline.getHead().children.length).to.equal(1);
