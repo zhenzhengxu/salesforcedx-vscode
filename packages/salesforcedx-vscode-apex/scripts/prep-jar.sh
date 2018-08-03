@@ -1,6 +1,6 @@
 #!/bin/bash
 
-JORJE_LOCATION=/Users/nchen/Development/IdeaProjects/apex-jorje
+JORJE_LOCATION=/Users/jkalloor/apex-jorje
 
 (cd $JORJE_LOCATION; mvn clean install -Plsp -DskipTests)
 

@@ -253,10 +253,6 @@ export class ApexTestOutlineProvider
   }
 
   public readJSONFile(folderName: string) {
-    const fullFolderName = ospath.join(
-      vscode.workspace.workspaceFolders![0].uri.path,
-      folderName
-    );
     const jsonSummary = this.getJSONFileOutput(folderName);
     this.UpdateTestsFromJSON(jsonSummary);
     this.onDidChangeTestData.fire();
