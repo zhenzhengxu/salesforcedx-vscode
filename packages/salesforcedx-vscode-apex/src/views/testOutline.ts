@@ -459,19 +459,10 @@ class ReadableApexTestRunCodeActionExecutor extends (ForceApexTestRunCodeActionE
       this.apexTestOutline.readJSONFile(this.outputToJson);
     });
 
-    channelService.streamCommandOutput(execution);
-
-    if (this.showChannelOutput) {
-      channelService.showChannelOutput();
-    }
-
-    ProgressNotification.show(execution, cancellationTokenSource);
-
-    notificationService.reportCommandExecutionStatus(
+    super.attachExecution(
       execution,
+      cancellationTokenSource,
       cancellationToken
     );
-
-    taskViewService.addCommandExecution(execution, cancellationTokenSource);
   }
 }
