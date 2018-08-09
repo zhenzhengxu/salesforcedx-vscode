@@ -85,6 +85,11 @@
           "command": "sfdx.force.test.view.refresh",
           "when": "view == sfdx.force.test.view",
           "group": "navigation"
+        },
+        {
+          "command": "sfdx.force.test.view.failed.run",
+          "when": "view == sfdx.force.test.view",
+          "group": "navigation"
         }
       ],
       "view/item/context": [
@@ -106,6 +111,14 @@
         "icon": {
           "light": "resources/light/play-button.svg",
           "dark": "resources/dark/play-button.svg"
+        }
+      },
+      {
+        "command": "sfdx.force.test.view.failed.run",
+        "title": "%run_failed_tests_title%",
+        "icon": {
+          "light": "resources/light/play-button-failed.png",
+          "dark": "resources/dark/play-button-failed.png"
         }
       },
       {

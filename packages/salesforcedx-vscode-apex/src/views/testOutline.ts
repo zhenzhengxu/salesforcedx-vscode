@@ -60,6 +60,7 @@ export class ApexTestOutlineProvider
   private static testStrings: Set<string> = new Set<string>();
   private path: string;
   private apexTestInfo: ApexTestMethod[] | null;
+  private failedTestStrings: Set<string> = new Set<string>();
 
   constructor(path: string, apexTestInfo: ApexTestMethod[] | null) {
     this.rootNode = null;
@@ -123,6 +124,7 @@ export class ApexTestOutlineProvider
     this.rootNode = null; // Reset tests
     this.apexTestMap.clear();
     ApexTestOutlineProvider.testStrings.clear();
+    this.failedTestStrings.clear();
     this.apexTestInfo = null;
     if (isLanguageClientReady()) {
       this.apexTestInfo = await getApexTests();
@@ -210,6 +212,28 @@ export class ApexTestOutlineProvider
     await commandlet.run();
   }
 
+  public async runFailedTests() {
+    if (this.failedTestStrings.size <= 0) {
+      vscode.window.showErrorMessage(
+        nls.localize('force_test_view_no_failed_tests')
+      );
+    } else {
+      const tmpFolder = this.getTempFolder();
+      const builder = new ReadableApexTestRunCodeActionExecutor(
+        Array.from(this.failedTestStrings),
+        false,
+        tmpFolder,
+        this
+      );
+      const commandlet = new SfdxCommandlet(
+        new SfdxWorkspaceChecker(),
+        new EmptyParametersGatherer(),
+        builder
+      );
+      await commandlet.run();
+    }
+  }
+
   public updateSelection(index: vscode.Range | number) {
     const editor = vscode.window.activeTextEditor;
     if (editor) {
@@ -290,7 +314,9 @@ export class ApexTestOutlineProvider
       if (apexTest) {
         apexTest.outcome = testResult.Outcome;
         apexTest.updateIcon();
+        this.failedTestStrings.delete(testResult.FullName);
         if (testResult.Outcome === 'Fail') {
+          this.failedTestStrings.add(testResult.FullName);
           apexTest.errorMessage = testResult.Message;
           apexTest.stackTrace = testResult.StackTrace;
           apexTest.description =
