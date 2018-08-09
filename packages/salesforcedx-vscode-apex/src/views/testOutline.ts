@@ -335,7 +335,7 @@ export abstract class TestNode extends vscode.TreeItem {
     this.name = label;
     this.command = {
       command: 'sfdx.force.test.view.showError',
-      title: 'show error',
+      title: nls.localize('force_test_view_show_error_title'),
       arguments: [this]
     };
   }
@@ -459,7 +459,7 @@ export class ReadableApexTestRunCodeActionExecutor extends (ForceApexTestRunCode
     const cancellationTokenSource = new vscode.CancellationTokenSource();
     const cancellationToken = cancellationTokenSource.token;
     const execution = new CliCommandExecutor(this.build(response.data), {
-      cwd: vscode.workspace.workspaceFolders![0].uri.path
+      cwd: vscode.workspace.rootPath
     }).execute(cancellationToken);
 
     execution.processExitSubject.subscribe(() => {
