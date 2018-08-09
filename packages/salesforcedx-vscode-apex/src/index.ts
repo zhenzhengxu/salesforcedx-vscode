@@ -20,7 +20,10 @@ import {
   ApexTestMethod,
   LSPApexTestMethod
 } from './views/LSPConverter';
-import { ApexTestOutlineProvider } from './views/testOutline';
+import {
+  ApexTestOutlineProvider,
+  ReadableApexTestRunCodeActionExecutor
+} from './views/testOutline';
 
 const sfdxCoreExtension = vscode.extensions.getExtension(
   'salesforce.salesforcedx-vscode-core'
@@ -61,7 +64,9 @@ export async function activate(context: vscode.ExtensionContext) {
     getLineBreakpointInfo,
     getExceptionBreakpointInfo,
     isLanguageClientReady,
-    getApexTests
+    getApexTests,
+    ApexTestOutlineProvider,
+    ReadableApexTestRunCodeActionExecutor
   };
   return exportedApi;
 }

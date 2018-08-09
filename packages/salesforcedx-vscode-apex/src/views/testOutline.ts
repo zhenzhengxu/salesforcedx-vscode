@@ -39,18 +39,16 @@ const NO_TESTS_DESCRIPTION = nls.localize(
 const sfdxCoreExports = vscode.extensions.getExtension(
   'salesforce.salesforcedx-vscode-core'
 )!.exports;
-const ProgressNotification = sfdxCoreExports.ProgressNotification;
 const EmptyParametersGatherer = sfdxCoreExports.EmptyParametersGatherer;
 const SfdxCommandlet = sfdxCoreExports.SfdxCommandlet;
 const ForceApexTestRunCodeActionExecutor =
   sfdxCoreExports.ForceApexTestRunCodeActionExecutor;
 const SfdxWorkspaceChecker = sfdxCoreExports.SfdxWorkspaceChecker;
 const channelService = sfdxCoreExports.channelService;
-const notificationService = sfdxCoreExports.notificationService;
-const taskViewService = sfdxCoreExports.taskViewService;
 
 export class ApexTestOutlineProvider
   implements vscode.TreeDataProvider<TestNode> {
+  private static instance: ApexTestOutlineProvider;
   private onDidChangeTestData: vscode.EventEmitter<
     TestNode | undefined
   > = new vscode.EventEmitter<TestNode | undefined>();
@@ -64,7 +62,20 @@ export class ApexTestOutlineProvider
   private path: string;
   private apexTestInfo: ApexTestMethod[] | null;
 
+  public static getInstance(): ApexTestOutlineProvider {
+    if (ApexTestOutlineProvider.instance) {
+      return ApexTestOutlineProvider.instance;
+    } else {
+      // const apexTests = await getApexTests();
+      return new ApexTestOutlineProvider(
+        vscode.workspace.workspaceFolders![0].name,
+        null
+      );
+    }
+  }
+
   constructor(path: string, apexTestInfo: ApexTestMethod[] | null) {
+    ApexTestOutlineProvider.instance = this;
     this.rootNode = null;
     this.path = path;
     this.apexTestInfo = apexTestInfo;
@@ -202,8 +213,7 @@ export class ApexTestOutlineProvider
     const builder = new ReadableApexTestRunCodeActionExecutor(
       [test.name],
       false,
-      tmpFolder,
-      this
+      tmpFolder
     );
     const commandlet = new SfdxCommandlet(
       new SfdxWorkspaceChecker(),
@@ -241,8 +251,7 @@ export class ApexTestOutlineProvider
     const builder = new ReadableApexTestRunCodeActionExecutor(
       Array.from(ApexTestOutlineProvider.testStrings.values()),
       false,
-      tmpFolder,
-      this
+      tmpFolder
     );
     const commandlet = new SfdxCommandlet(
       new SfdxWorkspaceChecker(),
@@ -272,6 +281,7 @@ export class ApexTestOutlineProvider
     }
     fileName = ospath.join(fullFolderName, fileName);
     const output = fs.readFileSync(fileName).toString();
+    fs.unlinkSync(fileName);
     const jsonSummary = JSON.parse(output) as FullTestResult;
     return jsonSummary;
   }
@@ -414,21 +424,18 @@ export class ApexTestNode extends TestNode {
   public contextValue = 'apexTest';
 }
 
-class ReadableApexTestRunCodeActionExecutor extends (ForceApexTestRunCodeActionExecutor as {
+export class ReadableApexTestRunCodeActionExecutor extends (ForceApexTestRunCodeActionExecutor as {
   new (test: string, shouldGetCodeCoverage: boolean): any;
 }) {
   private outputToJson: string;
-  private apexTestOutline: ApexTestOutlineProvider;
 
   public constructor(
     tests: string[],
     shouldGetCodeCoverage: boolean,
-    outputToJson: string,
-    apexTestOutline: ApexTestOutlineProvider
+    outputToJson: string
   ) {
     super(tests.join(','), shouldGetCodeCoverage);
     this.outputToJson = outputToJson;
-    this.apexTestOutline = apexTestOutline;
   }
 
   public build(data: {}): Command {
@@ -456,22 +463,13 @@ class ReadableApexTestRunCodeActionExecutor extends (ForceApexTestRunCodeActionE
     }).execute(cancellationToken);
 
     execution.processExitSubject.subscribe(() => {
-      this.apexTestOutline.readJSONFile(this.outputToJson);
+      ApexTestOutlineProvider.getInstance().readJSONFile(this.outputToJson);
     });
 
-    channelService.streamCommandOutput(execution);
-
-    if (this.showChannelOutput) {
-      channelService.showChannelOutput();
-    }
-
-    ProgressNotification.show(execution, cancellationTokenSource);
-
-    notificationService.reportCommandExecutionStatus(
+    super.attachExecution(
       execution,
+      cancellationTokenSource,
       cancellationToken
     );
-
-    taskViewService.addCommandExecution(execution, cancellationTokenSource);
   }
 }
