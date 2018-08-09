@@ -100,9 +100,6 @@ async function forceApexTestRunCodeAction(test: string) {
   if (sfdxApex) {
     const ReadableApexTestRunCodeActionExecutor =
       sfdxApex.exports.ReadableApexTestRunCodeActionExecutor;
-    const ApexTestOutlineProvider = sfdxApex.exports.ApexTestOutlineProvider;
-
-    const apexOutlineProvider = ApexTestOutlineProvider.getInstance();
     commandlet = new SfdxCommandlet(
       new SfdxWorkspaceChecker(),
       new EmptyParametersGatherer(),
