@@ -3,6 +3,10 @@
   "test_view_container_title": "Test Viewer",
   "test_view_name": "Apex Tests",
   "run_tests_title": "Run Tests",
+<<<<<<< HEAD
+=======
+  "run_failed_tests_title": "Run Failed Tests",
+>>>>>>> d64b0a3937652d3d2f0ebb25924b6719e3e3f678
   "refresh_test_title": "Refresh Tests",
   "run_single_test_title": "Run Single Test",
   "show_error_title": "Display Error",

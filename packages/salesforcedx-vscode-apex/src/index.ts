@@ -114,6 +114,13 @@ async function registerTestView(
       testOutlineProvider.runApexTests()
     )
   );
+
+  // Run Test Button on Test View command
+  testViewItems.push(
+    vscode.commands.registerCommand('sfdx.force.test.view.failed.run', () =>
+      testOutlineProvider.runFailedTests()
+    )
+  );
   // Show Error Message command
   testViewItems.push(
     vscode.commands.registerCommand('sfdx.force.test.view.showError', test =>
