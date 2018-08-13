@@ -8,7 +8,7 @@
 // tslint:disable:no-unused-expression
 import { expect } from 'chai';
 import { stub } from 'sinon';
-import { Location, Position, Range, Uri } from 'vscode';
+import * as vscode from 'vscode';
 import { ApexTestMethod } from '../../src/views/LSPConverter';
 import { files } from './fakeFiles';
 import fs = require('fs');
@@ -19,9 +19,10 @@ import {
 
 describe('TestView', () => {
   describe('Test View Outline Provider', () => {
+    let coreExtension: vscode.Extension<any>;
     let testOutline: ApexTestOutlineProvider;
-    const uriList = new Array<Uri>();
-    const file0Uri = Uri.file('/bogus/path/to/file0.cls');
+    const uriList = new Array<vscode.Uri>();
+    const file0Uri = vscode.Uri.file('/bogus/path/to/file0.cls');
     // const file1Uri = Uri.file('/bogus/path/to/file1.cls');
     // const file2Uri = Uri.file('/bogus/path/to/file2.cls');
     // const file3Uri = Uri.file('/bogus/path/to/file3.cls');
@@ -29,17 +30,28 @@ describe('TestView', () => {
 
     const readFilestub = stub(fs, 'readFileSync');
 
-    beforeEach(() => {
+    before(() => {
+      if (vscode.workspace.rootPath) {
+        coreExtension = vscode.extensions.getExtension(
+          'salesforce.salesforcedx-vscode-core'
+        ) as vscode.Extension<any>;
+      }
+    });
+
+    beforeEach(async () => {
       // All test methods, has same info as file1, file2, file3, file4
       for (let i = 0; i < 8; i++) {
         const methodName = 'test' + i;
         const definingType = 'file' + i / 2; // Parent is either file1, file2, file3, or file4
         const line = i / 2 * 4 + 3;
-        const startPos = new Position(line, 0);
-        const endPos = new Position(line, 5);
+        const startPos = new vscode.Position(line, 0);
+        const endPos = new vscode.Position(line, 5);
         const file = '/bogus/path/to/' + parent + '.cls';
-        const uri = Uri.file(file);
-        const location = new Location(uri, new Range(startPos, endPos));
+        const uri = vscode.Uri.file(file);
+        const location = new vscode.Location(
+          uri,
+          new vscode.Range(startPos, endPos)
+        );
         const testInfo: ApexTestMethod = {
           methodName,
           definingType,
@@ -72,7 +84,10 @@ describe('TestView', () => {
       readFilestub.restore();
     });
 
-    it.only('No tests in file', () => {
+    it.only('No tests in file', async () => {
+      if (coreExtension && !coreExtension.isActive) {
+        await coreExtension.activate();
+      }
       testOutline = new ApexTestOutlineProvider(
         '/bogus/path',
         // uriList,
@@ -83,7 +98,10 @@ describe('TestView', () => {
       );
     });
 
-    it('One test in file', () => {
+    it('One test in file', async () => {
+      if (coreExtension && !coreExtension.isActive) {
+        await coreExtension.activate();
+      }
       uriList.push(file0Uri);
       testOutline = new ApexTestOutlineProvider(
         '/bogus/path',
