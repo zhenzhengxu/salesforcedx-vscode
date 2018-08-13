@@ -1,12 +1,9 @@
-<<<<<<< HEAD
 /*
  * Copyright (c) 2017, salesforce.com, inc.
  * All rights reserved.
  * Licensed under the BSD 3-Clause license.
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-=======
->>>>>>> d64b0a3937652d3d2f0ebb25924b6719e3e3f678
 import * as vscode from 'vscode';
 
 export type LSPApexTestMethod = {

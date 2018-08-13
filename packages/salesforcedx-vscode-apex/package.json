@@ -85,14 +85,11 @@
           "command": "sfdx.force.test.view.refresh",
           "when": "view == sfdx.force.test.view",
           "group": "navigation"
-<<<<<<< HEAD
-=======
         },
         {
           "command": "sfdx.force.test.view.failed.run",
           "when": "view == sfdx.force.test.view",
           "group": "navigation"
->>>>>>> d64b0a3937652d3d2f0ebb25924b6719e3e3f678
         }
       ],
       "view/item/context": [
@@ -117,8 +114,6 @@
         }
       },
       {
-<<<<<<< HEAD
-=======
         "command": "sfdx.force.test.view.failed.run",
         "title": "%run_failed_tests_title%",
         "icon": {
@@ -127,7 +122,6 @@
         }
       },
       {
->>>>>>> d64b0a3937652d3d2f0ebb25924b6719e3e3f678
         "command": "sfdx.force.test.view.refresh",
         "title": "%refresh_test_title%",
         "icon": {
