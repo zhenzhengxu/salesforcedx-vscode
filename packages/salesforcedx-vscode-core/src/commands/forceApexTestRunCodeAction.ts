@@ -97,7 +97,8 @@ async function forceApexTestRunCodeAction(test: string) {
     'salesforce.salesforcedx-vscode-apex'
   );
   let commandlet: SfdxCommandlet<{}>;
-  if (sfdxApex) {
+  if (sfdxApex && sfdxApex.isActive) {
+    // If Apex extension is active and exists
     const ReadableApexTestRunCodeActionExecutor =
       sfdxApex.exports.ReadableApexTestRunCodeActionExecutor;
     commandlet = new SfdxCommandlet(

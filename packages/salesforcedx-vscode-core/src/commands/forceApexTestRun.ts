@@ -150,14 +150,15 @@ export class ForceApexTestRunExecutor extends SfdxCommandletExecutor<
     const cancellationTokenSource = new vscode.CancellationTokenSource();
     const cancellationToken = cancellationTokenSource.token;
     const execution = new CliCommandExecutor(this.build(response.data), {
-      cwd: vscode.workspace.workspaceFolders![0].uri.path
+      cwd: vscode.workspace.rootPath
     }).execute(cancellationToken);
 
     execution.processExitSubject.subscribe(() => {
       const sfdxApex = vscode.extensions.getExtension(
         'salesforce.salesforcedx-vscode-apex'
       );
-      if (sfdxApex) {
+      if (sfdxApex && sfdxApex.isActive) {
+        // Update Test bar if apex extension is active and exists
         const ApexTestOutlineProvider =
           sfdxApex.exports.ApexTestOutlineProvider;
         ApexTestOutlineProvider.getInstance().readJSONFile(TEMP_FOLDER);
