@@ -6,6 +6,7 @@
  */
 
 import {
+  CliCommandExecutor,
   Command,
   SfdxCommandBuilder
 } from '@salesforce/salesforcedx-utils-vscode/out/src/cli';
@@ -15,6 +16,7 @@ import {
   ParametersGatherer
 } from '@salesforce/salesforcedx-utils-vscode/out/src/types';
 import * as fs from 'fs';
+import * as os from 'os';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { nls } from '../messages';
@@ -24,6 +26,8 @@ import {
   SfdxCommandletExecutor,
   SfdxWorkspaceChecker
 } from './commands';
+
+const TEMP_FOLDER = os.tmpdir();
 
 export enum TestType {
   All,
@@ -39,7 +43,7 @@ export class TestsSelector
   implements ParametersGatherer<ApexTestQuickPickItem> {
   public async gather(): Promise<
     CancelResponse | ContinueResponse<ApexTestQuickPickItem>
-    > {
+  > {
     const testSuites = await vscode.workspace.findFiles(
       '**/*.testSuite-meta.xml'
     );
@@ -96,12 +100,15 @@ export class ForceApexTestRunCommandFactory {
   public constructExecutorCommand(): Command {
     this.builder = this.builder
       .withDescription(nls.localize('force_apex_test_run_text'))
-      .withArg('force:apex:test:run');
+      .withArg('force:apex:test:run')
+      .withFlag('--outputdir', TEMP_FOLDER);
 
     switch (this.data.type) {
       case TestType.Suite:
-        this.builder = this.builder
-          .withFlag('--suitenames', `${this.data.label}`);
+        this.builder = this.builder.withFlag(
+          '--suitenames',
+          `${this.data.label}`
+        );
         break;
       case TestType.Class:
         this.builder = this.builder
@@ -113,8 +120,7 @@ export class ForceApexTestRunCommandFactory {
     }
 
     if (this.getCodeCoverage) {
-      this.builder = this.builder
-        .withArg('--codecoverage');
+      this.builder = this.builder.withArg('--codecoverage');
     }
 
     this.builder = this.builder
@@ -124,18 +130,46 @@ export class ForceApexTestRunCommandFactory {
     this.testRunExecutorCommand = this.builder.build();
     return this.testRunExecutorCommand;
   }
-
 }
 
 export class ForceApexTestRunExecutor extends SfdxCommandletExecutor<
   ApexTestQuickPickItem
-  > {
+> {
   public build(data: ApexTestQuickPickItem): Command {
     const getCodeCoverage: boolean = sfdxCoreSettings
       .getConfiguration()
       .get('retrieve-test-code-coverage') as boolean;
-    const factory: ForceApexTestRunCommandFactory = new ForceApexTestRunCommandFactory(data, getCodeCoverage);
+    const factory: ForceApexTestRunCommandFactory = new ForceApexTestRunCommandFactory(
+      data,
+      getCodeCoverage
+    );
     return factory.constructExecutorCommand();
+  }
+
+  public execute(response: ContinueResponse<ApexTestQuickPickItem>) {
+    const cancellationTokenSource = new vscode.CancellationTokenSource();
+    const cancellationToken = cancellationTokenSource.token;
+    const execution = new CliCommandExecutor(this.build(response.data), {
+      cwd: vscode.workspace.rootPath
+    }).execute(cancellationToken);
+
+    execution.processExitSubject.subscribe(() => {
+      const sfdxApex = vscode.extensions.getExtension(
+        'salesforce.salesforcedx-vscode-apex'
+      );
+      if (sfdxApex && sfdxApex.isActive) {
+        // Update Test bar if apex extension is active and exists
+        const ApexTestOutlineProvider =
+          sfdxApex.exports.ApexTestOutlineProvider;
+        ApexTestOutlineProvider.getInstance().readJSONFile(TEMP_FOLDER);
+      }
+    });
+
+    super.attachExecution(
+      execution,
+      cancellationTokenSource,
+      cancellationToken
+    );
   }
 }
 

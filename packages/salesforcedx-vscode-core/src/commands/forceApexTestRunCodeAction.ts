@@ -4,11 +4,11 @@
  * Licensed under the BSD 3-Clause license.
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-
 import {
   Command,
   SfdxCommandBuilder
 } from '@salesforce/salesforcedx-utils-vscode/out/src/cli';
+import * as os from 'os';
 import * as vscode from 'vscode';
 import { nls } from '../messages';
 import { notificationService } from '../notifications';
@@ -60,9 +60,9 @@ const forceApexTestRunCacheService = ForceApexTestRunCacheService.getInstance();
 
 // build force:apex:test:run w/ given test class or test method
 export class ForceApexTestRunCodeActionExecutor extends SfdxCommandletExecutor<{}> {
-  private test: string;
-  private shouldGetCodeCoverage: boolean = false;
-  private builder: SfdxCommandBuilder = new SfdxCommandBuilder();
+  protected test: string;
+  protected shouldGetCodeCoverage: boolean = false;
+  protected builder: SfdxCommandBuilder = new SfdxCommandBuilder();
 
   public constructor(test: string, shouldGetCodeCoverage: boolean) {
     super();
@@ -93,11 +93,30 @@ async function forceApexTestRunCodeAction(test: string) {
   const getCodeCoverage: boolean = sfdxCoreSettings
     .getConfiguration()
     .get('retrieve-test-code-coverage') as boolean;
-  const commandlet = new SfdxCommandlet(
-    new SfdxWorkspaceChecker(),
-    new EmptyParametersGatherer(),
-    new ForceApexTestRunCodeActionExecutor(test, getCodeCoverage)
+  const sfdxApex = vscode.extensions.getExtension(
+    'salesforce.salesforcedx-vscode-apex'
   );
+  let commandlet: SfdxCommandlet<{}>;
+  if (sfdxApex && sfdxApex.isActive) {
+    // If Apex extension is active and exists
+    const ReadableApexTestRunCodeActionExecutor =
+      sfdxApex.exports.ReadableApexTestRunCodeActionExecutor;
+    commandlet = new SfdxCommandlet(
+      new SfdxWorkspaceChecker(),
+      new EmptyParametersGatherer(),
+      new ReadableApexTestRunCodeActionExecutor(
+        [test],
+        getCodeCoverage,
+        os.tmpdir()
+      )
+    );
+  } else {
+    commandlet = new SfdxCommandlet(
+      new SfdxWorkspaceChecker(),
+      new EmptyParametersGatherer(),
+      new ForceApexTestRunCodeActionExecutor(test, getCodeCoverage)
+    );
+  }
   await commandlet.run();
 }
 
