@@ -20,14 +20,10 @@ import {
   ApexTestMethod,
   LSPApexTestMethod
 } from './views/LSPConverter';
-<<<<<<< HEAD
 import {
   ApexTestOutlineProvider,
   ReadableApexTestRunCodeActionExecutor
 } from './views/testOutline';
-=======
-import { ApexTestOutlineProvider } from './views/testOutline';
->>>>>>> develop
 
 const sfdxCoreExtension = vscode.extensions.getExtension(
   'salesforce.salesforcedx-vscode-core'
@@ -55,7 +51,6 @@ export async function activate(context: vscode.ExtensionContext) {
   if (languageClient) {
     const handle = languageClient.start();
     context.subscriptions.push(handle);
-<<<<<<< HEAD
 
     languageClient.onReady().then(async () => {
       languageClientReady = true;
@@ -63,28 +58,15 @@ export async function activate(context: vscode.ExtensionContext) {
     });
   }
 
-=======
-
-    languageClient.onReady().then(async () => {
-      languageClientReady = true;
-      await testOutlineProvider.refresh();
-    });
-  }
-
->>>>>>> develop
   context.subscriptions.push(await registerTestView(testOutlineProvider));
 
   const exportedApi = {
     getLineBreakpointInfo,
     getExceptionBreakpointInfo,
     isLanguageClientReady,
-<<<<<<< HEAD
     getApexTests,
     ApexTestOutlineProvider,
     ReadableApexTestRunCodeActionExecutor
-=======
-    getApexTests
->>>>>>> develop
   };
   return exportedApi;
 }
