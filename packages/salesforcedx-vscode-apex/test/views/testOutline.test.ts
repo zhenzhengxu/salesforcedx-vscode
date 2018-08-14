@@ -13,7 +13,6 @@ import * as vscode from 'vscode';
 import { APEX_GROUP_RANGE } from '../../src/constants';
 import { nls } from '../../src/messages';
 import { ApexTestMethod } from '../../src/views/lspConverter';
-import { FullTestResult } from '../../src/views/TestDataAccessObjects';
 import {
   ApexTestGroupNode,
   ApexTestNode,
@@ -24,8 +23,6 @@ import {
   jsonSummaryOneFilePass
 } from './testJSONOutputs';
 
-const LOADING_MESSAGE = nls.localize('force_test_view_loading_message');
-const NO_TESTS_MESSAGE = nls.localize('force_test_view_no_tests_message');
 const NO_TESTS_DESCRIPTION = nls.localize(
   'force_test_view_no_tests_description'
 );
