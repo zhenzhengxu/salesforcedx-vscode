@@ -18,7 +18,7 @@ import {
 } from '../constants';
 import { getApexTests, isLanguageClientReady } from '../languageClientUtils';
 import { nls } from '../messages';
-import { ApexTestMethod } from './LSPConverter';
+import { ApexTestMethod } from './lspConverter';
 import { FullTestResult, TestSummarizer } from './testDataAccessObjects';
 // Message
 const LOADING_MESSAGE = nls.localize('force_test_view_loading_message');
@@ -99,7 +99,7 @@ export class ApexTestOutlineProvider
     }
   }
 
-  public async refresh() {
+  public async refresh(): Promise<void> {
     this.rootNode = null; // Reset tests
     this.apexTestMap.clear();
     this.testStrings.clear();

@@ -13,7 +13,7 @@ import {
   ApexTestNode,
   ApexTestOutlineProvider,
   TestNode
-} from './TestOutlineProvider';
+} from './testOutlineProvider';
 
 const sfdxCoreExports = vscode.extensions.getExtension(
   'salesforce.salesforcedx-vscode-core'

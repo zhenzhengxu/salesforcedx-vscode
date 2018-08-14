@@ -8,7 +8,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { LanguageClient } from 'vscode-languageclient';
+import { LanguageClient } from 'vscode-languageclient/lib/main';
 import {
   getApexTests,
   getExceptionBreakpointInfo,
@@ -43,14 +43,18 @@ export async function activate(context: vscode.ExtensionContext) {
   telemetryService.sendExtensionActivationEvent();
   languageClient = await languageServer.createLanguageServer(context);
   LanguageClientUtils.setClientInstance(languageClient);
-  if (languageClient) {
-    const handle = languageClient.start();
-    context.subscriptions.push(handle);
-    languageClient.onReady().then(async () => {
+  const handle = languageClient.start();
+  context.subscriptions.push(handle);
+
+  languageClient
+    .onReady()
+    .then(async () => {
       LanguageClientUtils.languageClientReady = true;
       await testOutlineProvider.refresh();
+    })
+    .catch(err => {
+      // Handled by clients
     });
-  }
 
   context.subscriptions.push(await registerTestView(testOutlineProvider));
 
@@ -104,7 +108,6 @@ async function registerTestView(
       test => testRunner.runSingleTest(test)
     )
   );
-
   // Refresh Test View command
   testViewItems.push(
     vscode.commands.registerCommand('sfdx.force.test.view.refresh', () =>
