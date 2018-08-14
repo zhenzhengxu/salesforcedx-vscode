@@ -67,7 +67,7 @@ async function registerTestView(
   testOutlineProvider: ApexTestOutlineProvider
 ): Promise<vscode.Disposable> {
   // Create TestRunner
-  const testRunner = new ApexTestRunner(testOutlineProvider, sfdxCoreExtension);
+  const testRunner = new ApexTestRunner(testOutlineProvider);
 
   // Test View
   const testViewItems = new Array<vscode.Disposable>();

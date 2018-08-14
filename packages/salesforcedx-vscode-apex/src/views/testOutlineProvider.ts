@@ -36,7 +36,7 @@ export class ApexTestOutlineProvider
 
   private apexTestMap: Map<string, TestNode> = new Map<string, TestNode>();
   private rootNode: TestNode | null;
-  public static testStrings: Set<string> = new Set<string>();
+  public testStrings: Set<string> = new Set<string>();
   private path: string;
   private apexTestInfo: ApexTestMethod[] | null;
 
@@ -100,7 +100,7 @@ export class ApexTestOutlineProvider
   public async refresh() {
     this.rootNode = null; // Reset tests
     this.apexTestMap.clear();
-    ApexTestOutlineProvider.testStrings.clear();
+    this.testStrings.clear();
     this.apexTestInfo = null;
     if (isLanguageClientReady()) {
       this.apexTestInfo = await getApexTests();
@@ -138,7 +138,7 @@ export class ApexTestOutlineProvider
         ) {
           this.rootNode.children.push(apexGroup);
         }
-        ApexTestOutlineProvider.testStrings.add(apexGroup.name);
+        this.testStrings.add(apexGroup.name);
       });
     }
     return this.rootNode;
