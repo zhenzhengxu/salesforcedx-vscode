@@ -7,7 +7,6 @@
 import * as vscode from 'vscode';
 import fs = require('fs');
 import ospath = require('path');
-import { getApexTests, isLanguageClientReady } from '..';
 import {
   APEX_GROUP_RANGE,
   DARK_BLUE_BUTTON,
@@ -17,6 +16,7 @@ import {
   LIGHT_GREEN_BUTTON,
   LIGHT_RED_BUTTON
 } from '../constants';
+import { getApexTests, isLanguageClientReady } from '../languageClientUtils';
 import { nls } from '../messages';
 import { ApexTestMethod } from './LSPConverter';
 import { FullTestResult, TestSummarizer } from './TestDataAccessObjects';

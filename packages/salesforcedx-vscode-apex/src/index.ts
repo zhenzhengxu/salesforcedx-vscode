@@ -10,16 +10,14 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { LanguageClient } from 'vscode-languageclient';
 import {
-  DEBUGGER_EXCEPTION_BREAKPOINTS,
-  DEBUGGER_LINE_BREAKPOINTS
-} from './constants';
+  getApexTests,
+  getExceptionBreakpointInfo,
+  getLineBreakpointInfo,
+  isLanguageClientReady,
+  LanguageClientUtils
+} from './languageClientUtils';
 import * as languageServer from './languageServer';
 import { telemetryService } from './telemetry';
-import {
-  ApexLSPConverter,
-  ApexTestMethod,
-  LSPApexTestMethod
-} from './views/lspConverter';
 import { ApexTestOutlineProvider } from './views/testOutlineProvider';
 import { ApexTestRunner } from './views/testRunner';
 
@@ -28,7 +26,6 @@ const sfdxCoreExtension = vscode.extensions.getExtension(
 );
 
 let languageClient: LanguageClient | undefined;
-let languageClientReady = false;
 
 export async function activate(context: vscode.ExtensionContext) {
   const rootPath = vscode.workspace.workspaceFolders![0].name;
@@ -44,14 +41,13 @@ export async function activate(context: vscode.ExtensionContext) {
   }
 
   telemetryService.sendExtensionActivationEvent();
-
   languageClient = await languageServer.createLanguageServer(context);
+  LanguageClientUtils.setClientInstance(languageClient);
   if (languageClient) {
     const handle = languageClient.start();
     context.subscriptions.push(handle);
-
     languageClient.onReady().then(async () => {
-      languageClientReady = true;
+      LanguageClientUtils.languageClientReady = true;
       await testOutlineProvider.refresh();
     });
   }
@@ -65,36 +61,6 @@ export async function activate(context: vscode.ExtensionContext) {
     getApexTests
   };
   return exportedApi;
-}
-
-async function getLineBreakpointInfo(): Promise<{}> {
-  let response = {};
-  if (languageClient) {
-    response = await languageClient.sendRequest(DEBUGGER_LINE_BREAKPOINTS);
-  }
-  return Promise.resolve(response);
-}
-
-export async function getApexTests(): Promise<ApexTestMethod[]> {
-  let response = new Array<LSPApexTestMethod>();
-  const ret = new Array<ApexTestMethod>();
-  if (languageClient) {
-    response = (await languageClient.sendRequest(
-      'test/getTestMethods'
-    )) as LSPApexTestMethod[];
-  }
-  for (const requestInfo of response) {
-    ret.push(ApexLSPConverter.toApexTestMethod(requestInfo));
-  }
-  return Promise.resolve(ret);
-}
-
-async function getExceptionBreakpointInfo(): Promise<{}> {
-  let response = {};
-  if (languageClient) {
-    response = await languageClient.sendRequest(DEBUGGER_EXCEPTION_BREAKPOINTS);
-  }
-  return Promise.resolve(response);
 }
 
 async function registerTestView(
@@ -156,10 +122,6 @@ export async function getApexClassFiles(): Promise<vscode.Uri[]> {
     allClasses.push(...apexClassFiles);
   }
   return allClasses;
-}
-
-export function isLanguageClientReady(): boolean {
-  return languageClientReady;
 }
 
 // tslint:disable-next-line:no-empty
