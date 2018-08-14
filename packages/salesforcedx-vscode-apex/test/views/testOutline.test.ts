@@ -7,14 +7,22 @@
 
 // tslint:disable:no-unused-expression
 import { expect } from 'chai';
+import * as fs from 'fs';
+import { SinonStub, stub } from 'sinon';
 import * as vscode from 'vscode';
 import { APEX_GROUP_RANGE } from '../../src/constants';
 import { nls } from '../../src/messages';
 import { ApexTestMethod } from '../../src/views/lspConverter';
+import { FullTestResult } from '../../src/views/TestDataAccessObjects';
 import {
   ApexTestGroupNode,
+  ApexTestNode,
   ApexTestOutlineProvider
 } from '../../src/views/testOutlineProvider';
+import {
+  jsonSummaryMultipleFiles,
+  jsonSummaryOneFilePass
+} from './testJSONOutputs';
 
 const LOADING_MESSAGE = nls.localize('force_test_view_loading_message');
 const NO_TESTS_MESSAGE = nls.localize('force_test_view_no_tests_message');
@@ -23,33 +31,30 @@ const NO_TESTS_DESCRIPTION = nls.localize(
 );
 
 describe('TestView', () => {
-  describe('Test View Outline Provider', () => {
-    let testOutline: ApexTestOutlineProvider;
-    const apexTestInfo: ApexTestMethod[] = new Array<ApexTestMethod>();
+  let testOutline: ApexTestOutlineProvider;
+  const apexTestInfo: ApexTestMethod[] = new Array<ApexTestMethod>();
+  // All test methods, has same info as file1, file2, file3, file4
+  for (let i = 0; i < 8; i++) {
+    const methodName = 'test' + i;
+    const definingType = 'file' + Math.floor(i / 2); // Parent is either file1, file2, file3, or file4
+    const line = i / 2 * 4 + 3;
+    const startPos = new vscode.Position(line, 0);
+    const endPos = new vscode.Position(line, 5);
+    const file = '/bogus/path/to/' + definingType + '.cls';
+    const uri = vscode.Uri.file(file);
+    const location = new vscode.Location(
+      uri,
+      new vscode.Range(startPos, endPos)
+    );
+    const testInfo: ApexTestMethod = {
+      methodName,
+      definingType,
+      location
+    };
+    apexTestInfo.push(testInfo);
+  }
 
-    beforeEach(async () => {
-      // All test methods, has same info as file1, file2, file3, file4
-      for (let i = 0; i < 8; i++) {
-        const methodName = 'test' + i;
-        const definingType = 'file' + Math.floor(i / 2); // Parent is either file1, file2, file3, or file4
-        const line = i / 2 * 4 + 3;
-        const startPos = new vscode.Position(line, 0);
-        const endPos = new vscode.Position(line, 5);
-        const file = '/bogus/path/to/' + definingType + '.cls';
-        const uri = vscode.Uri.file(file);
-        const location = new vscode.Location(
-          uri,
-          new vscode.Range(startPos, endPos)
-        );
-        const testInfo: ApexTestMethod = {
-          methodName,
-          definingType,
-          location
-        };
-        apexTestInfo.push(testInfo);
-      }
-    });
-
+  describe('Get Tests and Create Tree', () => {
     it('No tests in file', () => {
       testOutline = new ApexTestOutlineProvider('/bogus/path', null);
       const expected = new ApexTestGroupNode('ApexTests', null);
@@ -87,14 +92,12 @@ describe('TestView', () => {
     it('8 tests in 4 files', () => {
       testOutline = new ApexTestOutlineProvider('/bogus/path/', apexTestInfo);
       if (testOutline.getHead()) {
-        console.log(testOutline.getHead());
         expect(testOutline.getHead().children.length).to.equal(4);
         let i = 0;
         for (const testChildGroup of testOutline.getHead().children) {
           const testInfo1 = apexTestInfo[i];
           i++;
           const testInfo2 = apexTestInfo[i];
-          console.log(testChildGroup);
           expect(testChildGroup.children.length).to.equal(2); // Each group has two children
           expect(testChildGroup.name).to.equal(testInfo1.definingType);
           const groupLocation = new vscode.Location(
@@ -113,6 +116,90 @@ describe('TestView', () => {
           expect(test2.location).to.deep.equal(testInfo2.location);
           i++;
         }
+      }
+    });
+  });
+
+  describe('Read JSON file and update tests', () => {
+    let readFolderStub: SinonStub;
+    let readFileStub: SinonStub;
+    let parseJSONStub: SinonStub;
+    // let jsonSummaryAll: FullTestResult;
+
+    beforeEach(() => {
+      readFolderStub = stub(fs, 'readdirSync');
+      readFolderStub.callsFake(folderName => {
+        return ['test-result.json'];
+      });
+      readFileStub = stub(fs, 'readFileSync');
+      readFileStub.callsFake(fileName => {
+        return 'nonsense';
+      });
+      parseJSONStub = stub(JSON, 'parse');
+    });
+
+    afterEach(() => {
+      readFolderStub.restore();
+      readFileStub.restore();
+      parseJSONStub.restore();
+    });
+
+    it('Results from one passed test', () => {
+      parseJSONStub.callsFake(() => {
+        return jsonSummaryOneFilePass;
+      });
+      testOutline = new ApexTestOutlineProvider(
+        '/bogus/path/',
+        apexTestInfo.slice(0, 1)
+      );
+      testOutline.readJSONFile('oneFilePass');
+      const testGroupNode = testOutline.getHead()
+        .children[0] as ApexTestGroupNode;
+      expect(testGroupNode.passing).to.equal(1);
+      const testNode = testGroupNode.children[0] as ApexTestNode;
+      expect(testNode.outcome).to.equal('Pass');
+    });
+
+    it('Results from 8 tests, 2 failing', () => {
+      parseJSONStub.callsFake(() => {
+        return jsonSummaryMultipleFiles;
+      });
+      testOutline = new ApexTestOutlineProvider('/bogus/path/', apexTestInfo);
+      testOutline.readJSONFile('multipleFilesMixed');
+      let classNum = 0;
+      expect(testOutline.getHead().children.length).to.equal(4);
+      for (const testGroupNode of testOutline.getHead().children) {
+        console.log(classNum);
+        let outcome = 'Pass';
+        if (classNum === 0 || classNum === 3) {
+          // Failing Class
+          expect((testGroupNode as ApexTestGroupNode).passing).to.equal(1);
+          let testNode = testGroupNode.children[0] as ApexTestNode;
+          if (classNum === 3) {
+            // Tests 1 and 6 fail
+            outcome = 'Fail';
+          }
+          console.log(classNum + ':' + 0 + ':' + testNode.outcome);
+          expect(testNode.outcome).to.equal(outcome);
+          outcome = 'Pass';
+          testNode = testGroupNode.children[1] as ApexTestNode;
+          if (classNum === 0) {
+            // Tests 1 and 6 fail
+            outcome = 'Fail';
+          }
+          console.log(classNum + ':' + 1 + ':' + testNode.outcome);
+          expect(testNode.outcome).to.equal(outcome);
+        } else {
+          // Passing class
+          expect((testGroupNode as ApexTestGroupNode).passing).to.equal(2);
+          let testNode = testGroupNode.children[0] as ApexTestNode;
+          console.log(classNum + ':' + 0 + ':' + testNode.outcome);
+          expect(testNode.outcome).to.equal(outcome);
+          testNode = testGroupNode.children[1] as ApexTestNode;
+          console.log(classNum + ':' + 1 + ':' + testNode.outcome);
+          expect(testNode.outcome).to.equal(outcome);
+        }
+        classNum++;
       }
     });
   });

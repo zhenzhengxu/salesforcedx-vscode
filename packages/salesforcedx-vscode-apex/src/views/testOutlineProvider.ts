@@ -50,8 +50,9 @@ export class ApexTestOutlineProvider
   public getHead(): TestNode {
     if (this.rootNode === null) {
       return this.getAllApexTests(this.path);
+    } else {
+      return this.rootNode;
     }
-    return this.rootNode;
   }
 
   public getChildren(element: TestNode): TestNode[] {
@@ -114,7 +115,7 @@ export class ApexTestOutlineProvider
       // Starting Out
       this.rootNode = new ApexTestGroupNode('ApexTests', null);
     }
-    // Check if lsp worked is ready
+    this.rootNode.children = new Array<TestNode>();
     if (this.apexTestInfo) {
       this.apexTestInfo.forEach(test => {
         let apexGroup = this.apexTestMap.get(
