@@ -7,46 +7,35 @@
 
 // tslint:disable:no-unused-expression
 import { expect } from 'chai';
-import { stub } from 'sinon';
 import * as vscode from 'vscode';
-import { ApexTestMethod } from '../../src/views/LSPConverter';
-import { files } from './fakeFiles';
-import fs = require('fs');
+import { APEX_GROUP_RANGE } from '../../src/constants';
+import { nls } from '../../src/messages';
+import { ApexTestMethod } from '../../src/views/lspConverter';
 import {
   ApexTestGroupNode,
   ApexTestOutlineProvider
-} from '../../src/views/testOutline';
+} from '../../src/views/testOutlineProvider';
+
+const LOADING_MESSAGE = nls.localize('force_test_view_loading_message');
+const NO_TESTS_MESSAGE = nls.localize('force_test_view_no_tests_message');
+const NO_TESTS_DESCRIPTION = nls.localize(
+  'force_test_view_no_tests_description'
+);
 
 describe('TestView', () => {
   describe('Test View Outline Provider', () => {
-    let coreExtension: vscode.Extension<any>;
     let testOutline: ApexTestOutlineProvider;
-    const uriList = new Array<vscode.Uri>();
-    const file0Uri = vscode.Uri.file('/bogus/path/to/file0.cls');
-    // const file1Uri = Uri.file('/bogus/path/to/file1.cls');
-    // const file2Uri = Uri.file('/bogus/path/to/file2.cls');
-    // const file3Uri = Uri.file('/bogus/path/to/file3.cls');
     const apexTestInfo: ApexTestMethod[] = new Array<ApexTestMethod>();
-
-    const readFilestub = stub(fs, 'readFileSync');
-
-    before(() => {
-      if (vscode.workspace.rootPath) {
-        coreExtension = vscode.extensions.getExtension(
-          'salesforce.salesforcedx-vscode-core'
-        ) as vscode.Extension<any>;
-      }
-    });
 
     beforeEach(async () => {
       // All test methods, has same info as file1, file2, file3, file4
       for (let i = 0; i < 8; i++) {
         const methodName = 'test' + i;
-        const definingType = 'file' + i / 2; // Parent is either file1, file2, file3, or file4
+        const definingType = 'file' + Math.floor(i / 2); // Parent is either file1, file2, file3, or file4
         const line = i / 2 * 4 + 3;
         const startPos = new vscode.Position(line, 0);
         const endPos = new vscode.Position(line, 5);
-        const file = '/bogus/path/to/' + parent + '.cls';
+        const file = '/bogus/path/to/' + definingType + '.cls';
         const uri = vscode.Uri.file(file);
         const location = new vscode.Location(
           uri,
@@ -59,61 +48,71 @@ describe('TestView', () => {
         };
         apexTestInfo.push(testInfo);
       }
-
-      // Stub out functions
-      readFilestub.callsFake(file => {
-        let ind = 0;
-        if (file.includes('file0.cls')) {
-          // Get File 0
-          ind = 1;
-        } else if (file.includes('file1.cls')) {
-          // Get File 1
-          ind = 2;
-        } else if (file.includes('file2.cls')) {
-          // Get File 2
-          ind = 3;
-        } else {
-          // Get File 3
-          ind = 4;
-        }
-        return files[ind];
-      });
     });
 
-    afterEach(() => {
-      readFilestub.restore();
-    });
-
-    it.only('No tests in file', async () => {
-      if (coreExtension && !coreExtension.isActive) {
-        await coreExtension.activate();
-      }
-      testOutline = new ApexTestOutlineProvider(
-        '/bogus/path',
-        // uriList,
-        null
-      );
-      expect(testOutline.getHead()).to.equal(
-        new ApexTestGroupNode('ApexTests', null)
-      );
-    });
-
-    it('One test in file', async () => {
-      if (coreExtension && !coreExtension.isActive) {
-        await coreExtension.activate();
-      }
-      uriList.push(file0Uri);
-      testOutline = new ApexTestOutlineProvider(
-        '/bogus/path',
-        // uriList,
-        null
-      );
-
+    it('No tests in file', () => {
+      testOutline = new ApexTestOutlineProvider('/bogus/path', null);
+      const expected = new ApexTestGroupNode('ApexTests', null);
+      expected.description = NO_TESTS_DESCRIPTION;
       expect(testOutline.getHead()).to.deep.equal(
         new ApexTestGroupNode('ApexTests', null)
       );
+    });
+
+    it('One test in file', () => {
+      testOutline = new ApexTestOutlineProvider(
+        '/bogus/path/',
+        apexTestInfo.slice(0, 1)
+      );
       if (testOutline.getHead()) {
+        expect(testOutline.getHead().name).to.equal('ApexTests');
         expect(testOutline.getHead().children.length).to.equal(1);
+        const testChildGroup = testOutline.getHead().children[0];
+        expect(testChildGroup).instanceof(ApexTestGroupNode);
+        const groupLocation = new vscode.Location(
+          apexTestInfo[0].location.uri,
+          APEX_GROUP_RANGE
+        );
+        expect(testChildGroup.location).to.deep.equal(groupLocation);
+        expect(testChildGroup.name).to.equal(apexTestInfo[0].definingType);
+        expect(testChildGroup.children.length).to.equal(1);
+        const testChild = testChildGroup.children[0];
+        const fullName =
+          apexTestInfo[0].definingType + '.' + apexTestInfo[0].methodName;
+        expect(testChild.name).to.deep.equal(fullName);
+        expect(testChild.location).to.deep.equal(apexTestInfo[0].location);
+      }
+    });
+
+    it('8 tests in 4 files', () => {
+      testOutline = new ApexTestOutlineProvider('/bogus/path/', apexTestInfo);
+      if (testOutline.getHead()) {
+        console.log(testOutline.getHead());
+        expect(testOutline.getHead().children.length).to.equal(4);
+        let i = 0;
+        for (const testChildGroup of testOutline.getHead().children) {
+          const testInfo1 = apexTestInfo[i];
+          i++;
+          const testInfo2 = apexTestInfo[i];
+          console.log(testChildGroup);
+          expect(testChildGroup.children.length).to.equal(2); // Each group has two children
+          expect(testChildGroup.name).to.equal(testInfo1.definingType);
+          const groupLocation = new vscode.Location(
+            testInfo1.location.uri,
+            APEX_GROUP_RANGE
+          );
+          expect(testChildGroup.location).to.deep.equal(groupLocation);
+          // Check child test
+          const test1 = testChildGroup.children[0];
+          const test2 = testChildGroup.children[1];
+          const fullName1 = testInfo1.definingType + '.' + testInfo1.methodName;
+          const fullName2 = testInfo2.definingType + '.' + testInfo2.methodName;
+          expect(test1.name).to.equal(fullName1);
+          expect(test2.name).to.equal(fullName2);
+          expect(test1.location).to.deep.equal(testInfo1.location);
+          expect(test2.location).to.deep.equal(testInfo2.location);
+          i++;
+        }
       }
     });
   });

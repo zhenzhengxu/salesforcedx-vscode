@@ -19,8 +19,9 @@ import {
   ApexLSPConverter,
   ApexTestMethod,
   LSPApexTestMethod
-} from './views/LSPConverter';
-import { ApexTestOutlineProvider } from './views/testOutline';
+} from './views/lspConverter';
+import { ApexTestOutlineProvider } from './views/testOutlineProvider';
+import { ApexTestRunner } from './views/testRunner';
 
 const sfdxCoreExtension = vscode.extensions.getExtension(
   'salesforce.salesforcedx-vscode-core'
@@ -99,6 +100,9 @@ async function getExceptionBreakpointInfo(): Promise<{}> {
 async function registerTestView(
   testOutlineProvider: ApexTestOutlineProvider
 ): Promise<vscode.Disposable> {
+  // Create TestRunner
+  const testRunner = new ApexTestRunner(testOutlineProvider, sfdxCoreExtension);
+
   // Test View
   const testViewItems = new Array<vscode.Disposable>();
 
@@ -111,20 +115,20 @@ async function registerTestView(
   // Run Test Button on Test View command
   testViewItems.push(
     vscode.commands.registerCommand('sfdx.force.test.view.run', () =>
-      testOutlineProvider.runApexTests()
+      testRunner.runApexTests()
     )
   );
   // Show Error Message command
   testViewItems.push(
     vscode.commands.registerCommand('sfdx.force.test.view.showError', test =>
-      testOutlineProvider.showErrorMessage(test)
+      testRunner.showErrorMessage(test)
     )
   );
   // Run Single Test command
   testViewItems.push(
     vscode.commands.registerCommand(
       'sfdx.force.test.view.runSingleTest',
-      test => testOutlineProvider.runSingleTest(test)
+      test => testRunner.runSingleTest(test)
     )
   );
   // Refresh Test View command
