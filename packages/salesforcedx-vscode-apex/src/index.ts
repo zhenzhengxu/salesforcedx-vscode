@@ -20,6 +20,7 @@ import * as languageServer from './languageServer';
 import { telemetryService } from './telemetry';
 import { ApexTestOutlineProvider } from './views/testOutlineProvider';
 import { ApexTestRunner } from './views/testRunner';
+import { ReadableApexTestRunExecutor } from './views/readableApexTestRunExecutor';
 
 const sfdxCoreExtension = vscode.extensions.getExtension(
   'salesforce.salesforcedx-vscode-core'
@@ -63,7 +64,9 @@ export async function activate(context: vscode.ExtensionContext) {
     getLineBreakpointInfo,
     getExceptionBreakpointInfo,
     isLanguageClientReady,
-    getApexTests
+    getApexTests,
+    ReadableApexTestRunExecutor,
+    ApexTestOutlineProvider
   };
   return exportedApi;
 }

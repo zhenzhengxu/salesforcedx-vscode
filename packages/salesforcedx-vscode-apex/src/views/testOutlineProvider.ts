@@ -29,6 +29,7 @@ const NO_TESTS_DESCRIPTION = nls.localize(
 
 export class ApexTestOutlineProvider
   implements vscode.TreeDataProvider<TestNode> {
+  private static instance: ApexTestOutlineProvider;
   private onDidChangeTestData: vscode.EventEmitter<
     TestNode | undefined
   > = new vscode.EventEmitter<TestNode | undefined>();
@@ -40,7 +41,19 @@ export class ApexTestOutlineProvider
   private path: string;
   private apexTestInfo: ApexTestMethod[] | null;
 
+  public static getInstance(): ApexTestOutlineProvider {
+    if (ApexTestOutlineProvider.instance) {
+      return ApexTestOutlineProvider.instance;
+    } else {
+      return new ApexTestOutlineProvider(
+        vscode.workspace.workspaceFolders![0].name,
+        null
+      );
+    }
+  }
+
   constructor(path: string, apexTestInfo: ApexTestMethod[] | null) {
+    ApexTestOutlineProvider.instance = this;
     this.rootNode = null;
     this.path = path;
     this.apexTestInfo = apexTestInfo;
@@ -165,6 +178,7 @@ export class ApexTestOutlineProvider
     }
     fileName = ospath.join(fullFolderName, fileName);
     const output = fs.readFileSync(fileName).toString();
+    fs.unlinkSync(fileName);
     const jsonSummary = JSON.parse(output) as FullTestResult;
     return jsonSummary;
   }

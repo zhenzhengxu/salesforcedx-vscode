@@ -21,17 +21,15 @@ export class ReadableApexTestRunExecutor extends (ForceApexTestRunCodeActionExec
   new (test: string, shouldGetCodeCoverage: boolean): any;
 }) {
   private outputToJson: string;
-  private apexTestOutline: ApexTestOutlineProvider;
+  private apexTestOutline: ApexTestOutlineProvider = ApexTestOutlineProvider.getInstance();
 
   public constructor(
     tests: string[],
     shouldGetCodeCoverage: boolean,
-    outputToJson: string,
-    apexTestOutline: ApexTestOutlineProvider
+    outputToJson: string
   ) {
     super(tests.join(','), shouldGetCodeCoverage);
     this.outputToJson = outputToJson;
-    this.apexTestOutline = apexTestOutline;
   }
 
   public build(data: {}): Command {

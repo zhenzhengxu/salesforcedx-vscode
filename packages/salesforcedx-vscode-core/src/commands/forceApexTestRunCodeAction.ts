@@ -99,16 +99,12 @@ async function forceApexTestRunCodeAction(test: string) {
   let commandlet: SfdxCommandlet<{}>;
   if (sfdxApex && sfdxApex.isActive) {
     // If Apex extension is active and exists
-    const ReadableApexTestRunCodeActionExecutor =
-      sfdxApex.exports.ReadableApexTestRunCodeActionExecutor;
+    const ReadableApexTestRunExecutor =
+      sfdxApex.exports.ReadableApexTestRunExecutor;
     commandlet = new SfdxCommandlet(
       new SfdxWorkspaceChecker(),
       new EmptyParametersGatherer(),
-      new ReadableApexTestRunCodeActionExecutor(
-        [test],
-        getCodeCoverage,
-        os.tmpdir()
-      )
+      new ReadableApexTestRunExecutor([test], getCodeCoverage, os.tmpdir())
     );
   } else {
     commandlet = new SfdxCommandlet(
