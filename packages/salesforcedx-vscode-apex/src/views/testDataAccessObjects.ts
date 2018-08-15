@@ -36,8 +36,8 @@ export class TestSummarizer {
   ): string {
     let summString = '';
     const failing = group.children.length - group.passing;
-    const groupPassRate = (group.passing * 100) / group.children.length + '%';
-    const groupFailRate = (failing * 100) / group.children.length + '%';
+    const groupPassRate = group.passing * 100 / group.children.length + '%';
+    const groupFailRate = failing * 100 / group.children.length + '%';
     let outcome = 'Failed';
     if (failing === 0) {
       outcome = 'Passed';
