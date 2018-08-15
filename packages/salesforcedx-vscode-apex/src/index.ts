@@ -18,9 +18,9 @@ import {
 } from './languageClientUtils';
 import * as languageServer from './languageServer';
 import { telemetryService } from './telemetry';
+import { ReadableApexTestRunExecutor } from './views/readableApexTestRunExecutor';
 import { ApexTestOutlineProvider } from './views/testOutlineProvider';
 import { ApexTestRunner } from './views/testRunner';
-import { ReadableApexTestRunExecutor } from './views/readableApexTestRunExecutor';
 
 const sfdxCoreExtension = vscode.extensions.getExtension(
   'salesforce.salesforcedx-vscode-core'
