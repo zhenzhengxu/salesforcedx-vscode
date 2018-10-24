@@ -59,7 +59,7 @@ export interface LaunchRequestArguments
   logFile: string;
   stopOnEntry?: boolean | true;
   trace?: boolean | string;
-  __privateData: any;
+  __privateData?: any;
 }
 
 export class ApexVariable extends Variable {
@@ -248,15 +248,8 @@ export class ApexReplayDebug extends LoggingDebugSession {
     args: LaunchRequestArguments
   ): Promise<void> {
     // TODO: need to remove __privateData from args because it's being used later for other purposes.
-    // TODO: also might want to move this somewhere along lines 275 for validation purposes
-    if (args) {
-      const lineBreakpointEventArgs = args.__privateData as LineBreakpointEventArgs;
-      breakpointUtil.createMappingsFromLineBreakpointInfo(
-        lineBreakpointEventArgs.lineBreakpointInfo
-      );
-      this.projectPath = lineBreakpointEventArgs.projectPath;
-    } else {
-      response.message = nls.localize('session_language_server_error_text');
+    if (args && args.__privateData) {
+      this.projectPath = args.__privateData.projectPath;
     }
 
     response.success = false;
@@ -555,20 +548,20 @@ export class ApexReplayDebug extends LoggingDebugSession {
       );
       this.breakpoints.set(uri, []);
       for (const bp of args.breakpoints) {
-        const isVerified = breakpointUtil.canSetLineBreakpoint(
+        /* const isVerified = breakpointUtil.canSetLineBreakpoint(
           uri,
           this.convertClientLineToDebugger(bp.line)
-        );
+        ); */
         response.body.breakpoints.push({
-          verified: isVerified,
+          verified: true, // isVerified,
           source: args.source,
           line: bp.line
         });
-        if (isVerified) {
-          this.breakpoints.get(uri)!.push(
-            this.convertClientLineToDebugger(bp.line)
-          );
-        }
+        // if (isVerified) {
+        this.breakpoints.get(uri)!.push(
+          this.convertClientLineToDebugger(bp.line)
+        );
+        // }
       }
       this.log(
         TRACE_CATEGORY_BREAKPOINTS,

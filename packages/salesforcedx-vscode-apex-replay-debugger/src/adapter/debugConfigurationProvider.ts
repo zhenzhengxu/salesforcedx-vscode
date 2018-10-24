@@ -10,8 +10,6 @@ import {
   DEBUGGER_LAUNCH_TYPE,
   DEBUGGER_TYPE
 } from '@salesforce/salesforcedx-apex-replay-debugger/out/src/constants';
-import * as fs from 'fs';
-import * as path from 'path';
 import * as vscode from 'vscode';
 import { nls } from '../messages';
 
@@ -51,28 +49,13 @@ export class DebugConfigurationProvider
       config.trace = true;
     }
 
-    // TODO: move everything below this to salesforce-vscode-apex module
-    let fsPath: string | undefined;
     if (
       vscode.workspace.workspaceFolders &&
       vscode.workspace.workspaceFolders[0]
     ) {
-      fsPath = path.join(
-        vscode.workspace.workspaceFolders[0].uri.fsPath,
-        '.sfdx',
-        'tools',
-        'projectBreakpoints.json'
-      );
-
-      const testResultOutput = fs.readFileSync(fsPath, 'utf8');
-      const lineBpInfo = JSON.parse(testResultOutput);
-
-      const returnArgs: LineBreakpointEventArgs = {
-        lineBreakpointInfo: lineBpInfo,
+      config.__privateData = {
         projectPath: vscode.workspace.workspaceFolders[0].uri.fsPath
       };
-      // END TODO
-      config.__privateData = returnArgs;
     }
 
     return config;

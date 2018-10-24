@@ -39,7 +39,8 @@ describe('Replay debugger adapter variable handling - unit', () => {
   const logFilePath = `path/${logFileName}`;
   const launchRequestArgs: LaunchRequestArguments = {
     logFile: logFilePath,
-    trace: true
+    trace: true,
+    __privateData: {}
   };
 
   describe('Scopes request', () => {

@@ -127,7 +127,8 @@ describe('Replay debugger adapter - integration', function() {
       sfdxProject: projectPath,
       logFile: logFilePath,
       stopOnEntry: true,
-      trace: true
+      trace: true,
+      __privateData: {}
     } as LaunchRequestArguments);
     expect(launchResponse.success).to.equal(true);
 
@@ -230,7 +231,8 @@ describe('Replay debugger adapter - integration', function() {
       sfdxProject: projectPath,
       logFile: logFilePath,
       stopOnEntry: true,
-      trace: true
+      trace: true,
+      __privateData: {}
     } as LaunchRequestArguments);
     expect(launchResponse.success).to.equal(true);
 
