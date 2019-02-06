@@ -64,7 +64,11 @@
       "cross-env CODE_VERSION=insiders npm run test:vscode-integration"
   },
   "nyc": {
-    "reporter": ["text-summary", "lcov"]
+    "temp-directory": "./coverage/.nyc_output",
+    "reporter": ["text-summary", "lcov"],
+    "instrument": true,
+    "include": ["out/**/*.js"],
+    "all": true
   },
   "activationEvents": [
     "onDebugResolve:apex",
