@@ -18,15 +18,7 @@ import { LineBreakpointInfo } from '../../src/breakpoints';
 import { GoldFileUtil } from './goldFileUtil';
 
 const PROJECT_NAME = `project_${new Date().getTime()}`;
-const CONFIG_DIR = path.join(
-  __dirname,
-  '..',
-  '..',
-  '..',
-  'test',
-  'integration',
-  'config'
-);
+const CONFIG_DIR = path.join(process.cwd(), 'test', 'integration', 'config');
 const LOG_FOLDER = path.join(CONFIG_DIR, 'logs');
 
 // tslint:disable:no-unused-expression
