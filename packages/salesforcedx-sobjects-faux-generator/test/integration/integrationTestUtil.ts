@@ -10,10 +10,10 @@ import {
   CommandOutput,
   SfdxCommandBuilder
 } from '@salesforce/salesforcedx-utils-vscode/out/src/cli';
-import { CancellationToken } from '../../src/generator/fauxClassGenerator';
 import childProcess = require('child_process');
 import * as path from 'path';
 import * as util from 'util';
+import { CancellationToken } from '../../src/generator/fauxClassGenerator';
 
 // Used only for CI purposes. Must call delete if you call create
 export async function createSFDXProject(projectName: string): Promise<void> {

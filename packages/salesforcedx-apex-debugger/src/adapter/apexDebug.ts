@@ -15,6 +15,7 @@ import {
 } from '@salesforce/salesforcedx-utils-vscode/out/src/cli';
 import { RequestService } from '@salesforce/salesforcedx-utils-vscode/out/src/requestService';
 import * as AsyncLock from 'async-lock';
+import os = require('os');
 import { basename } from 'path';
 import {
   DebugSession,
@@ -84,7 +85,6 @@ import {
   WorkspaceSettings
 } from '../index';
 import { nls } from '../messages';
-import os = require('os');
 
 const TRACE_ALL = 'all';
 const TRACE_CATEGORY_VARIABLES = 'variables';

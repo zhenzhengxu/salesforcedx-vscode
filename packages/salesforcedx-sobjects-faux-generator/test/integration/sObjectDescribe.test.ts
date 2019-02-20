@@ -5,9 +5,9 @@
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
-import rimraf = require('rimraf');
 import { expect } from 'chai';
 import * as path from 'path';
+import rimraf = require('rimraf');
 import {
   SObjectCategory,
   SObjectDescribe
