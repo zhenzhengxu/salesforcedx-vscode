@@ -27,7 +27,8 @@
     "nyc": "^11.0.2",
     "remap-istanbul": "^0.9.5",
     "shx": "0.2.2",
-    "source-map-support": "^0.4.15"
+    "source-map-support": "^0.4.15",
+    "@salesforce/dev-scripts": "0.3.12"
   },
   "scripts": {
     "compile": "tsc -p ./ && shx cp -R test/unit/fixtures out/test/unit",
@@ -35,12 +36,23 @@
     "watch": "tsc -watch -p .",
     "clean": "shx rm -rf node_modules && shx rm -rf out && shx rm -rf coverage && shx rm -rf .nyc_output",
     "test": "npm run test:unit",
-    "test:unit": "./node_modules/.bin/nyc ./node_modules/.bin/_mocha --recursive out/test/unit --reporter mocha-multi-reporters --reporter-options configFile=../../config/mochaConfig.json"
+    "test:unit": "./node_modules/.bin/nyc ./node_modules/.bin/_mocha -r ts-node/register --recursive 'test/unit/**/*.ts' --reporter mocha-multi-reporters --timeout 20000 --reporter mocha-multi-reporters --reporter-options configFile=../../config/mochaConfig.json"
   },
   "nyc": {
-    "reporter": [
-      "text-summary",
-      "lcov"
-    ]
+    "extends": "@salesforce/dev-config/nyc",
+    "include": [
+      "src/**/*.ts"
+    ],
+    "all": true,
+    "cache": false,
+    "sourceMap": true,
+    "instrument": true,
+    "require": [
+      "ts-node/register"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "check-coverage": false
   }
 }
