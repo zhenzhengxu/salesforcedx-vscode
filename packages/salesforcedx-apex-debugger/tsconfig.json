@@ -10,7 +10,8 @@
     "rootDir": ".",
     "outDir": "out",
     "preserveConstEnums": true,
-    "strict": true
+    "strict": true,
+    "typeRoots": ["node_modules/@types", "typings/modules"]
   },
-  "exclude": ["node_modules", ".vscode-test", "out"]
+  "exclude": ["node_modules", ".vscode-test", "out", "typings"]
 }
