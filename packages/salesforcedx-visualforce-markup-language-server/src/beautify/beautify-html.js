@@ -1714,7 +1714,7 @@
   } else if (typeof exports !== 'undefined') {
     // Add support for CommonJS. Just put this file somewhere on your require.paths
     // and you will be able to `var html_beautify = require("beautify").html_beautify`.
-    var js_beautify = require('./beautify.js');
+    var js_beautify = require('./beautify');
     var css_beautify = require('./beautify-css.js');
 
     exports.html_beautify = function(html_source, options) {
