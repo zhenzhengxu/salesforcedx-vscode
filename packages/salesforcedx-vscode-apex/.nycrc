@@ -1,0 +1,17 @@
+{
+  "extends": "@salesforce/dev-config/nyc",
+  "include": [
+    "src/**/*.ts"
+  ],
+  "all": true,
+  "cache": false,
+  "sourceMap": true,
+  "instrument": true,
+  "require": [
+    "ts-node/register"
+  ],
+  "extension": [
+    ".ts"
+  ],
+  "check-coverage": false
+}

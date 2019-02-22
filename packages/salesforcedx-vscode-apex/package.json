@@ -43,11 +43,12 @@
     "chai": "^4.0.2",
     "cross-env": "^5.0.5",
     "mocha": "3.2.0",
-    "nyc": "^11.0.2",
+    "nyc": "^13",
     "sinon": "^2.3.6",
     "typescript": "3.1.6",
     "vscode": "1.1.17",
-    "vscode-extension-telemetry": "0.0.17"
+    "vscode-extension-telemetry": "0.0.17",
+    "@salesforce/dev-scripts": "0.3.12"
   },
   "extensionDependencies": [
     "salesforce.salesforcedx-vscode-core"
