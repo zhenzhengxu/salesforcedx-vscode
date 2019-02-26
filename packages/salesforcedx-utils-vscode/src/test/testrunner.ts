@@ -95,7 +95,7 @@ function run(testsRoot: any, clb: any): any {
 
   // Glob test files
   glob(
-    '**/**.test.js',
+    '**/**.test.ts',
     { cwd: testsRoot },
     (error, files): any => {
       if (error) {

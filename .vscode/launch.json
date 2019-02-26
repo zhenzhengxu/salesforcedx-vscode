@@ -91,13 +91,12 @@
       "request": "launch",
       "runtimeExecutable": "${execPath}",
       "args": [
-        "${workspaceRoot}/packages/system-tests/assets/sfdx-simple",
         "--extensionDevelopmentPath=${workspaceRoot}/packages",
-        "--extensionTestsPath=${workspaceRoot}/packages/salesforcedx-vscode-apex/out/test/vscode-integration"
+        "${workspaceRoot}/packages/system-tests/assets/sfdx-simple",
+        "--extensionTestsPath=${workspaceRoot}/packages/salesforcedx-vscode-apex/test/vscode-integration"
       ],
       "stopOnEntry": false,
       "sourceMaps": true,
-      "outFiles": ["${workspaceRoot}/packages/*/out/**/*.js"],
       "preLaunchTask": "Compile"
     },
     {

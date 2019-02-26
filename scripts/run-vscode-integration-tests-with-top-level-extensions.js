@@ -23,7 +23,6 @@ shell.exec(
     'sfdx-simple'
   )}' CODE_TESTS_PATH='${path.join(
     cwd,
-    'out',
     'test',
     'vscode-integration'
   )}' node ./node_modules/vscode/bin/test`
