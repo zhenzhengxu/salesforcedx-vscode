@@ -19,7 +19,7 @@ import { nls } from '../../src/messages';
 
 describe('Force Apex Test Run', () => {
   describe('Command builder', () => {
-    sinon
+    const testStub = sinon
       .stub(TestRunner.prototype, 'getTempFolder')
       .returns(
         '/Users/a.jha/Documents/salesforcedx-vscode/packages/system-tests/assets/sfdx-simple/.sfdx/tools/testresults/apex'
@@ -71,6 +71,7 @@ describe('Force Apex Test Run', () => {
       expect(command.description).to.equal(
         nls.localize('force_apex_test_run_text')
       );
+      testStub.restore();
     });
   });
 

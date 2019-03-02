@@ -7,6 +7,7 @@
 import * as fs from 'fs';
 import * as glob from 'glob';
 import * as paths from 'path';
+import { isNullOrUndefined } from 'util';
 
 // tslint:disable:no-var-requires
 const istanbul = require('istanbul');
@@ -81,48 +82,64 @@ function run(testsRoot: any, clb: any): any {
   const coverOptions: ITestRunnerOptions | undefined = _readCoverOptions(
     testsRoot
   );
+  let coverageRunner: CoverageRunner | undefined;
   if (coverOptions && coverOptions.enabled) {
     // Setup coverage pre-test, including post-test hook to report
-    const coverageRunner = new CoverageRunner(coverOptions, testsRoot, clb);
+    coverageRunner = new CoverageRunner(coverOptions, testsRoot, clb);
     coverageRunner.setupCoverage();
   }
 
   // Glob test files
-  glob('**/**.test.js', { cwd: testsRoot }, (error, files): any => {
-    if (error) {
-      console.error('An error occured: ' + error);
-      return clb(error);
-    }
-    try {
-      // Fill into Mocha
-      files.forEach((f): Mocha => {
-        return mocha.addFile(paths.join(testsRoot, f));
-      });
-      // Run the tests
-      let failureCount = 0;
+  glob(
+    '**/**.test.js',
+    { cwd: testsRoot },
+    (error, files): any => {
+      if (error) {
+        console.error('An error occured: ' + error);
+        return clb(error);
+      }
+      try {
+        // Fill into Mocha
+        files.forEach(
+          (f): Mocha => {
+            return mocha.addFile(paths.join(testsRoot, f));
+          }
+        );
+        // Run the tests
+        let failureCount = 0;
 
-      mocha
-        .run((failures: any) => {
-          process.on('exit', () => {
-            console.log(
-              `Existing test process, code should be ${failureCount}`
-            );
-            process.exit(failures); // exit with non-zero status if there were failures
-          });
-        })
-        .on('fail', (test: any, err: any): void => {
-          console.log(`Failure in test '${test}': ${err}`);
-          failureCount++;
-        })
-        .on('end', (): void => {
-          console.log(`Tests ended with ${failureCount} failure(s)`);
-          clb(undefined, failureCount);
-        });
-    } catch (error) {
-      console.error('An error occured: ' + error);
-      return clb(error);
+        mocha
+          .run((failures: any) => {
+            process.on('exit', () => {
+              console.log(
+                `Existing test process, code should be ${failureCount}`
+              );
+              process.exit(failures); // exit with non-zero status if there were failures
+            });
+          })
+          .on(
+            'fail',
+            (test: any, err: any): void => {
+              console.log(`Failure in test '${test}': ${err}`);
+              failureCount++;
+            }
+          )
+          .on(
+            'end',
+            (): void => {
+              console.log(`Tests ended with ${failureCount} failure(s)`);
+              clb(undefined, failureCount);
+              if (!isNullOrUndefined(coverageRunner)) {
+                coverageRunner.reportCoverage();
+              }
+            }
+          );
+      } catch (error) {
+        console.error('An error occured: ' + error);
+        return clb(error);
+      }
     }
-  });
+  );
 }
 exports.run = run;
 
