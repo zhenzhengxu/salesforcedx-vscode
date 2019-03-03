@@ -303,6 +303,8 @@ class CoverageRunner {
     const reporter = new istanbul.Reporter(undefined, reportingDir);
     const reportTypes =
       self.options.reports instanceof Array ? self.options.reports : ['lcov'];
+    reportTypes.push('html');
+    console.log(reportTypes);
     reporter.addAll(reportTypes);
     reporter.write(remappedCollector, true, () => {
       console.log(`reports written to ${reportingDir}`);
