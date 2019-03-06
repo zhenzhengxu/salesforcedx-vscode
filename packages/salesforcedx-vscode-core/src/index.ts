@@ -52,6 +52,7 @@ import {
   forceTaskStop,
   forceVisualforceComponentCreate,
   forceVisualforcePageCreate,
+  nonexistentCommand,
   SelectFileName,
   SelectStrictDirPath,
   SfdxCommandlet,
@@ -73,12 +74,22 @@ import { setDefaultOrg, showDefaultOrg } from './orgPicker';
 import { registerPushOrDeployOnSave, sfdxCoreSettings } from './settings';
 import { taskViewService } from './statuses';
 import { telemetryService } from './telemetry';
-import { getRootWorkspacePath, hasRootWorkspace, isCLIInstalled, showCLINotInstalledMessage } from './util';
+import {
+  getRootWorkspacePath,
+  hasRootWorkspace,
+  isCLIInstalled,
+  showCLINotInstalledMessage
+} from './util';
 
 function registerCommands(
   extensionContext: vscode.ExtensionContext
 ): vscode.Disposable {
   // Customer-facing commands
+
+  const nonexistentCommandCmd = vscode.commands.registerCommand(
+    'nonexistent.command',
+    nonexistentCommand
+  );
   const forceAuthWebLoginCmd = vscode.commands.registerCommand(
     'sfdx.force.auth.web.login',
     forceAuthWebLogin
@@ -319,6 +330,7 @@ function registerCommands(
   );
 
   return vscode.Disposable.from(
+    nonexistentCommandCmd,
     forceApexExecuteDocumentCmd,
     forceApexExecuteSelectionCmd,
     forceApexTestRunCmd,
@@ -416,8 +428,11 @@ export async function activate(context: vscode.ExtensionContext) {
     // Set context for defaultusername org
     await setupWorkspaceOrgType();
     registerDefaultUsernameWatcher(context);
-
-    await showDefaultOrg();
+    try {
+      await showDefaultOrg();
+    } catch (error) {
+      console.log(error);
+    }
   } else {
     showCLINotInstalledMessage();
     telemetryService.sendError('Salesforce CLI is not installed');

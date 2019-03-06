@@ -169,6 +169,10 @@
       ],
       "commandPalette": [
         {
+          "command": "nonexistent.command",
+          "when": "sfdx:project_opened"
+        },
+        {
           "command": "sfdx.force.auth.dev.hub",
           "when": "sfdx:project_opened"
         },
@@ -368,6 +372,10 @@
       ]
     },
     "commands": [
+      {
+        "command": "nonexistent.command",
+        "title": "NonexistentCommand"
+      },
       {
         "command": "sfdx.force.auth.dev.hub",
         "title": "%force_auth_web_login_authorize_dev_hub_text%"

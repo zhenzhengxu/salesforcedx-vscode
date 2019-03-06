@@ -69,3 +69,4 @@ export { forceAuthLogoutAll } from './forceAuthLogout';
 import { DeveloperLogTraceFlag } from '../traceflag/developerLogTraceFlag';
 export const developerLogTraceFlag = DeveloperLogTraceFlag.getInstance();
 export { forceConfigSet } from './forceConfigSet';
+export { nonexistentCommand } from './nonexistentCommand';
