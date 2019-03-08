@@ -9,6 +9,7 @@ import * as vscode from 'vscode';
 import { channelService } from './channels';
 import {
   CompositeParametersGatherer,
+  currentSetupService,
   EmptyParametersGatherer,
   forceAliasList,
   forceApexClassCreate,
@@ -297,7 +298,15 @@ function registerCommands(
     forceConfigSet
   );
 
+  // Show how the extension is setup.
+  currentSetupService.initializeService(extensionContext);
+  const currentSetupCmd = vscode.commands.registerCommand(
+    'sfdx.force.extension.info',
+    () => currentSetupService.getExtensionInfo()
+  );
+
   return vscode.Disposable.from(
+    currentSetupCmd,
     forceApexExecuteDocumentCmd,
     forceApexExecuteSelectionCmd,
     forceApexTestRunCmd,

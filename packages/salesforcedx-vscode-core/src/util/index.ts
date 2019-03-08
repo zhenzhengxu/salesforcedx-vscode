@@ -11,5 +11,9 @@ export {
   getRootWorkspacePath,
   hasRootWorkspace
 } from './rootWorkspace';
-export { isCLIInstalled, showCLINotInstalledMessage } from './cliConfiguration';
+export {
+  getCLIVersion,
+  isCLIInstalled,
+  showCLINotInstalledMessage
+} from './cliConfiguration';
 export { ConfigSource, ConfigUtil } from './configUtil';

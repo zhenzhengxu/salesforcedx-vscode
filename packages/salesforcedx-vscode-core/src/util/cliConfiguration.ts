@@ -5,7 +5,7 @@
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
-import { which } from 'shelljs';
+import { exec, which } from 'shelljs';
 import { window } from 'vscode';
 import { SFDX_CLI_DOWNLOAD_LINK } from '../constants';
 import { nls } from '../messages';
@@ -29,4 +29,14 @@ export function showCLINotInstalledMessage() {
     SFDX_CLI_DOWNLOAD_LINK
   );
   window.showWarningMessage(showMessage);
+}
+
+export function getCLIVersion() {
+  try {
+    const cliVersion = exec('sfdx --version', { silent: true }).stdout;
+    return cliVersion;
+  } catch (e) {
+    console.error('An error happened while looking for sfdx cli', e);
+  }
+  return '';
 }
