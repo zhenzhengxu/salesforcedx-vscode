@@ -17,6 +17,7 @@
     "vsce": "^1.36.3"
   },
   "scripts": {
+    "postinstall": "lerna bootstrap && node scripts/reformat-with-prettier",
     "bootstrap": "lerna bootstrap && node scripts/reformat-with-prettier",
     "clean": "lerna run clean",
     "compile": "lerna run --stream compile",
