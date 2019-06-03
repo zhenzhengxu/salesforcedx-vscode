@@ -233,7 +233,9 @@ export class IsvDebugBootstrapExecutor extends SfdxCommandletExecutor<{}> {
   }
 
   public getModifiedPackageNames(packageNames: string[]): string[] {
-    return packageNames.map(entry => "'" + entry.replace("'", "\\'") + "'");
+    return packageNames.map(
+      entry => "'" + entry.replace(new RegExp("'", 'g'), "\\'") + "'"
+    );
   }
 
   public async execute(
