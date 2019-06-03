@@ -301,7 +301,7 @@ describe('ISV Debugging Project Bootstrap Command', () => {
       expect(command.toCommand()).to.equal(
         `sfdx force:mdapi:retrieve --retrievetargetdir ${
           builder.relativeMetdataTempPath
-        } --packagenames 'mypackage_abc','mpackage_def','mypackage, with comma','mypackage \'with quotes\'' --targetusername ${SESSION_ID}`
+        } --packagenames 'mypackage_abc','mpackage_def','mypackage, with comma','mypackage \\\'with quotes\\\'' --targetusername ${SESSION_ID}`
       );
       expect(command.description).to.equal(
         nls.localize('isv_debug_bootstrap_step6_retrieve_packages_source')

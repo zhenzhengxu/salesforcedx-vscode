@@ -184,7 +184,10 @@ export class IsvDebugBootstrapExecutor extends SfdxCommandletExecutor<{}> {
       )
       .withArg('force:mdapi:retrieve')
       .withFlag('--retrievetargetdir', this.relativeMetdataTempPath)
-      .withFlag('--packagenames', packageNames.join(','))
+      .withFlag(
+        '--packagenames',
+        this.getModifiedPackageNames(packageNames).join(',')
+      )
       .withFlag('--targetusername', data.sessionId)
       .withLogName('isv_debug_bootstrap_retrieve_packages_source')
       .build();
@@ -227,6 +230,10 @@ export class IsvDebugBootstrapExecutor extends SfdxCommandletExecutor<{}> {
         versionNumber: entry.SubscriberPackageVersionNumber
       } as InstalledPackageInfo;
     });
+  }
+
+  public getModifiedPackageNames(packageNames: string[]): string[] {
+    return packageNames.map(entry => "'" + entry.replace("'", "\\'") + "'");
   }
 
   public async execute(
@@ -372,7 +379,7 @@ export class IsvDebugBootstrapExecutor extends SfdxCommandletExecutor<{}> {
     await this.executeCommand(
       this.buildRetrievePackagesSourceCommand(
         response.data,
-        packageInfos.map(entry => "'" + entry.name.replace("'", "\\'") + "'")
+        packageInfos.map(entry => entry.name)
       ),
       { cwd: projectPath },
       cancellationTokenSource,
