@@ -372,7 +372,7 @@ export class IsvDebugBootstrapExecutor extends SfdxCommandletExecutor<{}> {
     await this.executeCommand(
       this.buildRetrievePackagesSourceCommand(
         response.data,
-        packageInfos.map(entry => entry.name)
+        packageInfos.map(entry => "'" + entry.name.replace("'", "\\'") + "'")
       ),
       { cwd: projectPath },
       cancellationTokenSource,
