@@ -7,6 +7,7 @@
 import * as path from 'path';
 
 import {
+  CancellationToken,
   Color,
   ColorInformation,
   ColorPresentation,
@@ -136,15 +137,17 @@ export async function activate(context: ExtensionContext) {
             });
         },
         provideColorPresentations(
-          document: TextDocument,
-          colorInfo: ColorInformation
+          colorInfo: Color,
+          // tslint:disable-next-line:no-shadowed-variable
+          context: { document: TextDocument; range: Range },
+          token: CancellationToken
         ): Thenable<ColorPresentation[]> {
           const params: ColorPresentationParams = {
             textDocument: client.code2ProtocolConverter.asTextDocumentIdentifier(
-              document
+              context.document
             ),
             colorInfo: {
-              range: client.code2ProtocolConverter.asRange(colorInfo.range),
+              range: client.code2ProtocolConverter.asRange(context.range),
               color: colorInfo.color
             }
           };

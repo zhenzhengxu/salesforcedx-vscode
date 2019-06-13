@@ -18,7 +18,7 @@
   "publisher": "salesforce",
   "license": "BSD-3-Clause",
   "engines": {
-    "vscode": "^1.31.0"
+    "vscode": "^1.32.0"
   },
   "scripts": {
     "vscode:prepublish": "npm prune --production",
@@ -37,5 +37,10 @@
     "salesforce.salesforcedx-vscode-lightning",
     "salesforce.salesforcedx-vscode-visualforce",
     "salesforce.salesforcedx-vscode-lwc"
-  ]
+  ],
+  "__metadata": {
+    "id": "d35d7d8d-7504-48d6-bdfd-8cfd4b6d50ae",
+    "publisherDisplayName": "Salesforce",
+    "publisherId": "656b996d-3c70-47b4-937e-e77c013faeea"
+  }
 }

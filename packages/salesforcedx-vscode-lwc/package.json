@@ -18,7 +18,7 @@
   "publisher": "salesforce",
   "license": "BSD-3-Clause",
   "engines": {
-    "vscode": "^1.31.0"
+    "vscode": "^1.32.0"
   },
   "categories": [
     "Programming Languages"
@@ -81,5 +81,10 @@
         "path": "./snippets/lwc.json"
       }
     ]
+  },
+  "__metadata": {
+    "id": "9b3fc708-d0ad-46ec-ba0b-67f140786bef",
+    "publisherDisplayName": "Salesforce",
+    "publisherId": "656b996d-3c70-47b4-937e-e77c013faeea"
   }
 }

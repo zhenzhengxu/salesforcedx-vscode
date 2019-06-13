@@ -18,7 +18,7 @@
   "publisher": "salesforce",
   "license": "BSD-3-Clause",
   "engines": {
-    "vscode": "^1.31.0"
+    "vscode": "^1.32.0"
   },
   "categories": [
     "Debuggers"
@@ -220,5 +220,10 @@
         }
       }
     ]
+  },
+  "__metadata": {
+    "id": "96eedf2b-6b4f-49c5-a31d-bed9be8dfd64",
+    "publisherDisplayName": "Salesforce",
+    "publisherId": "656b996d-3c70-47b4-937e-e77c013faeea"
   }
 }
