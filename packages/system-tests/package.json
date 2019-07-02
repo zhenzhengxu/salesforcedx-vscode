@@ -34,7 +34,7 @@
     "source-map-support": "^0.4.15",
     "spectron": "5.0.0",
     "typescript": "3.1.6",
-    "vscode": "1.1.17"
+    "vscode-test": "0.4.3"
   },
   "scripts": {
     "compile": "tsc -p ./",
@@ -42,6 +42,7 @@
     "watch": "tsc -watch -p .",
     "clean": "shx rm -rf .vscode-test && shx rm -rf node_modules && shx rm -rf out",
     "postinstall": "node ./node_modules/vscode/bin/install",
+    "new-install": "node ../../scripts/download-vscode-install-dependencies-system-tests",
     "pretest": "npm run compile && node ../../scripts/download-vscode-for-system-tests",
     "test": "node ../../scripts/install-vsix-dependencies dbaeumer.vscode-eslint && node out/src/main.js",
     "test:vscode-insiders-system-tests": "cross-env CODE_VERSION=insiders npm run pretest && node ../../scripts/install-vsix-dependencies dbaeumer.vscode-eslint && CODE_VERSION=insiders node out/src/main.js",
