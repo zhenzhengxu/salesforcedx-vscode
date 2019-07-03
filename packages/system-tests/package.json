@@ -45,7 +45,7 @@
     "postinstall": "node ./node_modules/vscode/bin/install",
     "test": "node ../../scripts/download-vscode-install-dependencies-system-tests",
     "test:vscode-insiders-system-tests": "cross-env CODE_VERSION=insiders npm run pretest && node ../../scripts/install-vsix-dependencies dbaeumer.vscode-eslint && CODE_VERSION=insiders node out/src/main.js",
-    "coverage:system-tests": "npm run pretest && node ../../scripts/instrument-salesforcedx-vscode-extensions && cross-env COLLECT_COVERAGE=1 npm run test && node ../../scripts/remap-coverage"
+    "coverage:system-tests": "node ../../scripts/instrument-salesforcedx-vscode-extensions && cross-env COLLECT_COVERAGE=1 npm run test && node ../../scripts/remap-coverage"
   },
   "activationEvents": [
     "*"
