@@ -41,6 +41,7 @@
     "compile": "tsc -p ./",
     "lint": "tslint --project .",
     "watch": "tsc -watch -p .",
-    "clean": "shx rm -rf node_modules && shx rm -rf out"
+    "clean": "shx rm -rf node_modules && shx rm -rf out",
+    "test:unit": "echo \"salesforcedx-test-utils-vscode pkg does not have unit tests\""
   }
 }

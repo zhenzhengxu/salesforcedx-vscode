@@ -21,12 +21,11 @@ const getExecutable = vscodeInstallPath => {
       );
       break;
     case 'win32':
-      executablePath = path.join(vscodeInstallPath, '..', '..', 'bin', 'code');
+      executablePath = path.join(vscodeInstallPath, '..', 'bin', 'code');
       break;
     default:
       executablePath = path.join(
         vscodeInstallPath,
-        '..',
         '..',
         'VSCode-linux-x64',
         'bin',

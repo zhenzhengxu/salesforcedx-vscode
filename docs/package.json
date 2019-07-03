@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "reformat": "node ../scripts/reformat-docs-with-prettier.js"
+    "reformat": "node ../scripts/reformat-docs-with-prettier.js",
+    "test:unit": "echo \"docs pkg does not have unit tests\""
   },
   "author": "",
   "license": "ISC"
