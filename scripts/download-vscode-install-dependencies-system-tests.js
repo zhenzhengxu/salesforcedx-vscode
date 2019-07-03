@@ -4,27 +4,57 @@ const path = require('path');
 const shell = require('shelljs');
 const vscodetest = require('vscode-test');
 
+const getExecutable = vscodeInstallPath => {
+  const platform = process.platform;
+  let executablePath = '';
+
+  switch (platform) {
+    case 'darwin':
+      executablePath = path.join(
+        vscodeInstallPath,
+        '..',
+        '..',
+        'Resources',
+        'app',
+        'bin',
+        'code'
+      );
+      break;
+    case 'win32':
+      executablePath = path.join(vscodeInstallPath, '..', '..', 'bin', 'code');
+      break;
+    default:
+      executablePath = path.join(
+        vscodeInstallPath,
+        '..',
+        '..',
+        'VSCode-linux-x64',
+        'bin',
+        'code'
+      );
+      return;
+  }
+
+  return executablePath;
+};
+
 async function go() {
   const vscodeExecutablePath = await vscodetest.downloadAndUnzipVSCode();
 
   console.log('vscodeExecutablePath ====>', vscodeExecutablePath);
 
-  const darwinExecutable = path.join(
-    vscodeExecutablePath,
-    '..',
-    '..',
-    'Resources',
-    'app',
-    'bin',
-    'code'
+  const executablePath = getExecutable(vscodeExecutablePath);
+  console.log('executablePath ====>', executablePath);
+
+  shell.exec(`'${executablePath}' --install-extension dbaeumer.vscode-eslint`);
+
+  process.env.VSCODE_BINARY_PATH = executablePath;
+
+  console.log(
+    'process.env.VSCODE_BINARY_PATH => ',
+    process.env.VSCODE_BINARY_PATH
   );
 
-  console.log('darwinExecutable ====>', darwinExecutable);
-
-  shell.exec(
-    `'${darwinExecutable}' --install-extension dbaeumer.vscode-eslint`
-  );
-  /*
   const testRunnerPath = path.join(
     process.cwd(),
     'out',
@@ -32,19 +62,9 @@ async function go() {
     'mocha-runner.js'
   );
 
-  const extensionPath = path.join(process.cwd(), '..');
-
   console.log('testRunnerPath ===> ', testRunnerPath);
 
-  console.log('extensionPath ===> ', extensionPath);
-
-  await runTests({
-    vscodeExecutablePath,
-    extensionPath,
-    testRunnerPath,
-    testWorkspace 
-  })
-*/
+  shell.exec(`node ${testRunnerPath}`);
   console.log('local vscode setup is ready!!');
 }
 
