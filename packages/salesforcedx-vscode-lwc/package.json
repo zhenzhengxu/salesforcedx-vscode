@@ -47,7 +47,7 @@
     "mocha": "3.2.0",
     "sinon": "^2.3.6",
     "typescript": "3.1.6",
-    "vscode": "1.1.17"
+    "vscode": "1.1.35"
   },
   "extensionDependencies": [
     "dbaeumer.vscode-eslint"
