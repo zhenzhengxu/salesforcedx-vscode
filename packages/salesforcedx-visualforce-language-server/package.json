@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "@salesforce/salesforcedx-visualforce-markup-language-server": "46.4.0",
-    "typescript": "3.1.6",
     "vscode-css-languageservice": "2.1.9",
     "vscode-languageserver": "3.4.2",
     "vscode-languageserver-protocol": "3.4.2",
@@ -26,7 +25,8 @@
     "mocha-multi-reporters": "^1.1.4",
     "nyc": "^13",
     "shx": "0.2.2",
-    "source-map-support": "^0.4.15"
+    "source-map-support": "^0.4.15",
+    "typescript": "3.1.6"
   },
   "scripts": {
     "compile": "tsc -p ./ && shx cp -R test/unit/fixtures out/test/unit",
