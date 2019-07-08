@@ -77,11 +77,12 @@ describe('HTML Embedded Formatting', () => {
     options?: any,
     formatOptions?: FormattingOptions
   ): void {
+    const FIXTURES_DIR = path.join(process.cwd(), 'test', 'unit', 'fixtures');
     const input = fs
-      .readFileSync(path.join(__dirname, 'fixtures', 'inputs', fixtureName))
+      .readFileSync(path.join(FIXTURES_DIR, 'inputs', fixtureName))
       .toString();
     const expected = fs
-      .readFileSync(path.join(__dirname, 'fixtures', 'expected', expectedPath))
+      .readFileSync(path.join(FIXTURES_DIR, 'expected', expectedPath))
       .toString();
     assertFormat(input, expected, options, formatOptions, expectedPath);
   }
