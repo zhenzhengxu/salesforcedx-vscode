@@ -18,9 +18,13 @@
     "webpack": "4.30.0",
     "webpack-cli": "3.3.5"
   },
+  "engines": {
+    "vscode": "^1.32.0"
+  },
+  "private": true,
   "scripts": {
-    "postinstall": "lerna bootstrap -- --no-package-lock && node scripts/reformat-with-prettier",
-    "bootstrap": "lerna bootstrap -- --no-package-lock && node scripts/reformat-with-prettier",
+    "postinstall": "vscode-install && node scripts/reformat-with-prettier",
+    "bootstrap": "node scripts/reformat-with-prettier",
     "clean": "lerna run clean",
     "compile": "lerna run --stream compile",
     "lint": "lerna run lint",
@@ -47,6 +51,9 @@
     "aggregateJUnit": "node scripts/aggregate-junit-xml.js",
     "link-lsp": "lerna exec yarn link aura-language-server lwc-language-server lightning-lsp-common --scope salesforcedx-vscode-lightning && lerna exec yarn link lwc-language-server lightning-lsp-common --scope salesforcedx-vscode-lwc"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/forcedotcom/salesforcedx-vscode.git"
