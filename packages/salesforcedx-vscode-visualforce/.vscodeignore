@@ -6,14 +6,19 @@ src/**
 **/*.map
 .gitignore
 tsconfig.json
+images/**
+!images/VSCodeVisualforce.png
+typings/**
 
 # salesforcedx-visualforce-language-server files to ignore
+node_modules/@salesforce/salesforcedx-visualforce-language-server/node_modules/typescript/**/*
 node_modules/@salesforce/salesforcedx-visualforce-language-server/src/**
 node_modules/@salesforce/salesforcedx-visualforce-language-server/test/**
 node_modules/@salesforce/salesforcedx-visualforce-language-server/.vscode
 node_modules/@salesforce/salesforcedx-visualforce-language-server/.vscodeignore
 node_modules/@salesforce/salesforcedx-visualforce-language-server/package-lock.json
 node_modules/@salesforce/salesforcedx-visualforce-language-server/tsconfig.json
+node_modules/@salesforce/salesforcedx-visualforce-language-server/webpack.config.js
 node_modules/@salesforce/salesforcedx-visualforce-language-server/out/test/**
 node_modules/@salesforce/salesforcedx-visualforce-language-server/node_modules/@salesforce/salesforcedx-visualforce-markup-language-server/src/**
 node_modules/@salesforce/salesforcedx-visualforce-language-server/node_modules/@salesforce/salesforcedx-visualforce-markup-language-server/test/**
