@@ -30,6 +30,9 @@
       "smartStep": true,
       "outFiles": ["${workspaceFolder}/packages/*/out/src/**/*.js"],
       "sourceMapPathOverrides": {
+        "webpack:///salesforcedx-visualforce-language-server/../salesforcedx-visualforce-markup-language-server/*": "${workspaceFolder}/packages/salesforcedx-visualforce-markup-language-server/*",
+        "webpack:///salesforcedx-visualforce-language-server/./*": "${workspaceFolder}/packages/salesforcedx-visualforce-language-server/*",
+        "webpack:///salesforcedx-sobjects-faux-generator/./*": "${workspaceFolder}/packages/salesforcedx-sobjects-faux-generator/*",
         "webpack:///salesforcedx-utils-vscode/./*": "${workspaceFolder}/packages/salesforcedx-utils-vscode/*",
         "webpack:///*": "*"
       },
@@ -219,7 +222,8 @@
       "smartStep": true,
       "outFiles": ["${workspaceFolder}/packages/*/out/**/*.js"],
       "sourceMapPathOverrides": {
-        "../../../test/unit/": "${workspaceFolder}/packages/salesforcedx-visualforce-language-server/out/test/unit/*",
+        "webpack:///salesforcedx-visualforce-language-server/../salesforcedx-visualforce-markup-language-server": "${workspaceFolder}/packages/salesforcedx-visualforce-markup-language-server/*",
+        "webpack:///salesforcedx-visualforce-language-server/./*": "${workspaceFolder}/packages/salesforcedx-visualforce-language-server/*",
         "webpack:///salesforcedx-utils-vscode/./*": "${workspaceFolder}/packages/salesforcedx-utils-vscode/*",
         "webpack:///*": "*"
       },

@@ -77,7 +77,14 @@ describe('HTML Embedded Formatting', () => {
     options?: any,
     formatOptions?: FormattingOptions
   ): void {
-    const FIXTURES_DIR = path.join(process.cwd(), 'test', 'unit', 'fixtures');
+    const FIXTURES_DIR = path.join(
+      process.cwd(),
+      'packages',
+      'salesforcedx-visualforce-language-server',
+      'test',
+      'unit',
+      'fixtures'
+    );
     const input = fs
       .readFileSync(path.join(FIXTURES_DIR, 'inputs', fixtureName))
       .toString();

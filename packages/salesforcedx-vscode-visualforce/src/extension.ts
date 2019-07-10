@@ -185,6 +185,7 @@ export async function activate(context: ExtensionContext) {
     })
     .catch(err => {
       // Handled by clients
+      console.log('SFDX Visualforce Extension error => ', err);
       telemetryService.sendExtensionActivationEvent(err);
     });
   languages.setLanguageConfiguration('visualforce', {
@@ -280,6 +281,7 @@ export async function activate(context: ExtensionContext) {
     );
   }
 
+  console.log('SFDX Visualforce Extension Activated');
   telemetryService.sendExtensionActivationEvent(extensionHRStart);
 }
 
