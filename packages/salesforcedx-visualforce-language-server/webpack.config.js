@@ -66,7 +66,8 @@ module.exports = {
     'vscode-languageserver-protocol': 'commonjs vscode-languageserver-protocol',
     'vscode-languageserver-types': 'commonjs vscode-languageserver-types',
     'vscode-nls': 'commonjs vscode-nls',
-    'vscode-uri': 'commonjs vscode-uri'
+    'vscode-uri': 'commonjs vscode-uri',
+    typescript: 'commonjs typescript'
   },
   // Automatically resolve certain extensions.
   resolve: {
