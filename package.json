@@ -40,7 +40,7 @@
     "test:system-tests": "lerna run test --scope system-tests --concurrency 1 --stream",
     "test:vscode-insiders-system-tests": "lerna run test:vscode-insiders-system-tests --scope system-tests --concurrency 1 --stream",
     "coverage:system-tests": "lerna exec --scope system-tests --concurrency 1 --stream --bail=false -- npm run coverage:system-tests",
-    "vscode:package": "yarn install --production --ignore-scripts --prefer-offline && lerna exec --scope @salesforce/salesforcedx-* -- lerna run vscode:package --concurrency 1 && node scripts/reformat-with-prettier",
+    "vscode:package": "yarn install --production --ignore-scripts --prefer-offline --frozen-lockfile && lerna exec --scope @salesforce/salesforcedx-* -- lerna run vscode:package --concurrency 1 && node scripts/reformat-with-prettier",
     "vscode:sha256": "lerna run vscode:sha256 --concurrency 1",
     "vscode:publish": "lerna run vscode:publish --concurrency 1",
     "watch": "lerna run --parallel watch",
