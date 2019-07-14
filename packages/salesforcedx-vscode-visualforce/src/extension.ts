@@ -56,6 +56,8 @@ export async function activate(context: ExtensionContext) {
   // The server is implemented in node
   const serverModule = context.asAbsolutePath(
     path.join(
+      '..',
+      '..',
       'node_modules',
       '@salesforce',
       'salesforcedx-visualforce-language-server',

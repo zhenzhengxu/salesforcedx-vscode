@@ -88,7 +88,14 @@ export async function activate(context: ExtensionContext) {
 
   // Setup the language server
   const serverModule = context.asAbsolutePath(
-    path.join('node_modules', 'aura-language-server', 'lib', 'server.js')
+    path.join(
+      '..',
+      '..',
+      'node_modules',
+      'aura-language-server',
+      'lib',
+      'server.js'
+    )
   );
 
   // The debug options for the server

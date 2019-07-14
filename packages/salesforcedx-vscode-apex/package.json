@@ -271,12 +271,12 @@
       {
         "language": "apex",
         "scopeName": "source.apex",
-        "path": "./node_modules/@salesforce/apex-tmlanguage/grammars/apex.tmLanguage"
+        "path": "../../node_modules/@salesforce/apex-tmlanguage/grammars/apex.tmLanguage"
       },
       {
         "language": "apex-anon",
         "scopeName": "source.apex",
-        "path": "./node_modules/@salesforce/apex-tmlanguage/grammars/apex.tmLanguage"
+        "path": "../../node_modules/@salesforce/apex-tmlanguage/grammars/apex.tmLanguage"
       }
     ],
     "snippets": [
