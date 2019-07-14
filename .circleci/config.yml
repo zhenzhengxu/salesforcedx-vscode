@@ -14,13 +14,13 @@ jobs:
       - checkout
       - restore_cache:
           key: dependency-cache-{{ checksum "package.json" }}
-      - run: npm install
+      - run: yarn install
       # Setup an NODE_ENV to production mode before compiling.
       - run:
           name: 'Run compile in production mode'
           command: |
-            export NODE_ENV=production && npm run compile
-      - run: npm run vscode:package
+            export NODE_ENV=production && yarn compile
+      - run: yarn vscode:package
       - run:
           command: |
             mkdir extensions
