@@ -5067,22 +5067,18 @@ vscode-extension-telemetry@0.0.17:
   dependencies:
     applicationinsights "1.0.1"
 
-vscode-jsonrpc@3.5.0:
-  version "3.5.0"
-  resolved "http://npm.lwcjs.org/vscode-jsonrpc/-/vscode-jsonrpc-3.5.0/87239d9e166b2d7352245b8a813597804c1d63aa.tgz#87239d9e166b2d7352245b8a813597804c1d63aa"
-  integrity sha1-hyOdnhZrLXNSJFuKgTWXgEwdY6o=
-
 vscode-jsonrpc@^4.0.0:
   version "4.0.0"
   resolved "http://npm.lwcjs.org/vscode-jsonrpc/-/vscode-jsonrpc-4.0.0/a7bf74ef3254d0a0c272fab15c82128e378b3be9.tgz#a7bf74ef3254d0a0c272fab15c82128e378b3be9"
   integrity sha512-perEnXQdQOJMTDFNv+UF3h1Y0z4iSiaN9jIlb0OqIYgosPCZGYh/MCUlkFtV2668PL69lRDO32hmvL2yiidUYg==
 
-vscode-languageclient@^3.5.1:
-  version "3.5.1"
-  resolved "http://npm.lwcjs.org/vscode-languageclient/-/vscode-languageclient-3.5.1/c78e582459c24e58f88020dfa34065e976186a98.tgz#c78e582459c24e58f88020dfa34065e976186a98"
-  integrity sha512-GTQ+hSq/o4c/y6GYmyP9XNrVoIu0NFZ67KltSkqN+tO0eUNDIlrVNX+3DJzzyLhSsrctuGzuYWm3t87mNAcBmQ==
+vscode-languageclient@^5.2.1:
+  version "5.2.1"
+  resolved "http://npm.lwcjs.org/vscode-languageclient/-/vscode-languageclient-5.2.1/7cfc83a294c409f58cfa2b910a8cfeaad0397193.tgz#7cfc83a294c409f58cfa2b910a8cfeaad0397193"
+  integrity sha512-7jrS/9WnV0ruqPamN1nE7qCxn0phkH5LjSgSp9h6qoJGoeAKzwKz/PF6M+iGA/aklx4GLZg1prddhEPQtuXI1Q==
   dependencies:
-    vscode-languageserver-protocol "3.5.1"
+    semver "^5.5.0"
+    vscode-languageserver-protocol "3.14.1"
 
 vscode-languageserver-protocol@3.14.1:
   version "3.14.1"
@@ -5092,23 +5088,10 @@ vscode-languageserver-protocol@3.14.1:
     vscode-jsonrpc "^4.0.0"
     vscode-languageserver-types "3.14.0"
 
-vscode-languageserver-protocol@3.5.1:
-  version "3.5.1"
-  resolved "http://npm.lwcjs.org/vscode-languageserver-protocol/-/vscode-languageserver-protocol-3.5.1/5144a3a9eeccbd83fe2745bd4ed75fad6cc45f0d.tgz#5144a3a9eeccbd83fe2745bd4ed75fad6cc45f0d"
-  integrity sha512-1fPDIwsAv1difCV+8daOrJEGunClNJWqnUHq/ncWrjhitKWXgGmRCjlwZ3gDUTt54yRcvXz1PXJDaRNvNH6pYA==
-  dependencies:
-    vscode-jsonrpc "3.5.0"
-    vscode-languageserver-types "3.5.0"
-
 vscode-languageserver-types@3.14.0:
   version "3.14.0"
   resolved "http://npm.lwcjs.org/vscode-languageserver-types/-/vscode-languageserver-types-3.14.0/d3b5952246d30e5241592b6dde8280e03942e743.tgz#d3b5952246d30e5241592b6dde8280e03942e743"
   integrity sha512-lTmS6AlAlMHOvPQemVwo3CezxBp0sNB95KNPkqp3Nxd5VFEnuG1ByM0zlRWos0zjO3ZWtkvhal0COgiV1xIA4A==
-
-vscode-languageserver-types@3.5.0:
-  version "3.5.0"
-  resolved "http://npm.lwcjs.org/vscode-languageserver-types/-/vscode-languageserver-types-3.5.0/e48d79962f0b8e02de955e3f524908e2b19c0374.tgz#e48d79962f0b8e02de955e3f524908e2b19c0374"
-  integrity sha1-5I15li8LjgLelV4/UkkI4rGcA3Q=
 
 vscode-languageserver@^5.2.1:
   version "5.2.1"
