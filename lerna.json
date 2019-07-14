@@ -2,5 +2,5 @@
   "npmClient": "yarn",
   "packages": ["docs", "packages/*"],
   "useWorkspaces": true,
-  "version": "46.4.0"
+  "version": "46.5.0"
 }
