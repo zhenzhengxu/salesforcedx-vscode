@@ -178,7 +178,7 @@ export class IsvDebugBootstrapExecutor extends SfdxCommandletExecutor<{}> {
     data: IsvDebugBootstrapConfig,
     packageNames: string[]
   ): Command {
-    return new SfdxCommandBuilder()
+    const result = new SfdxCommandBuilder()
       .withDescription(
         nls.localize('isv_debug_bootstrap_step6_retrieve_packages_source')
       )
@@ -191,6 +191,7 @@ export class IsvDebugBootstrapExecutor extends SfdxCommandletExecutor<{}> {
       .withFlag('--targetusername', data.sessionId)
       .withLogName('isv_debug_bootstrap_retrieve_packages_source')
       .build();
+    return result;
   }
 
   public buildMetadataApiConvertPackageSourceCommand(
@@ -233,9 +234,13 @@ export class IsvDebugBootstrapExecutor extends SfdxCommandletExecutor<{}> {
   }
 
   public getModifiedPackageNames(packageNames: string[]): string[] {
-    return packageNames.map(
-      entry => "'" + entry.replace(new RegExp("'", 'g'), "\\'") + "'"
+    return packageNames.map(entry =>
+      entry.replace(new RegExp(',', 'g'), '%2C')
     );
+  }
+
+  public getModifiedPackageName(packageName: string): string {
+    return packageName.replace(new RegExp(',', 'g'), '%2C');
   }
 
   public async execute(
@@ -410,11 +415,12 @@ export class IsvDebugBootstrapExecutor extends SfdxCommandletExecutor<{}> {
 
     // 7b: convert packages into final location
     for (const packageInfo of packageInfos) {
+      const newName = this.getModifiedPackageName(packageInfo.name);
       channelService.appendLine(
-        nls.localize('isv_debug_bootstrap_processing_package', packageInfo.name)
+        nls.localize('isv_debug_bootstrap_processing_package', newName)
       );
       await this.executeCommand(
-        this.buildMetadataApiConvertPackageSourceCommand(packageInfo.name),
+        this.buildMetadataApiConvertPackageSourceCommand(newName),
         { cwd: projectPath },
         cancellationTokenSource,
         cancellationToken
@@ -425,7 +431,7 @@ export class IsvDebugBootstrapExecutor extends SfdxCommandletExecutor<{}> {
         fs.writeFileSync(
           path.join(
             projectInstalledPackagesPath,
-            packageInfo.name,
+            newName,
             'installed-package.json'
           ),
           JSON.stringify(packageInfo, null, 2),
