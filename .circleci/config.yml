@@ -13,8 +13,8 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
-      - run: npm install
+          - yarn-packages-{{ checksum "yarn.lock" }}
+      - run: yarn install --frozen-lockfile
       # Setup an NODE_ENV to production mode before compiling.
       - run:
           name: 'Run compile in production mode'
@@ -28,9 +28,9 @@ jobs:
       - store_artifacts:
           path: ./extensions
       - save_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
+          key: yarn-packages-{{ checksum "yarn.lock" }}
           paths:
-            - node_modules
+            - ~/.cache/yarn
 workflows:
   version: 2
   commit-workflow:
