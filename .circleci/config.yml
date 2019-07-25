@@ -13,7 +13,8 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          - yarn-packages-{{ checksum "yarn.lock" }}
+          keys:
+            - yarn-packages-{{ checksum "yarn.lock" }}
       - run: yarn install --frozen-lockfile
       # Setup an NODE_ENV to production mode before compiling.
       - run:
