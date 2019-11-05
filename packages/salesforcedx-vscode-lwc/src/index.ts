@@ -5,12 +5,15 @@
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
+import * as fs from 'fs';
 import { shared as lspCommon } from 'lightning-lsp-common';
 import * as path from 'path';
 import {
+  ConfigurationChangeEvent,
   ConfigurationTarget,
   ExtensionContext,
   Uri,
+  window,
   workspace,
   WorkspaceConfiguration
 } from 'vscode';
@@ -21,7 +24,11 @@ import {
   TransportKind
 } from 'vscode-languageclient';
 import { sync as which } from 'which';
-import { ESLINT_NODEPATH_CONFIG, LWC_EXTENSION_NAME } from './constants';
+import {
+  ESLINT_NODEPATH_CONFIG,
+  LWC_EXTENSION_NAME,
+  MANAGE_ESLINT_NODEPATH
+} from './constants';
 import { telemetryService } from './telemetry';
 
 // See https://github.com/Microsoft/vscode-languageserver-node/issues/105
@@ -44,7 +51,7 @@ function getActivationMode(): string {
   return config.get('activationMode') || 'autodetect'; // default to autodetect
 }
 
-export async function activate(context: ExtensionContext) {
+export async function activate(this: any, context: ExtensionContext) {
   const extensionHRStart = process.hrtime();
   console.log('Activation Mode: ' + getActivationMode());
   // Run our auto detection routine before we activate
@@ -85,10 +92,9 @@ export async function activate(context: ExtensionContext) {
 
   // Additional eslint configuration
   if (workspaceType === lspCommon.WorkspaceType.SFDX) {
-    await populateEslintSettingIfNecessary(
-      context,
-      workspace.getConfiguration('', workspace.workspaceFolders[0].uri)
-    );
+    const extNodePath = context.asAbsolutePath(path.join('node_modules'));
+    workspace.onDidChangeConfiguration(settingsChanged.bind(this, extNodePath));
+    await populateEslintSettingIfNecessary();
   }
 
   // Notify telemetry that our extension is now active
@@ -152,23 +158,99 @@ function startLWCLanguageServer(context: ExtensionContext) {
   context.subscriptions.push(client);
 }
 
-export async function populateEslintSettingIfNecessary(
-  context: ExtensionContext,
-  config: WorkspaceConfiguration
-) {
-  const nodePath = config.get<string>(ESLINT_NODEPATH_CONFIG);
+// Check package.json for eslint dependencies
+export function containsEslintConfiguration(packageJson: string) {
+  try {
+    if (fs.existsSync(packageJson)) {
+      // Check if package.json contains @lwc/engine
+      const packageInfo = JSON.parse(fs.readFileSync(packageJson, 'utf-8'));
+      const dependencies = Object.keys(packageInfo.dependencies || {});
+      if (
+        dependencies.includes('eslint') &&
+        dependencies.includes('@salesforce/eslint-config-lwc')
+      ) {
+        return true;
+      }
+      const devDependencies = Object.keys(packageInfo.devDependencies || {});
+      if (
+        devDependencies.includes('eslint') &&
+        devDependencies.includes('@salesforce/eslint-config-lwc')
+      ) {
+        return true;
+      }
+    }
+  } catch (e) {}
+  return false;
+}
 
-  // User has not set one, use the eslint bundled with our extension
-  // or if it is from salesforcedx-vscode-lwc, update since the path looks like
-  // "eslint.nodePath": ".../.vscode/extensions/salesforce.salesforcedx-vscode-lwc-41.17.0/node_modules",
-  // which contains the version number and needs to be updated on each extension
-  if (!nodePath || nodePath.includes(LWC_EXTENSION_NAME)) {
-    const eslintModule = context.asAbsolutePath(path.join('node_modules'));
-    await config.update(
-      ESLINT_NODEPATH_CONFIG,
-      eslintModule,
-      ConfigurationTarget.Workspace
+async function settingsChanged(
+  pluginNodePath: string,
+  e: ConfigurationChangeEvent
+) {
+  if (e.affectsConfiguration(MANAGE_ESLINT_NODEPATH)) {
+    const config: WorkspaceConfiguration = workspace.getConfiguration('');
+    const manageNodepath = config.get<string>(MANAGE_ESLINT_NODEPATH);
+
+    // User wants us to manage their eslint nodepath
+    if (manageNodepath === 'Yes') {
+      const currentNodePath = config.get<string>(ESLINT_NODEPATH_CONFIG);
+
+      // User has not set one, use the eslint bundled with our extension
+      // or if it is from salesforcedx-vscode-lwc, update since the path looks like
+      // "eslint.nodePath": ".../.vscode/extensions/salesforce.salesforcedx-vscode-lwc-41.17.0/node_modules",
+      // which contains the version number and needs to be updated on each extension
+      if (!currentNodePath || currentNodePath.includes(LWC_EXTENSION_NAME)) {
+        await config.update(
+          ESLINT_NODEPATH_CONFIG,
+          pluginNodePath,
+          ConfigurationTarget.Workspace
+        );
+      }
+    }
+  }
+}
+
+export async function populateEslintSettingIfNecessary() {
+  const config: WorkspaceConfiguration = workspace.getConfiguration('');
+
+  // Check package json for devDeps of eslint-plugin-lwc
+  const packageJson = path.join(workspace.rootPath || '', 'package.json');
+  const hasProperDeps = containsEslintConfiguration(packageJson);
+
+  // If we have the proper dependencies, just return and don't do anything
+  if (hasProperDeps) {
+    return;
+  }
+
+  // If we get here its because eslint isn't setup properly
+
+  // Check our user settings to see if we should prompt them
+  let shouldManageEslintNodepath = config.get<string>(MANAGE_ESLINT_NODEPATH);
+
+  // If setting is not set, prompt user
+  if (!shouldManageEslintNodepath) {
+    shouldManageEslintNodepath = await window.showInformationMessage(
+      'It appears you do not have ESLint configured for LWC in your current project. Would you like us to manage the eslint.nodePath setting for you?',
+      { modal: true },
+      'Yes',
+      'No'
     );
+
+    // User can click cancel here, so don't set the value unnecessarily
+    if (shouldManageEslintNodepath) {
+      await config.update(
+        MANAGE_ESLINT_NODEPATH,
+        shouldManageEslintNodepath,
+        ConfigurationTarget.Workspace
+      );
+    }
+
+    // If user does not choose yes, warn them that eslint may not function
+    if (shouldManageEslintNodepath !== 'Yes') {
+      await window.showWarningMessage(
+        'ESLint will not work correctly for LWC unless you setup eslint-config-lwc. Follow instructions here to manually configure eslint: https://github.com/salesforce/eslint-config-lwc/blob/master/README.md'
+      );
+    }
   }
 }
 
