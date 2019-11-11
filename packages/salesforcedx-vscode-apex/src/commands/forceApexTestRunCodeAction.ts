@@ -6,10 +6,12 @@
  */
 
 import {
+  CliCommandExecutor,
   Command,
   SfdxCommandBuilder,
   TestRunner
 } from '@salesforce/salesforcedx-utils-vscode/out/src/cli';
+import { ContinueResponse } from '@salesforce/salesforcedx-utils-vscode/out/src/types';
 import * as vscode from 'vscode';
 import { nls } from '../messages';
 import { forceApexTestRunCacheService, isEmpty } from '../testRunCache';
@@ -17,12 +19,17 @@ import { forceApexTestRunCacheService, isEmpty } from '../testRunCache';
 const sfdxCoreExports = vscode.extensions.getExtension(
   'salesforce.salesforcedx-vscode-core'
 )!.exports;
-const EmptyParametersGatherer = sfdxCoreExports.EmptyParametersGatherer;
-const sfdxCoreSettings = sfdxCoreExports.sfdxCoreSettings;
-const SfdxCommandlet = sfdxCoreExports.SfdxCommandlet;
-const SfdxWorkspaceChecker = sfdxCoreExports.SfdxWorkspaceChecker;
+const {
+  channelService,
+  EmptyParametersGatherer,
+  notificationService,
+  ProgressNotification,
+  SfdxCommandlet,
+  sfdxCoreSettings,
+  SfdxWorkspaceChecker,
+  taskViewService
+} = sfdxCoreExports;
 const SfdxCommandletExecutor = sfdxCoreExports.SfdxCommandletExecutor;
-const notificationService = sfdxCoreExports.notificationService;
 
 // build force:apex:test:run w/ given test class or test method
 export class ForceApexTestRunCodeActionExecutor extends SfdxCommandletExecutor<{}> {
@@ -59,6 +66,37 @@ export class ForceApexTestRunCodeActionExecutor extends SfdxCommandletExecutor<{
     }
 
     return this.builder.build();
+  }
+
+  public async execute(response: ContinueResponse<string>): Promise<void> {
+    const startTime = process.hrtime();
+    const cancellationTokenSource = new vscode.CancellationTokenSource();
+    const cancellationToken = cancellationTokenSource.token;
+
+    const execution = new CliCommandExecutor(this.build(response.data), {
+      cwd: vscode.workspace.workspaceFolders![0].uri.fsPath,
+      env: { SFDX_JSON_TO_STDOUT: 'true' }
+    }).execute(cancellationToken);
+
+    channelService.streamCommandStartStop(execution);
+    channelService.showChannelOutput();
+
+    let stdOut = '';
+    execution.stdoutSubject.subscribe(realData => {
+      stdOut += realData.toString();
+    });
+
+    execution.processExitSubject.subscribe(async exitCode => {
+      this.logMetric(execution.command.logName, startTime);
+      vscode.commands.executeCommand('sfdx.force.apex.log.get');
+    });
+
+    notificationService.reportCommandExecutionStatus(
+      execution,
+      cancellationToken
+    );
+    ProgressNotification.show(execution, cancellationTokenSource);
+    taskViewService.addCommandExecution(execution, cancellationTokenSource);
   }
 }
 
