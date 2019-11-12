@@ -88,8 +88,8 @@ export async function activate(this: any, context: ExtensionContext) {
   // If activationMode === always, ignore workspace type and continue activating
 
   // register commands
-  const commands = registerCommands(context);
-  context.subscriptions.push(commands);
+  const ourCommands = registerCommands(context);
+  context.subscriptions.push(ourCommands);
 
   // If we get here, we either passed autodetect validation or activationMode == always
   console.log('Lightning Web Components Extension Activated');
