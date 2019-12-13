@@ -51,6 +51,7 @@ commands:
             $version = "10.2.0"
             nvm install $version
             nvm use $version
+            npm config set scripts-prepend-node-path true
       - run:
           name: 'Install dependent modules'
           command: |
@@ -73,13 +74,13 @@ commands:
       - run:
           command: |
             npm run lint
-      - store_artifacts:
-          path: ./extensions
-      - run: |
-          $stopwatch.Stop()
-          Write-Host "Total Installation Time - " $stopwatch.Elapsed
-          "`n`n"
-          $stopwatch.Reset()
+      # - store_artifacts:
+      #     path: ./extensions
+      # - run: |
+      #     $stopwatch.Stop()
+      #     Write-Host "Total Installation Time - " $stopwatch.Elapsed
+      #     "`n`n"
+      #     $stopwatch.Reset()
 
 jobs:
   build-all:
@@ -122,14 +123,17 @@ jobs:
             node --version
             npm --version
       - run:
+          name: 'Running tests'
           shell: cmd.exe
           command: |
             npm test:unit
             npm test:integration-tests-without-system-tests
-      - run: |
-          npm run aggregateJUnit
-          junit-merge -d junit-aggregate -o junit-aggregate.xml
-          codecov --disable=gcov
+      - run:
+          name: 'Aggregate test results and generate code coverage'
+          command: |
+            npm run aggregateJUnit
+            junit-merge -d junit-aggregate -o junit-aggregate.xml
+            codecov --disable=gcov
       - store_test_results:
           path: ./junit-aggregate/
 
