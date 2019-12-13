@@ -48,13 +48,12 @@ commands:
       - run:
           name: 'Install node'
           command: |
-            $version = "10.2.0"
-            nvm install $version
-            nvm use $version
-            npm config set scripts-prepend-node-path true
+            nvm install ${NODE_VERSION}
+            nvm use ${NODE_VERSION}
       - run:
           name: 'Install dependent modules'
           command: |
+            nvm use ${NODE_VERSION}
             node --version
             npm --version
             npm install
@@ -107,6 +106,7 @@ jobs:
     environment:
       - SFDX_AUTOUPDATE_DISABLE: true
       - SFDX_DOMAIN_RETRY: 300
+      - NODE_VERSION: '10.2.0'
     steps:
       - build-win
       - run:
