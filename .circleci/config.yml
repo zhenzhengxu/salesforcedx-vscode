@@ -23,7 +23,7 @@ commands:
       - run:
           name: 'Compile in production mode'
           environment:
-            - NODE_ENV=production
+            - NODE_ENV: production
           command: |
             npm run compile
       - run: npm run vscode:package
@@ -55,7 +55,7 @@ commands:
       - run:
           name: 'Compile in production mode'
           environment:
-            - NODE_ENV=production
+            - NODE_ENV: production
           command: |
             npm run compile
       - save_cache:
