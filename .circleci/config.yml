@@ -46,13 +46,20 @@ commands:
           key: dependency-cache-win1-{{ checksum "package.json" }}
       - run: $stopwatch = [system.diagnostics.stopwatch]::StartNew()
       - run:
+          name: 'Install node'
+          command: |
+            $version = "10.2.0"
+            nvm install $version
+            nvm use $version
+      - run:
           name: 'Install dependent modules'
           command: |
+            node --version
+            npm --version
             npm install
             npm install -g sfdx-cli
             npm install -g codecov
             npm install -g junit-merge
-            npm install -g @types/mocha
       - run:
           name: 'Compile in production mode'
           environment:
