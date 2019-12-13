@@ -1,25 +1,31 @@
 #
-version: 2
-jobs:
-  build:
-    docker:
-      - image: circleci/node:10.2.0
-    environment:
-      - SFDX_URL_LINUX=https://developer.salesforce.com/media/salesforce-cli/sfdx-linux-amd64.tar.xz
-      - SFDX_AUTOUPDATE_DISABLE=true
-      - SFDX_USE_GENERIC_UNIX_KEYCHAIN=true
-      - SFDX_DOMAIN_RETRY=300
+# CircleCI configuration for salesforcedx-vscode
+#
+# The following environment variables are required in the 'vscode-test' context
+# when running tests for Windows:
+#     SFDX_CI_DEVHUB_CLIENTID  -- connected app client ID for the dev hub
+#     SFDX_CI_DEVHUB_JWT_KEY   -- private key for the connected app
+#     SFDX_CI_DEVHUB_USERNAME  -- username of an authorized user of the dev hub
+#
+version: 2.1
 
+orbs:
+  win: circleci/windows@2.2.0
+
+commands:
+  build-artifacts:
+    description: 'Building and archiving extension artifacts.'
     steps:
       - checkout
       - restore_cache:
-          key: dependency-cache-v3-{{ checksum "package.json" }}
+          key: dependency-cache-v0-{{ checksum "package.json" }}
       - run: npm install
-      # Setup an NODE_ENV to production mode before compiling.
       - run:
-          name: 'Run compile in production mode'
+          name: 'Compile in production mode'
+          environment:
+            - NODE_ENV=production
           command: |
-            export NODE_ENV=production && npm run compile
+            npm run compile
       - run: npm run vscode:package
       - run:
           command: |
@@ -28,14 +34,108 @@ jobs:
       - store_artifacts:
           path: ./extensions
       - save_cache:
-          key: dependency-cache-v3-{{ checksum "package.json" }}
+          key: dependency-cache-v0-{{ checksum "package.json" }}
           paths:
             - node_modules
+
+  build-win:
+    description: 'Build for Windows.'
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-win1-{{ checksum "package.json" }}
+      - run: $stopwatch = [system.diagnostics.stopwatch]::StartNew()
+      - run:
+          name: 'Install dependent modules'
+          command: |
+            npm install
+            npm install -g sfdx-cli
+            npm install -g codecov
+            npm install -g junit-merge
+      - run:
+          name: 'Compile in production mode'
+          environment:
+            - NODE_ENV=production
+          command: |
+            npm run compile
+      - save_cache:
+          key: dependency-cache-win1-{{ checksum "package.json" }}
+          paths:
+            - node_modules
+      - run:
+          command: |
+            npm run lint
+      - store_artifacts:
+          path: ./extensions
+      - run: |
+          $stopwatch.Stop()
+          Write-Host "Total Installation Time - " $stopwatch.Elapsed
+          "`n`n"
+          $stopwatch.Reset()
+
+jobs:
+  build-all:
+    description: 'Build artifacts in a non-Windows environment'
+    docker:
+      - image: circleci/node:10.2.0
+    environment:
+      - SFDX_URL_LINUX=https://developer.salesforce.com/media/salesforce-cli/sfdx-linux-amd64.tar.xz
+      - SFDX_AUTOUPDATE_DISABLE=true
+      - SFDX_USE_GENERIC_UNIX_KEYCHAIN=true
+      - SFDX_DOMAIN_RETRY=300
+    steps:
+      - build-artifacts
+
+  run-tests:
+    description: 'Run tests on Windows'
+    # TODO:
+    # (1) fail build on test failure(s)
+    # (3) cleanup
+    # (4) parallel execution
+    # (5) elapsed time
+    executor: win/default
+    # shell: powershell.exe
+    environment:
+      - SFDX_AUTOUPDATE_DISABLE=true
+      - SFDX_DOMAIN_RETRY=300
+    steps:
+      - build-win
+      - run:
+          name: 'Initialize the private key file for DevHub authentication'
+          command: |
+            "[System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String(${SFDX_CI_DEVHUB_JWTKEY})) | Out-File -Encoding \"ASCII\" devhub.key"
+      - run:
+          name: 'Authenticate to the default DevHub'
+          command: |
+            sfdx force:auth:jwt:grant --clientid ${SFDX_CI_DEVHUB_CLIENTID} --username ${SFDX_CI_DEVHUB_USERNAME} --jwtkeyfile devhub.key --setdefaultdevhubusername --setalias devhub
+      - run:
+          command: |
+            npm config set scripts-prepend-node-path true
+            node --version
+            npm --version
+      - run:
+          shell: cmd.exe
+          command: |
+            npm test:unit
+            npm test:integration-tests-without-system-tests
+      - run: |
+          npm run aggregateJUnit
+          junit-merge -d junit-aggregate -o junit-aggregate.xml
+          codecov --disable=gcov
+      - store_test_results:
+          path: ./junit-aggregate/
+
 workflows:
-  version: 2
+  version: 2.1
+
+  # run a build and a windows test on every commit
   commit-workflow:
     jobs:
-      - build
+      - build-all
+      - run-tests:
+          context: vscode-test
+
+  # run a build/test every mid-night
   scheduled-workflow:
     triggers:
       - schedule:
@@ -46,4 +146,6 @@ workflows:
                 - develop
                 - master
     jobs:
-      - build
+      - build-all
+      - run-tests:
+          context: vscode-test
