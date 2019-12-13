@@ -52,6 +52,7 @@ commands:
             npm install -g sfdx-cli
             npm install -g codecov
             npm install -g junit-merge
+            npm install -g @types/mocha
       - run:
           name: 'Compile in production mode'
           environment:
