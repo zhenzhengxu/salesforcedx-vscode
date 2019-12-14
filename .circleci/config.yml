@@ -107,19 +107,16 @@ jobs:
     steps:
       - build-win
       - run:
-          name: 'Initialize the private key file for DevHub authentication'
+          name: 'Authenticate to the default DevHub'
           shell: bash.exe
           command: |
             echo $SFDX_CI_DEVHUB_JWTKEY | base64 --decode > devhub.key
-      - run:
-          name: 'Authenticate to the default DevHub'
-          command: |
             sfdx force:auth:jwt:grant --clientid ${SFDX_CI_DEVHUB_CLIENTID} --username ${SFDX_CI_DEVHUB_USERNAME} --jwtkeyfile devhub.key --setdefaultdevhubusername --setalias devhub
-      - run:
-          command: |
-            npm config set scripts-prepend-node-path true
-            node --version
-            npm --version
+      # - run:
+      #     command: |
+      #       npm config set scripts-prepend-node-path true
+      #       node --version
+      #       npm --version
       - run:
           name: 'Running tests'
           shell: cmd.exe
