@@ -54,8 +54,7 @@ commands:
           name: 'Install dependent modules'
           command: |
             nvm use $Env:NODE_VERSION
-            node --version
-            npm --version
+            # npm --version
             npm install
             npm install -g sfdx-cli
             npm install -g codecov
@@ -111,8 +110,9 @@ jobs:
       - build-win
       - run:
           name: 'Initialize the private key file for DevHub authentication'
+          shell: bash.exe
           command: |
-            "[System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String(${SFDX_CI_DEVHUB_JWTKEY})) | Out-File -Encoding \"ASCII\" devhub.key"
+            echo $SFDX_CI_DEVHUB_JWTKEY | base64 --decode > devhub.key
       - run:
           name: 'Authenticate to the default DevHub'
           command: |
