@@ -54,7 +54,6 @@ commands:
           name: 'Install dependent modules'
           command: |
             nvm use $Env:NODE_VERSION
-            # npm --version
             npm install
             npm install -g sfdx-cli
             npm install -g codecov
