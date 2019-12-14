@@ -44,16 +44,16 @@ commands:
       - checkout
       - restore_cache:
           key: dependency-cache-win1-{{ checksum "package.json" }}
-      - run: $stopwatch = [system.diagnostics.stopwatch]::StartNew()
+      # - run: $stopwatch = [system.diagnostics.stopwatch]::StartNew()
       - run:
           name: 'Install node'
           command: |
-            nvm install ${NODE_VERSION}
-            nvm use ${NODE_VERSION}
+            nvm install $Env:NODE_VERSION
+            nvm use $Env:NODE_VERSION
       - run:
           name: 'Install dependent modules'
           command: |
-            nvm use ${NODE_VERSION}
+            nvm use $Env:NODE_VERSION
             node --version
             npm --version
             npm install
