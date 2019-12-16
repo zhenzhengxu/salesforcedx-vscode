@@ -4,7 +4,7 @@
 # The following environment variables are required in the 'vscode-test' context
 # when running tests for Windows:
 #     SFDX_CI_DEVHUB_CLIENTID  -- connected app client ID for the dev hub
-#     SFDX_CI_DEVHUB_JWT_KEY   -- private key for the connected app
+#     SFDX_CI_DEVHUB_JWT_KEY   -- private key for the connected app (base64 encoded)
 #     SFDX_CI_DEVHUB_USERNAME  -- username of an authorized user of the dev hub
 #
 version: 2.1
@@ -44,7 +44,6 @@ commands:
       - checkout
       - restore_cache:
           key: dependency-cache-win1-{{ checksum "package.json" }}
-      # - run: $stopwatch = [system.diagnostics.stopwatch]::StartNew()
       - run:
           name: 'Install node'
           command: |
@@ -70,13 +69,6 @@ commands:
       - run:
           command: |
             npm run lint
-      # - store_artifacts:
-      #     path: ./extensions
-      # - run: |
-      #     $stopwatch.Stop()
-      #     Write-Host "Total Installation Time - " $stopwatch.Elapsed
-      #     "`n`n"
-      #     $stopwatch.Reset()
 
 jobs:
   build-all:
@@ -93,13 +85,7 @@ jobs:
 
   run-tests:
     description: 'Run tests on Windows'
-    # TODO:
-    # (1) fail build on test failure(s)
-    # (3) cleanup
-    # (4) parallel execution
-    # (5) elapsed time
     executor: win/default
-    # shell: powershell.exe
     environment:
       - SFDX_AUTOUPDATE_DISABLE: true
       - SFDX_DOMAIN_RETRY: 300
@@ -112,19 +98,16 @@ jobs:
           command: |
             echo $SFDX_CI_DEVHUB_JWTKEY | base64 --decode > devhub.key
             sfdx force:auth:jwt:grant --clientid ${SFDX_CI_DEVHUB_CLIENTID} --username ${SFDX_CI_DEVHUB_USERNAME} --jwtkeyfile devhub.key --setdefaultdevhubusername --setalias devhub
-      # - run:
-      #     command: |
-      #       npm config set scripts-prepend-node-path true
-      #       node --version
-      #       npm --version
+            rm devhub.key
       - run:
           name: 'Running tests'
-          shell: cmd.exe
+          sshell: bash.exe
           command: |
-            npm test:unit
-            npm test:integration-tests-without-system-tests
+            npm run test:unit
+            npm run test:integration-tests-without-system-tests
       - run:
           name: 'Aggregate test results and generate code coverage'
+          shell: bash.exe
           command: |
             npm run aggregateJUnit
             junit-merge -d junit-aggregate -o junit-aggregate.xml
