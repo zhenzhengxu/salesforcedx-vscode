@@ -46,11 +46,14 @@ commands:
           key: dependency-cache-win1-{{ checksum "package.json" }}
       - run:
           name: 'Install node'
+          shell: bash.exe
           command: |
-            nvm install $Env:NODE_VERSION
-            nvm use $Env:NODE_VERSION
+            nvm install $NODE_VERSION
+            nvm use $NODE_VERSION
+            npm config set scripts-prepend-node-path true
       - run:
           name: 'Install dependent modules'
+          shell: bash.exe
           command: |
             npm install
             npm install -g sfdx-cli
@@ -58,6 +61,7 @@ commands:
             npm install -g junit-merge
       - run:
           name: 'Compile in production mode'
+          shell: bash.exe
           environment:
             - NODE_ENV: production
           command: |
@@ -67,6 +71,8 @@ commands:
           paths:
             - node_modules
       - run:
+          name: 'Run lint'
+          shell: bash.exe
           command: |
             npm run lint
 
@@ -101,17 +107,21 @@ jobs:
             rm devhub.key
       - run:
           name: 'Running tests'
-          sshell: bash.exe
+          shell: cmd.exe
           command: |
             npm run test:unit
             npm run test:integration-tests-without-system-tests
       - run:
-          name: 'Aggregate test results and generate code coverage'
+          name: 'Aggregate test results'
           shell: bash.exe
           command: |
             npm run aggregateJUnit
             junit-merge -d junit-aggregate -o junit-aggregate.xml
-            codecov --disable=gcov
+      # - run:
+      #     name: 'Generate code coverage'
+      #     shell: bash.exe
+      #     command: |
+      #       codecov --disable=gcov
       - store_test_results:
           path: ./junit-aggregate/
 
