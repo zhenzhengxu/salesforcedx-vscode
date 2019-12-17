@@ -26,8 +26,11 @@ commands:
             - NODE_ENV: production
           command: |
             npm run compile
-      - run: npm run vscode:package
       - run:
+          name: 'Packaging extensions'
+          command: npm run vscode:package
+      - run:
+          name: 'Staging artifacts'
           command: |
             mkdir extensions
             find . -name "*.vsix" -type f -exec cp {} ./extensions \;
@@ -60,12 +63,9 @@ commands:
             npm install -g codecov
             npm install -g junit-merge
       - run:
-          name: 'Compile in production mode'
+          name: 'Compile'
           shell: bash.exe
-          environment:
-            - NODE_ENV: production
-          command: |
-            npm run compile
+          command: npm run compile
       - save_cache:
           key: dependency-cache-win1-{{ checksum "package.json" }}
           paths:
