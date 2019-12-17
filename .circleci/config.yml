@@ -50,11 +50,11 @@ commands:
           command: |
             nvm install $NODE_VERSION
             nvm use $NODE_VERSION
-            npm config set scripts-prepend-node-path true
       - run:
           name: 'Install dependent modules'
           shell: bash.exe
           command: |
+            npm config set scripts-prepend-node-path true
             npm install
             npm install -g sfdx-cli
             npm install -g codecov
