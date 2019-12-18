@@ -174,4 +174,8 @@ workflows:
     jobs:
       - build-all
       - run-tests:
+          run-unit-tests: true
+          context: vscode-test
+      - run-tests:
+          run-unit-tests: false
           context: vscode-test
