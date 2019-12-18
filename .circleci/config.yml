@@ -129,13 +129,23 @@ jobs:
           command: |
             npm run aggregateJUnit
             junit-merge -d junit-aggregate -o junit-aggregate.xml
-      # - run:
-      #     name: 'Generate code coverage'
-      #     shell: bash.exe
-      #     command: |
-      #       codecov --disable=gcov
       - store_test_results:
           path: ./junit-aggregate/
+      - run:
+          name: 'Generate code coverage'
+          shell: bash.exe
+          command: |
+            codecov --disable=gcov
+      - run:
+          name: 'Fail build for test failures'
+          shell: powershell.exe
+          command: |
+            [xml]$results = Get-Content junit-aggregate.xml
+            $failure = $results.SelectSingleNode("//failure")
+            if ($failure -ne $null) { 
+              Write-Host "Forcing build failure due to test failure(s) :'("
+              $host.SetShouldExit(1)
+            }
 
 workflows:
   version: 2.1
