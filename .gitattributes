@@ -1,0 +1,4 @@
+
+# These files should not have their line endings modified:
+*.gold    -text
+
