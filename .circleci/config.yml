@@ -112,7 +112,7 @@ jobs:
       - run:
           name: 'Debug gold file line endings'
           shell: bash.exe
-          command |
+          command: |
             find packages -name '*.gold' -exec file "{}" ";"
       - when:
           condition: << parameters.run-unit-tests >>
