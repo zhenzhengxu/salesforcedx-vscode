@@ -45,6 +45,12 @@ commands:
     description: 'Build for Windows.'
     steps:
       - checkout
+      - run:
+          name: 'Debug gold file line endings'
+          shell: bash.exe
+          command: |
+            cat -v packages/salesforcedx-apex-replay-debugger/test/integration/config/logs/recursive.gold
+            cat -v packages/salesforcedx-apex-replay-debugger/test/integration/config/logs/statics.gold
       - restore_cache:
           key: dependency-cache-win1-{{ checksum "package.json" }}
       - run:
@@ -109,11 +115,6 @@ jobs:
             echo $SFDX_CI_DEVHUB_JWTKEY | base64 --decode > devhub.key
             sfdx force:auth:jwt:grant --clientid ${SFDX_CI_DEVHUB_CLIENTID} --username ${SFDX_CI_DEVHUB_USERNAME} --jwtkeyfile devhub.key --setdefaultdevhubusername --setalias devhub
             rm devhub.key
-      - run:
-          name: 'Debug gold file line endings'
-          shell: bash.exe
-          command: |
-            find packages -name '*.gold' -exec file "{}" ";"
       - when:
           condition: << parameters.run-unit-tests >>
           steps:
