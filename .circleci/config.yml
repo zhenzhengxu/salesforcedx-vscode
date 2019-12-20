@@ -44,13 +44,8 @@ commands:
   build-win:
     description: 'Build for Windows.'
     steps:
+      - run: git config --global core.autocrlf false
       - checkout
-      - run:
-          name: 'Debug gold file line endings'
-          shell: bash.exe
-          command: |
-            cat -v packages/salesforcedx-apex-replay-debugger/test/integration/config/logs/recursive.gold
-            cat -v packages/salesforcedx-apex-replay-debugger/test/integration/config/logs/statics.gold
       - restore_cache:
           key: dependency-cache-win1-{{ checksum "package.json" }}
       - run:
