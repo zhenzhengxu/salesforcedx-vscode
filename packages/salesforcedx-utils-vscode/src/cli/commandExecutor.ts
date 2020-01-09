@@ -13,6 +13,7 @@ import 'rxjs/add/observable/interval';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import { Subscription } from 'rxjs/Subscription';
+import * as util from 'util';
 
 // tslint:disable-next-line:no-var-requires
 const kill = require('tree-kill');
@@ -69,8 +70,20 @@ export class CliCommandExecutor {
       : options;
   }
 
-  public execute(cancellationToken?: CancellationToken): CliCommandExecution {
-    console.log('process get spawned');
+  public execute(
+    cancellationToken?: CancellationToken,
+    deployTimes?: Map<string, [number, number]>,
+    deployEvents?: Map<string, string>
+  ): CliCommandExecution {
+    const startTime = process.hrtime();
+    deployTimes!.set('processSpawned', startTime);
+    const endTime = process.hrtime(deployTimes!.get('commandStart'));
+    const processSpawnedEvent = util.format(
+      '%d%d',
+      endTime[0],
+      endTime[1] / 1000000
+    );
+    deployEvents!.set('processSpawnedEvent', processSpawnedEvent);
     const childProcess = cross_spawn(
       this.command.command,
       this.command.args,
@@ -79,7 +92,9 @@ export class CliCommandExecutor {
     return new CliCommandExecution(
       this.command,
       childProcess,
-      cancellationToken
+      cancellationToken,
+      deployTimes!,
+      deployEvents!
     );
   }
 }
@@ -182,17 +197,23 @@ export class CliCommandExecution implements CommandExecution {
   public readonly processErrorSubject: Observable<Error | undefined>;
   public readonly stdoutSubject: Observable<Buffer | string>;
   public readonly stderrSubject: Observable<Buffer | string>;
+  public deployTimes?: Map<string, [number, number]>;
+  public deployEvents?: Map<string, string>;
 
   private readonly childProcessPid: number;
 
   constructor(
     command: Command,
     childProcess: ChildProcess,
-    cancellationToken?: CancellationToken
+    cancellationToken?: CancellationToken,
+    deployTimes?: Map<string, [number, number]>,
+    deployEvents?: Map<string, string>
   ) {
     this.command = command;
     this.cancellationToken = cancellationToken;
     this.childProcessPid = childProcess.pid;
+    this.deployTimes = deployTimes;
+    this.deployEvents = deployEvents;
 
     let timerSubscriber: Subscription | null;
 

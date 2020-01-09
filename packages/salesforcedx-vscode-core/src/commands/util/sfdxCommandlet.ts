@@ -28,7 +28,10 @@ export interface FlagParameter<T> {
 }
 
 export interface CommandletExecutor<T> {
-  execute(response: ContinueResponse<T>): void;
+  execute(
+    response: ContinueResponse<T>,
+    deployCheckpoints?: Map<string, [number, number]>
+  ): void;
 }
 
 export abstract class SfdxCommandletExecutor<T>
@@ -121,13 +124,13 @@ export class SfdxCommandlet<T> {
     this.postchecker = postchecker;
   }
 
-  public async run(): Promise<void> {
+  public async run(deployTimes?: Map<string, [number, number]>): Promise<void> {
     if (await this.prechecker.check()) {
       let inputs = await this.gatherer.gather();
       inputs = await this.postchecker.check(inputs);
       switch (inputs.type) {
         case 'CONTINUE':
-          return this.executor.execute(inputs);
+          return this.executor.execute(inputs, deployTimes);
         case 'CANCEL':
           if (inputs.msg) {
             notificationService.showErrorMessage(inputs.msg);

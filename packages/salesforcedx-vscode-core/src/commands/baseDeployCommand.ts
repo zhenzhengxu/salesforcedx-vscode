@@ -14,6 +14,7 @@ import {
   Table
 } from '@salesforce/salesforcedx-utils-vscode/out/src/output';
 import { ContinueResponse } from '@salesforce/salesforcedx-utils-vscode/out/src/types';
+import * as util from 'util';
 import * as vscode from 'vscode';
 import { channelService } from '../channels';
 import { handleDiagnosticErrors } from '../diagnostics';
@@ -37,8 +38,20 @@ export abstract class BaseDeployExecutor extends SfdxCommandletExecutor<
     'deploy-errors'
   );
 
-  public execute(response: ContinueResponse<string>): void {
+  public execute(
+    response: ContinueResponse<string>,
+    deployTimes?: Map<string, [number, number]>
+  ): void {
     const startTime = process.hrtime();
+    const deployEvents = new Map();
+    const endTime = process.hrtime(deployTimes!.get('triggerCommand'));
+    const commandStartEvent = util.format(
+      '%d%d',
+      endTime[0],
+      endTime[1] / 1000000
+    );
+    deployEvents.set('commandStartEvent', commandStartEvent);
+    deployTimes!.set('commandStart', startTime);
     const cancellationTokenSource = new vscode.CancellationTokenSource();
     const cancellationToken = cancellationTokenSource.token;
     const workspacePath = getRootWorkspacePath() || '';
@@ -47,7 +60,7 @@ export abstract class BaseDeployExecutor extends SfdxCommandletExecutor<
     const execution = new CliCommandExecutor(this.build(response.data), {
       cwd: workspacePath,
       env: { SFDX_JSON_TO_STDOUT: 'true' }
-    }).execute(cancellationToken);
+    }).execute(cancellationToken!, deployTimes!, deployEvents!);
 
     channelService.streamCommandStartStop(execution);
     channelService.showChannelOutput();
@@ -59,9 +72,19 @@ export abstract class BaseDeployExecutor extends SfdxCommandletExecutor<
 
     execution.processExitSubject.subscribe(async exitCode => {
       this.logMetric(execution.command.logName, startTime);
-      const processOutputTime = process.hrtime();
-      console.log(
-        'process spawning ended' + telemetryService.getEndHRTime(startTime)
+      const executionTime = process.hrtime();
+      execution.deployTimes!.set('executionFinished', executionTime);
+      const execEndTime = process.hrtime(
+        execution.deployTimes!.get('processSpawned')
+      );
+      const executionFinishedEvent = util.format(
+        '%d%d',
+        execEndTime[0],
+        execEndTime[1] / 1000000
+      );
+      execution.deployEvents!.set(
+        'executionFinishedEvent',
+        executionFinishedEvent
       );
       try {
         const deployParser = new ForceDeployResultParser(stdOut);
@@ -77,12 +100,16 @@ export abstract class BaseDeployExecutor extends SfdxCommandletExecutor<
           BaseDeployExecutor.errorCollection.clear();
         }
         this.outputResult(deployParser);
-        const outputTime = telemetryService.getEndHRTime(processOutputTime);
-        console.log('this is when output finishes' + outputTime);
-        this.logMetric(
-          `${execution.command.logName}_process_output`,
-          processOutputTime
+        const outputEndTime = process.hrtime(
+          execution.deployTimes!.get('executionFinished')
         );
+        const processOutputEvent = util.format(
+          '%d%d',
+          outputEndTime[0],
+          outputEndTime[1] / 1000000
+        );
+        execution.deployEvents!.set('processOutputEvent', processOutputEvent);
+        this.processTelemetry(execution.deployEvents!);
       } catch (e) {
         if (e.name !== 'DeployParserFail') {
           e.message =
@@ -100,6 +127,14 @@ export abstract class BaseDeployExecutor extends SfdxCommandletExecutor<
     );
     ProgressNotification.show(execution, cancellationTokenSource);
     taskViewService.addCommandExecution(execution, cancellationTokenSource);
+  }
+
+  private processTelemetry(deployEvents: Map<string, string>) {
+    for (const event of deployEvents) {
+      const eventName = event[0];
+      const eventTime = event[1];
+      telemetryService.sendEventData(eventName, { elapsedTime: eventTime });
+    }
   }
 
   protected abstract getDeployType(): DeployType;
