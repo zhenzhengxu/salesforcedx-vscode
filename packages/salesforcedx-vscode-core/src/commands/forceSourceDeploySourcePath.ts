@@ -20,7 +20,14 @@ import { notificationService } from '../notifications';
 import { telemetryService } from '../telemetry';
 import { BaseDeployExecutor, DeployType } from './baseDeployCommand';
 import { SourcePathChecker } from './forceSourceRetrieveSourcePath';
-import { FilePathGatherer, SfdxCommandlet, SfdxWorkspaceChecker } from './util';
+import {
+  CompositePostconditionChecker,
+  ConflictDetectionChecker,
+  FilePathGatherer,
+  SfdxCommandlet,
+  SfdxWorkspaceChecker,
+  EmptyPostChecker
+} from './util';
 
 export class ForceSourceDeploySourcePathExecutor extends BaseDeployExecutor {
   public build(sourcePath: string): Command {
@@ -75,7 +82,10 @@ export async function forceSourceDeploySourcePath(sourceUri: vscode.Uri) {
     new SfdxWorkspaceChecker(),
     new FilePathGatherer(sourceUri),
     new ForceSourceDeploySourcePathExecutor(),
-    new SourcePathChecker()
+    new CompositePostconditionChecker(
+      new ConflictDetectionChecker(''),
+      new SourcePathChecker()
+    )
   );
   await commandlet.run();
 }
@@ -84,7 +94,11 @@ export async function forceSourceDeployMultipleSourcePaths(uris: vscode.Uri[]) {
   const commandlet = new SfdxCommandlet(
     new SfdxWorkspaceChecker(),
     new MultipleSourcePathsGatherer(uris),
-    new ForceSourceDeploySourcePathExecutor()
+    new ForceSourceDeploySourcePathExecutor(),
+    new CompositePostconditionChecker(
+      new ConflictDetectionChecker(''),
+      new EmptyPostChecker()
+    )
   );
   await commandlet.run();
 }

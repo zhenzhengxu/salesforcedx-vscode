@@ -22,6 +22,8 @@ import { notificationService } from '../notifications';
 import { SfdxPackageDirectories } from '../sfdxProject';
 import { telemetryService } from '../telemetry';
 import {
+  CompositePostconditionChecker,
+  ConflictDetectionChecker,
   FilePathGatherer,
   SfdxCommandlet,
   SfdxCommandletExecutor,
@@ -99,7 +101,10 @@ export async function forceSourceRetrieveSourcePath(explorerPath: vscode.Uri) {
     new SfdxWorkspaceChecker(),
     new FilePathGatherer(explorerPath),
     new ForceSourceRetrieveSourcePathExecutor(),
-    new SourcePathChecker()
+    new CompositePostconditionChecker(
+      new ConflictDetectionChecker(''),
+      new SourcePathChecker()
+    )
   );
   await commandlet.run();
 }

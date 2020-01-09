@@ -53,7 +53,10 @@ import {
   forceVisualforcePageCreate,
   turnOffLogging
 } from './commands';
-import { RetrieveMetadataTrigger } from './commands/forceSourceRetrieveMetadata';
+import {
+  conflictDetector,
+  RetrieveMetadataTrigger
+} from './commands/forceSourceRetrieveMetadata';
 import { getUserId } from './commands/forceStartApexDebugLogging';
 import { isvDebugBootstrap } from './commands/isvdebugging/bootstrapCmd';
 import {
@@ -70,6 +73,7 @@ import * as decorators from './decorators';
 import { isDemoMode } from './modes/demo-mode';
 import { notificationService, ProgressNotification } from './notifications';
 import { orgBrowser } from './orgBrowser';
+import { ConflictView } from './conflict/conflictView';
 import { OrgList } from './orgPicker';
 import { registerPushOrDeployOnSave, sfdxCoreSettings } from './settings';
 import { taskViewService } from './statuses';
@@ -306,6 +310,11 @@ function registerCommands(
     forceSourceDiff
   );
 
+  const forceDetectConflicts = vscode.commands.registerCommand(
+    'sfdx.force.detectconflicts',
+    conflictDetector
+  );
+
   return vscode.Disposable.from(
     forceApexExecuteDocumentCmd,
     forceApexExecuteSelectionCmd,
@@ -315,6 +324,7 @@ function registerCommands(
     forceAuthLogoutAllCmd,
     forceDataSoqlQueryInputCmd,
     forceDataSoqlQuerySelectionCmd,
+    forceDetectConflicts,
     forceDiffFile,
     forceOrgCreateCmd,
     forceOrgOpenCmd,
@@ -431,6 +441,13 @@ async function setupOrgBrowser(
   );
 }
 
+async function setupConflictView(
+  extensionContext: vscode.ExtensionContext
+): Promise<void> {
+  let view = ConflictView.getInstance();
+  await view.init(extensionContext);
+}
+
 export async function activate(context: vscode.ExtensionContext) {
   const extensionHRStart = process.hrtime();
   // Telemetry
@@ -526,6 +543,8 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(registerOrgPickerCommands(orgList));
 
   await setupOrgBrowser(context);
+  await setupConflictView(context);
+
   if (isCLIInstalled()) {
     // Set context for defaultusername org
     await setupWorkspaceOrgType(defaultUsernameorAlias);

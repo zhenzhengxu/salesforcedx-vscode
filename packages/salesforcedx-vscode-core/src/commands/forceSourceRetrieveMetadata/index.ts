@@ -7,6 +7,7 @@
 import { LocalComponent } from '@salesforce/salesforcedx-utils-vscode/out/src/types';
 export { RetrieveDescriberFactory } from './describers';
 export { forceSourceRetrieveCmp } from './forceSourceRetrieveCmp';
+export { conflictDetector, ConflictDetectorExecutor } from './conflictDetector';
 
 /**
  * Provides information for force.source.retrieve.component execution

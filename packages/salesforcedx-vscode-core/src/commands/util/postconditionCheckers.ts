@@ -18,6 +18,9 @@ import { telemetryService } from '../../telemetry';
 import { getRootWorkspacePath } from '../../util';
 import { MetadataDictionary } from '../../util/metadataDictionary';
 import { PathStrategyFactory } from './sourcePathStrategies';
+import { VISUALFORCE_DEBUG_LEVEL } from '../../constants';
+import { ConflictDetector } from '../../conflict/conflictDectionService';
+import { ConflictView } from '../../conflict/conflictView';
 
 type OneOrMany = LocalComponent | LocalComponent[];
 type ContinueOrCancel = ContinueResponse<OneOrMany> | CancelResponse;
@@ -171,5 +174,113 @@ export class OverwriteComponentPrompt
       );
     }
     return choices;
+  }
+}
+
+export class CompositePostconditionChecker<T>
+  implements PostconditionChecker<T> {
+  private readonly checkers: Array<PostconditionChecker<any>>;
+  public constructor(...checkers: Array<PostconditionChecker<any>>) {
+    this.checkers = checkers;
+  }
+  public async check(
+    inputs: ContinueResponse<T> | CancelResponse
+  ): Promise<CancelResponse | ContinueResponse<T>> {
+    const aggregatedData: any = {};
+    for (const checker of this.checkers) {
+      const input = await checker.check(inputs);
+      if (input.type === 'CONTINUE') {
+        Object.keys(input.data).map(
+          key => (aggregatedData[key] = input.data[key])
+        );
+      } else {
+        return {
+          type: 'CANCEL'
+        };
+      }
+    }
+    return {
+      type: 'CONTINUE',
+      data: aggregatedData
+    };
+  }
+}
+
+export class ConflictDetectionChecker
+  implements PostconditionChecker<LocalComponent[]> {
+  private arg?: any;
+
+  public constructor(arg?: any) {
+    this.arg = arg;
+  }
+
+  public async check(
+    inputs: ContinueResponse<LocalComponent[]> | CancelResponse
+  ): Promise<ContinueResponse<LocalComponent[]> | CancelResponse> {
+    if (inputs.type === 'CONTINUE') {
+      // perform detection for:
+      // (1) a single component path
+      // (2) a component folder (classes, pages, etc.)
+      // (3) application folder
+      // (4) a manifest file
+      let path: string = this.arg || null;
+      // path = (this.arg as string).toString();
+      const config = {
+        username: 'PdtDevHub2',
+        outputdir: 'force-app',
+        manifest: path,
+        components: inputs.data
+      };
+      const checker = new ConflictDetector(false, true);
+      let results = await checker.checkForConflicts2(config);
+
+      if (results.different.size === 0) {
+        ConflictView.getInstance().reset(config.username, []);
+      } else {
+        ConflictView.getInstance().reset(
+          config.username,
+          Array.from(results.different.values())
+        );
+      }
+
+      if (results.different.size > 0) {
+        return { type: 'CANCEL' };
+      }
+
+      // const sourcePath = inputs.data;
+      // short-circuit for now:
+      // return inputs;
+      return { type: 'CANCEL' };
+    }
+    return { type: 'CANCEL' };
+  }
+}
+
+export class ConflictDetectionPostconditionChecker<T>
+  implements PostconditionChecker<T> {
+  private readonly checkers: Array<PostconditionChecker<any>>;
+  public constructor(...checkers: Array<PostconditionChecker<any>>) {
+    this.checkers = checkers;
+  }
+  public async check(
+    inputs: ContinueResponse<T> | CancelResponse
+  ): Promise<CancelResponse | ContinueResponse<T>> {
+    const aggregatedData: any = {};
+    for (const checker of this.checkers) {
+      const input = await checker.check(inputs);
+      if (input.type === 'CONTINUE') {
+        Object.keys(input.data).map(
+          key => (aggregatedData[key] = input.data[key])
+        );
+      } else {
+        return {
+          type: 'CANCEL'
+        };
+      }
+    }
+    return {
+      type: 'CONTINUE',
+      data: aggregatedData
+    };
   }
 }

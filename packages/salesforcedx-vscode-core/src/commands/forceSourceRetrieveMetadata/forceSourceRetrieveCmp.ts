@@ -21,7 +21,11 @@ import {
   SfdxWorkspaceChecker
 } from '../util';
 import { RetrieveComponentOutputGatherer } from '../util/parameterGatherers';
-import { OverwriteComponentPrompt } from '../util/postconditionCheckers';
+import {
+  OverwriteComponentPrompt,
+  CompositePostconditionChecker,
+  ConflictDetectionChecker
+} from '../util/postconditionCheckers';
 
 export class ForceSourceRetrieveExecutor extends SfdxCommandletExecutor<
   LocalComponent[]
@@ -74,7 +78,7 @@ export async function forceSourceRetrieveCmp(trigger: RetrieveMetadataTrigger) {
     new SfdxWorkspaceChecker(),
     new RetrieveComponentOutputGatherer(retrieveDescriber),
     new ForceSourceRetrieveExecutor(retrieveDescriber),
-    new OverwriteComponentPrompt()
+    new ConflictDetectionChecker('')
   );
   await commandlet.run();
 }

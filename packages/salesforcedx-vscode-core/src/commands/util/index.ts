@@ -22,7 +22,11 @@ export {
   SelectFileName,
   SelectUsername
 } from './parameterGatherers';
-export { EmptyPostChecker } from './postconditionCheckers';
+export {
+  EmptyPostChecker,
+  CompositePostconditionChecker,
+  ConflictDetectionChecker
+} from './postconditionCheckers';
 export {
   SfdxCommandlet,
   SfdxCommandletExecutor,

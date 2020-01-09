@@ -14,7 +14,12 @@ import { nls } from '../messages';
 import { notificationService } from '../notifications';
 import { telemetryService } from '../telemetry';
 import { BaseDeployExecutor, DeployType } from './baseDeployCommand';
-import { FilePathGatherer, SfdxCommandlet, SfdxWorkspaceChecker } from './util';
+import {
+  FilePathGatherer,
+  SfdxCommandlet,
+  SfdxWorkspaceChecker,
+  ConflictDetectionChecker
+} from './util';
 
 export class ForceSourceDeployManifestExecutor extends BaseDeployExecutor {
   public build(manifestPath: string): Command {
@@ -52,7 +57,8 @@ export async function forceSourceDeployManifest(manifestUri: vscode.Uri) {
   const commandlet = new SfdxCommandlet(
     new SfdxWorkspaceChecker(),
     new FilePathGatherer(manifestUri),
-    new ForceSourceDeployManifestExecutor()
+    new ForceSourceDeployManifestExecutor(),
+    new ConflictDetectionChecker(manifestUri.fsPath)
   );
   await commandlet.run();
 }

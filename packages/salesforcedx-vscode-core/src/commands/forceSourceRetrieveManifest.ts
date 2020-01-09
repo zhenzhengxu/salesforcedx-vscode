@@ -18,7 +18,8 @@ import {
   FilePathGatherer,
   SfdxCommandlet,
   SfdxCommandletExecutor,
-  SfdxWorkspaceChecker
+  SfdxWorkspaceChecker,
+  ConflictDetectionChecker
 } from './util';
 
 export class ForceSourceRetrieveManifestExecutor extends SfdxCommandletExecutor<
@@ -56,7 +57,8 @@ export async function forceSourceRetrieveManifest(explorerPath: vscode.Uri) {
   const commandlet = new SfdxCommandlet(
     new SfdxWorkspaceChecker(),
     new FilePathGatherer(explorerPath),
-    new ForceSourceRetrieveManifestExecutor()
+    new ForceSourceRetrieveManifestExecutor(),
+    new ConflictDetectionChecker(explorerPath.fsPath)
   );
   await commandlet.run();
 }

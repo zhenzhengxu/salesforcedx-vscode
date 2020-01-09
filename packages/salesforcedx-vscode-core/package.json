@@ -80,6 +80,11 @@
           "id": "metadata",
           "title": "Org Browser",
           "icon": "resources/dep.svg"
+        },
+        {
+          "id": "conflicts",
+          "title": "Detected Conflicts",
+          "icon": "resources/conflicts.png"
         }
       ]
     },
@@ -95,6 +100,13 @@
           "id": "metadata",
           "name": "Metadata",
           "when": "sfdx:project_opened && sfdx:default_username_has_no_change_tracking"
+        }
+      ],
+      "conflicts": [
+        {
+          "id": "conflicts",
+          "name": "Conflicts",
+          "when": "sfdx:project_opened "
         }
       ]
     },
@@ -119,6 +131,11 @@
         {
           "command": "sfdx.force.source.retrieve.component",
           "when": "view == metadata && viewItem =~ /(type|component)/",
+          "group": "inline"
+        },
+        {
+          "command": "sfdx.force.diff",
+          "when": "view == conflicts && viewItem == metadata",
           "group": "inline"
         }
       ],
@@ -153,6 +170,18 @@
         },
         {
           "command": "sfdx.force.diff",
+          "when": "sfdx:project_opened && resourceLangId == visualforce"
+        },
+        {
+          "command": "sfdx.force.detectconflicts",
+          "when": "sfdx:project_opened && resourceFilename =~ /.*(app|cmp|auradoc|evt|intf|css|design|html|js|svg|permissionset-meta.xml|layout-meta.xml)$/"
+        },
+        {
+          "command": "sfdx.force.detectconflicts",
+          "when": "sfdx:project_opened && resourceLangId == apex"
+        },
+        {
+          "command": "sfdx.force.detectconflicts",
           "when": "sfdx:project_opened && resourceLangId == visualforce"
         }
       ],
@@ -223,6 +252,18 @@
         },
         {
           "command": "sfdx.force.diff",
+          "when": "sfdx:project_opened && resourceLangId == visualforce"
+        },
+        {
+          "command": "sfdx.force.detectconflicts",
+          "when": "sfdx:project_opened && resourceFilename =~ /.*(app|cmp|auradoc|evt|intf|css|design|html|js|svg|permissionset-meta.xml|layout-meta.xml)$/"
+        },
+        {
+          "command": "sfdx.force.detectconflicts",
+          "when": "sfdx:project_opened && resourceLangId == apex"
+        },
+        {
+          "command": "sfdx.force.detectconflicts",
           "when": "sfdx:project_opened && resourceLangId == visualforce"
         },
         {
@@ -458,6 +499,10 @@
         {
           "command": "sfdx.force.diff",
           "when": "false"
+        },
+        {
+          "command": "sfdx.force.detectconflicts",
+          "when": "true"
         }
       ]
     },
@@ -697,6 +742,10 @@
       {
         "command": "sfdx.force.diff",
         "title": "%force_diff_against_org%"
+      },
+      {
+        "command": "sfdx.force.detectconflicts",
+        "title": "SFDX: Org Based Conflict Detection"
       }
     ],
     "configuration": {

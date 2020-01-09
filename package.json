@@ -55,6 +55,7 @@
   },
   "license": "BSD-3-Clause",
   "dependencies": {
+    "dir-compare": "^1.8.0",
     "node": "10.2.0"
   },
   "husky": {
