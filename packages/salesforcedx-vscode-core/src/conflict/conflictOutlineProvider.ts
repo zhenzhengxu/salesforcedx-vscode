@@ -5,10 +5,9 @@
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import { isNullOrUndefined } from '@salesforce/salesforcedx-utils-vscode/out/src/helpers';
-import * as vscode from 'vscode';
-import { nls } from '../messages';
 import { DirFileNameSelection } from '@salesforce/salesforcedx-utils-vscode/out/src/types';
 import * as path from 'path';
+import * as vscode from 'vscode';
 
 export class ConflictOutlineProvider
   implements vscode.TreeDataProvider<ConflictNode> {
@@ -96,7 +95,7 @@ export class ConflictNode extends vscode.TreeItem {
       child._parent = this;
       this._children!.push(child);
 
-      let childPath = path.join('force-app', file.outputdir, file.fileName);
+      const childPath = path.join('force-app', file.outputdir, file.fileName);
       child.resourceUri = vscode.Uri.file(childPath);
       child.fsPath = childPath;
     });

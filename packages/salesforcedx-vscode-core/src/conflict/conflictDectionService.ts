@@ -12,8 +12,8 @@ import {
   CommandOutput,
   SfdxCommandBuilder
 } from '@salesforce/salesforcedx-utils-vscode/out/src/cli';
-
 import { LocalComponent } from '@salesforce/salesforcedx-utils-vscode/out/src/types';
+import { DirFileNameSelection } from '@salesforce/salesforcedx-utils-vscode/src/types';
 import * as AdmZip from 'adm-zip';
 import { SpawnOptions } from 'child_process';
 import { compareSync, Options } from 'dir-compare';
@@ -26,9 +26,7 @@ import { channelService } from '../channels';
 import { nls } from '../messages';
 import { notificationService, ProgressNotification } from '../notifications';
 import { taskViewService } from '../statuses';
-import { getRootWorkspacePath, hasRootWorkspace, OrgAuthInfo } from '../util';
-import { DirFileNameSelection } from '@salesforce/salesforcedx-utils-vscode/src/types';
-import { stringify } from 'querystring';
+import { getRootWorkspacePath } from '../util';
 
 export interface InstalledPackageInfo {
   id: string;
@@ -172,7 +170,7 @@ export class ConflictDetector {
     const cancellationTokenSource = new vscode.CancellationTokenSource();
     const cancellationToken = cancellationTokenSource.token;
 
-    let results = await this.checkForConflicts(
+    const results = await this.checkForConflicts(
       data,
       cancellationTokenSource,
       cancellationToken
@@ -346,8 +344,8 @@ export class ConflictDetector {
     }
 
     // 9: diff project directory (local) and retrieved directory (remote)
-    let differ = new DirectoryDiffer();
-    let diffs = differ.diff(localSourcePath, remoteSourcePath);
+    const differ = new DirectoryDiffer();
+    const diffs = differ.diff(localSourcePath, remoteSourcePath);
 
     // 10: cleanup temp files
     if (this.cleanup) {
@@ -417,17 +415,17 @@ class DirectoryDiffer {
     remoteSourcePath: string
   ): DirectoryDiffResults {
     // let options: Partial<Options> = { compareSize: true };
-    let options: Partial<Options> = { compareContent: true };
+    const options: Partial<Options> = { compareContent: true };
 
     // Synchronous directory compare
-    let res = compareSync(localSourcePath, remoteSourcePath, options);
-    let missingLocal = new Set<DirFileNameSelection>();
-    let missingRemote = new Set<DirFileNameSelection>();
-    let differentFiles = new Set<DirFileNameSelection>();
+    const res = compareSync(localSourcePath, remoteSourcePath, options);
+    const missingLocal = new Set<DirFileNameSelection>();
+    const missingRemote = new Set<DirFileNameSelection>();
+    const differentFiles = new Set<DirFileNameSelection>();
 
     if (res.diffSet) {
       res.diffSet.forEach(entry => {
-        let state = entry.state;
+        const state = entry.state;
         if (state === 'left') {
           if (entry.type1 === 'file') {
             missingLocal.add({
@@ -454,15 +452,12 @@ class DirectoryDiffer {
     }
 
     return {
-      missingLocal: missingLocal,
-      missingRemote: missingRemote,
+      missingLocal,
+      missingRemote,
       different: differentFiles
     };
   }
 }
-
-// export type ConflictDetectorConfig = ConflictDetectionOrg &
-//   DirectoryDiffResults;
 
 export interface ConflictDetectionOrg {
   username: string;
@@ -473,13 +468,13 @@ export interface ConflictDetectionOrg {
 
 function generateRetrieveManifest(components?: LocalComponent[]): string {
   if (components && components.length > 0) {
-    let entries = new Map<string, string[]>();
+    const entries = new Map<string, string[]>();
     [...components]
       .sort((a, b) => {
         return a.type.localeCompare(b.type);
       })
       .forEach(c => {
-        let members = entries.get(c.type) || [];
+        const members = entries.get(c.type) || [];
         members.push(c.fileName);
         entries.set(c.type, members);
       });

@@ -23,10 +23,10 @@ import { SourcePathChecker } from './forceSourceRetrieveSourcePath';
 import {
   CompositePostconditionChecker,
   ConflictDetectionChecker,
+  EmptyPostChecker,
   FilePathGatherer,
   SfdxCommandlet,
-  SfdxWorkspaceChecker,
-  EmptyPostChecker
+  SfdxWorkspaceChecker
 } from './util';
 
 export class ForceSourceDeploySourcePathExecutor extends BaseDeployExecutor {

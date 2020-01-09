@@ -21,11 +21,7 @@ import {
   SfdxWorkspaceChecker
 } from '../util';
 import { RetrieveComponentOutputGatherer } from '../util/parameterGatherers';
-import {
-  OverwriteComponentPrompt,
-  CompositePostconditionChecker,
-  ConflictDetectionChecker
-} from '../util/postconditionCheckers';
+import { ConflictDetectionChecker } from '../util/postconditionCheckers';
 
 export class ForceSourceRetrieveExecutor extends SfdxCommandletExecutor<
   LocalComponent[]

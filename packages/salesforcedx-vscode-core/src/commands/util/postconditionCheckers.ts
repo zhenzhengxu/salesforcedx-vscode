@@ -12,15 +12,14 @@ import {
 } from '@salesforce/salesforcedx-utils-vscode/out/src/types';
 import { existsSync } from 'fs';
 import { join } from 'path';
+import { ConflictDetector } from '../../conflict/conflictDectionService';
+import { ConflictView } from '../../conflict/conflictView';
 import { nls } from '../../messages';
 import { notificationService } from '../../notifications';
 import { telemetryService } from '../../telemetry';
 import { getRootWorkspacePath } from '../../util';
 import { MetadataDictionary } from '../../util/metadataDictionary';
 import { PathStrategyFactory } from './sourcePathStrategies';
-import { VISUALFORCE_DEBUG_LEVEL } from '../../constants';
-import { ConflictDetector } from '../../conflict/conflictDectionService';
-import { ConflictView } from '../../conflict/conflictView';
 
 type OneOrMany = LocalComponent | LocalComponent[];
 type ContinueOrCancel = ContinueResponse<OneOrMany> | CancelResponse;
@@ -223,7 +222,7 @@ export class ConflictDetectionChecker
       // (2) a component folder (classes, pages, etc.)
       // (3) application folder
       // (4) a manifest file
-      let path: string = this.arg || null;
+      const path: string = this.arg || null;
       // path = (this.arg as string).toString();
       const config = {
         username: 'PdtDevHub2',
@@ -232,7 +231,7 @@ export class ConflictDetectionChecker
         components: inputs.data
       };
       const checker = new ConflictDetector(false, true);
-      let results = await checker.checkForConflicts2(config);
+      const results = await checker.checkForConflicts2(config);
 
       if (results.different.size === 0) {
         ConflictView.getInstance().reset(config.username, []);

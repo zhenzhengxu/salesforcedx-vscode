@@ -15,10 +15,10 @@ import { notificationService } from '../notifications';
 import { telemetryService } from '../telemetry';
 import { BaseDeployExecutor, DeployType } from './baseDeployCommand';
 import {
+  ConflictDetectionChecker,
   FilePathGatherer,
   SfdxCommandlet,
-  SfdxWorkspaceChecker,
-  ConflictDetectionChecker
+  SfdxWorkspaceChecker
 } from './util';
 
 export class ForceSourceDeployManifestExecutor extends BaseDeployExecutor {

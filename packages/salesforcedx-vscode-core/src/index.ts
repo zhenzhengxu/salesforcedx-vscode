@@ -68,12 +68,12 @@ import {
   SfdxCommandletExecutor,
   SfdxWorkspaceChecker
 } from './commands/util';
+import { ConflictView } from './conflict/conflictView';
 import { getDefaultUsernameOrAlias, setupWorkspaceOrgType } from './context';
 import * as decorators from './decorators';
 import { isDemoMode } from './modes/demo-mode';
 import { notificationService, ProgressNotification } from './notifications';
 import { orgBrowser } from './orgBrowser';
-import { ConflictView } from './conflict/conflictView';
 import { OrgList } from './orgPicker';
 import { registerPushOrDeployOnSave, sfdxCoreSettings } from './settings';
 import { taskViewService } from './statuses';
@@ -444,7 +444,7 @@ async function setupOrgBrowser(
 async function setupConflictView(
   extensionContext: vscode.ExtensionContext
 ): Promise<void> {
-  let view = ConflictView.getInstance();
+  const view = ConflictView.getInstance();
   await view.init(extensionContext);
 }
 

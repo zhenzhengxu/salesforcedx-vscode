@@ -4,15 +4,14 @@
  * Licensed under the BSD 3-Clause license.
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
+import { DirFileNameSelection } from '@salesforce/salesforcedx-utils-vscode/out/src/types';
 import { ExtensionContext, TreeView, window } from 'vscode';
 import { nls } from '../messages';
+import { telemetryService } from '../telemetry';
 import {
   ConflictNode,
   ConflictOutlineProvider
 } from './conflictOutlineProvider';
-import { telemetryService } from '../telemetry';
-import { OrgAuthInfo } from '../util';
-import { DirFileNameSelection } from '@salesforce/salesforcedx-utils-vscode/out/src/types';
 
 export class ConflictView {
   private static VIEW_ID = 'conflicts';
@@ -60,7 +59,7 @@ export class ConflictView {
   public reset(orgLabel: string, resources: DirFileNameSelection[]) {
     if (this._dataProvider) {
       this._dataProvider.reset(orgLabel, resources);
-      let root = this._dataProvider.getChildren(undefined);
+      const root = this._dataProvider.getChildren(undefined);
       this.treeView.reveal(root[0], { expand: true });
     }
   }

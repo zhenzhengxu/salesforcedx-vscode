@@ -9,10 +9,8 @@ import {
   CliCommandExecutor,
   Command,
   CommandExecution,
-  CommandOutput,
-  SfdxCommandBuilder
+  CommandOutput
 } from '@salesforce/salesforcedx-utils-vscode/out/src/cli';
-
 import {
   CancelResponse,
   ContinueResponse,
@@ -22,24 +20,24 @@ import { SpawnOptions } from 'child_process';
 import { Observable } from 'rxjs/Observable';
 import * as vscode from 'vscode';
 import { channelService } from '../../channels';
+import {
+  ConflictDetectionOrg,
+  ConflictDetector,
+  DirectoryDiffResults
+} from '../../conflict/conflictDectionService';
+import { ConflictView } from '../../conflict/conflictView';
 import { notificationService, ProgressNotification } from '../../notifications';
 import { taskViewService } from '../../statuses';
-import {
-  SfdxWorkspaceChecker,
-  SfdxCommandlet,
-  SfdxCommandletExecutor
-} from '../util';
 import {
   // getRootWorkspacePath,
   // hasRootWorkspace,
   OrgAuthInfo
 } from '../../util';
 import {
-  ConflictDetector,
-  DirectoryDiffResults,
-  ConflictDetectionOrg
-} from '../../conflict/conflictDectionService';
-import { ConflictView } from '../../conflict/conflictView';
+  SfdxCommandlet,
+  SfdxCommandletExecutor,
+  SfdxWorkspaceChecker
+} from '../util';
 
 export class ConflictDetectorExecutor extends SfdxCommandletExecutor<{}> {
   public build(data: {}): Command {
@@ -51,9 +49,9 @@ export class ConflictDetectorExecutor extends SfdxCommandletExecutor<{}> {
   ): Promise<void> {
     const cancellationTokenSource = new vscode.CancellationTokenSource();
     const cancellationToken = cancellationTokenSource.token;
-    let detector = new ConflictDetector(false, true);
+    const detector = new ConflictDetector(false, true);
 
-    let results = await detector.checkForConflicts(
+    const results = await detector.checkForConflicts(
       response.data,
       cancellationTokenSource,
       cancellationToken
@@ -133,7 +131,7 @@ export class EnterConflictDetectorOrg
     if (username) {
       return {
         type: 'CONTINUE',
-        data: { username: username, outputdir: 'force-app' }
+        data: { username, outputdir: 'force-app' }
       };
     }
 
