@@ -70,6 +70,7 @@ export class CliCommandExecutor {
   }
 
   public execute(cancellationToken?: CancellationToken): CliCommandExecution {
+    console.log('process get spawned');
     const childProcess = cross_spawn(
       this.command.command,
       this.command.args,

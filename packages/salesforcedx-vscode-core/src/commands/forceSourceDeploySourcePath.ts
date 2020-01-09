@@ -53,6 +53,8 @@ export class MultipleSourcePathsGatherer implements ParametersGatherer<string> {
 }
 
 export async function forceSourceDeploySourcePath(sourceUri: vscode.Uri) {
+  const startTime = process.hrtime();
+  console.log('hits here first');
   if (!sourceUri) {
     const editor = vscode.window.activeTextEditor;
     if (editor && editor.document.languageId !== 'forcesourcemanifest') {

@@ -185,6 +185,10 @@ export default class TelemetryReporter extends vscode.Disposable {
     }
   }
 
+  public sendTrace(message: string, measurements?: { [key: string]: number }) {
+    this.appInsightsClient!.trackTrace({ message });
+  }
+
   public dispose(): Promise<any> {
     const flushEventsToLogger = new Promise<any>(resolve => {
       if (!this.logStream) {

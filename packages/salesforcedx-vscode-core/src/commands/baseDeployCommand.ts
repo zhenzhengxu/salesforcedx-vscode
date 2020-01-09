@@ -59,6 +59,10 @@ export abstract class BaseDeployExecutor extends SfdxCommandletExecutor<
 
     execution.processExitSubject.subscribe(async exitCode => {
       this.logMetric(execution.command.logName, startTime);
+      const processOutputTime = process.hrtime();
+      console.log(
+        'process spawning ended' + telemetryService.getEndHRTime(startTime)
+      );
       try {
         const deployParser = new ForceDeployResultParser(stdOut);
         const errors = deployParser.getErrors();
@@ -73,6 +77,12 @@ export abstract class BaseDeployExecutor extends SfdxCommandletExecutor<
           BaseDeployExecutor.errorCollection.clear();
         }
         this.outputResult(deployParser);
+        const outputTime = telemetryService.getEndHRTime(processOutputTime);
+        console.log('this is when output finishes' + outputTime);
+        this.logMetric(
+          `${execution.command.logName}_process_output`,
+          processOutputTime
+        );
       } catch (e) {
         if (e.name !== 'DeployParserFail') {
           e.message =
