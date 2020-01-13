@@ -26,6 +26,7 @@ import { channelService } from '../channels';
 import { nls } from '../messages';
 import { notificationService, ProgressNotification } from '../notifications';
 import { taskViewService } from '../statuses';
+import { telemetryService } from '../telemetry';
 import { getRootWorkspacePath } from '../util';
 
 export interface InstalledPackageInfo {
@@ -344,6 +345,7 @@ export class ConflictDetector {
     }
 
     // 9: diff project directory (local) and retrieved directory (remote)
+    // TODO: be smarter about what portion of the entire project was actually retrieved
     const differ = new DirectoryDiffer();
     const diffs = differ.diff(localSourcePath, remoteSourcePath);
 
@@ -366,6 +368,14 @@ export class ConflictDetector {
     return diffs;
   }
 
+  public logMetric(
+    logName: string | undefined,
+    executionTime: [number, number],
+    additionalData?: any
+  ) {
+    telemetryService.sendCommandEvent(logName, executionTime, additionalData);
+  }
+
   public async executeCommand(
     command: Command,
     options: SpawnOptions,
@@ -380,9 +390,9 @@ export class ConflictDetector {
 
     const result = new CommandOutput().getCmdResult(execution);
     this.attachExecution(execution, cancellationTokenSource);
-    // execution.processExitSubject.subscribe(() => {
-    //   this.logMetric(execution.command.logName, startTime);
-    // });
+    execution.processExitSubject.subscribe(() => {
+      this.logMetric(execution.command.logName, startTime);
+    });
     return result;
   }
 
@@ -467,8 +477,8 @@ export interface ConflictDetectionOrg {
 }
 
 function generateRetrieveManifest(components?: LocalComponent[]): string {
-  if (components && components.length > 0) {
-    const entries = new Map<string, string[]>();
+  const entries = new Map<string, string[]>();
+  if (components && components.length > 1) {
     [...components]
       .sort((a, b) => {
         return a.type.localeCompare(b.type);
@@ -478,7 +488,12 @@ function generateRetrieveManifest(components?: LocalComponent[]): string {
         members.push(c.fileName);
         entries.set(c.type, members);
       });
+  } else if (components && components.length === 1) {
+    // if its a metadata folder then ???
+    // if its a metadata resource then look it up
+  }
 
+  if (entries.size > 0) {
     let manifest = `<?xml version="1.0" encoding="UTF-8"?>
     <Package xmlns="http://soap.sforce.com/2006/04/metadata">`;
     entries.forEach((names: string[], key: string) => {

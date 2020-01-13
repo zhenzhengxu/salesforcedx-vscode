@@ -21,10 +21,7 @@ export class ConflictOutlineProvider
   > = this.internalOnDidChangeTreeData.event;
 
   public constructor() {
-    this.root = new ConflictNode(
-      'Conflicts Not Assessed',
-      vscode.TreeItemCollapsibleState.None
-    );
+    this.root = ConflictNode.CONFLICTS_NOT_ACCESSED;
   }
 
   public async onViewChange() {
@@ -62,6 +59,14 @@ export class ConflictOutlineProvider
 }
 
 export class ConflictNode extends vscode.TreeItem {
+  public static readonly CONFLICTS_NOT_ACCESSED = new ConflictNode(
+    'Conflicts Not Assessed',
+    vscode.TreeItemCollapsibleState.None
+  );
+  public static readonly NO_CONFLICTS_DETECTED = new ConflictNode(
+    'No Conflicts Detected',
+    vscode.TreeItemCollapsibleState.None
+  );
   public readonly fullName: string;
   public fsPath: string;
   private _children: ConflictNode[] | undefined;
@@ -80,9 +85,7 @@ export class ConflictNode extends vscode.TreeItem {
     this._children = [];
 
     if (resources.length === 0) {
-      this._children.push(
-        new ConflictNode('UGH', vscode.TreeItemCollapsibleState.None)
-      );
+      this._children.push(ConflictNode.NO_CONFLICTS_DETECTED);
     }
 
     resources.forEach(file => {

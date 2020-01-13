@@ -57,7 +57,7 @@ export async function forceSourceRetrieveManifest(explorerPath: vscode.Uri) {
     new SfdxWorkspaceChecker(),
     new FilePathGatherer(explorerPath),
     new ForceSourceRetrieveManifestExecutor(),
-    new ConflictDetectionChecker(explorerPath.fsPath)
+    new ConflictDetectionChecker('Retrieve', explorerPath.fsPath)
   );
   await commandlet.run();
 }

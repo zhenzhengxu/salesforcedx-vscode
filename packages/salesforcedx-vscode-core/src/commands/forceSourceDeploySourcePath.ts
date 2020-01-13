@@ -83,7 +83,7 @@ export async function forceSourceDeploySourcePath(sourceUri: vscode.Uri) {
     new FilePathGatherer(sourceUri),
     new ForceSourceDeploySourcePathExecutor(),
     new CompositePostconditionChecker(
-      new ConflictDetectionChecker(''),
+      new ConflictDetectionChecker('Deploy', ''),
       new SourcePathChecker()
     )
   );
@@ -96,7 +96,7 @@ export async function forceSourceDeployMultipleSourcePaths(uris: vscode.Uri[]) {
     new MultipleSourcePathsGatherer(uris),
     new ForceSourceDeploySourcePathExecutor(),
     new CompositePostconditionChecker(
-      new ConflictDetectionChecker(''),
+      new ConflictDetectionChecker('Deploy', ''),
       new EmptyPostChecker()
     )
   );

@@ -207,9 +207,11 @@ export class CompositePostconditionChecker<T>
 
 export class ConflictDetectionChecker
   implements PostconditionChecker<LocalComponent[]> {
-  private arg?: any;
+  private arg: any;
+  private operation: string;
 
-  public constructor(arg?: any) {
+  public constructor(operation: string, arg: any) {
+    this.operation = operation;
     this.arg = arg;
   }
 
@@ -221,14 +223,13 @@ export class ConflictDetectionChecker
       // (1) a single component path
       // (2) a component folder (classes, pages, etc.)
       // (3) application folder
-      // (4) a manifest file
+      // (4) a manifest file - complete
       const path: string = this.arg || null;
-      // path = (this.arg as string).toString();
       const config = {
         username: 'PdtDevHub2',
         outputdir: 'force-app',
         manifest: path,
-        components: inputs.data
+        components: Array.isArray(inputs.data) ? inputs.data : [inputs.data]
       };
       const checker = new ConflictDetector(false, true);
       const results = await checker.checkForConflicts2(config);
@@ -236,6 +237,12 @@ export class ConflictDetectionChecker
       if (results.different.size === 0) {
         ConflictView.getInstance().reset(config.username, []);
       } else {
+        // notificationService.showErrorMessage('Resource Conflicts Detected');
+        const choice = await notificationService.showWarningModal(
+          'Resource conflicts detected during ' + this.operation,
+          'View Conflicts',
+          'Force'
+        );
         ConflictView.getInstance().reset(
           config.username,
           Array.from(results.different.values())

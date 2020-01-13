@@ -84,7 +84,7 @@
         {
           "id": "conflicts",
           "title": "Detected Conflicts",
-          "icon": "resources/conflicts.png"
+          "icon": "resources/conflicts.svg"
         }
       ]
     },
@@ -135,8 +135,7 @@
         },
         {
           "command": "sfdx.force.diff",
-          "when": "view == conflicts && viewItem == metadata",
-          "group": "inline"
+          "when": "view == conflicts && viewItem == metadata"
         }
       ],
       "editor/context": [
