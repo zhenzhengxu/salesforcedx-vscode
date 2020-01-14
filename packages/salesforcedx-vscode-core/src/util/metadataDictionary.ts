@@ -75,6 +75,26 @@ export class MetadataDictionary {
   public static getInfo(metadataType: string): MetadataInfo | undefined {
     return DEFINITIONS[metadataType.toLowerCase()];
   }
+
+  public static findByDirectory(dirName: string): MetadataInfo | undefined {
+    for (const key in DEFINITIONS) {
+      const item = DEFINITIONS[key];
+      if (item.directory === dirName.toLowerCase()) {
+        return item;
+      }
+    }
+    return undefined;
+  }
+
+  public static findByExtension(ext: string): MetadataInfo | undefined {
+    for (const key in DEFINITIONS) {
+      const item = DEFINITIONS[key];
+      if (item.extensions && item.extensions.includes(ext)) {
+        return item;
+      }
+    }
+    return undefined;
+  }
 }
 
 export type MetadataInfo = {

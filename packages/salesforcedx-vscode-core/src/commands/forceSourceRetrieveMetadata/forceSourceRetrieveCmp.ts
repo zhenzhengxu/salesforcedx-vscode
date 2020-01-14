@@ -74,7 +74,7 @@ export async function forceSourceRetrieveCmp(trigger: RetrieveMetadataTrigger) {
     new SfdxWorkspaceChecker(),
     new RetrieveComponentOutputGatherer(retrieveDescriber),
     new ForceSourceRetrieveExecutor(retrieveDescriber),
-    new ConflictDetectionChecker('Org Browser Retrieve', '')
+    new ConflictDetectionChecker('Org Browser Retrieve', false)
   );
   await commandlet.run();
 }

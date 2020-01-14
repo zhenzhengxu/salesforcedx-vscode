@@ -58,7 +58,7 @@ export async function forceSourceDeployManifest(manifestUri: vscode.Uri) {
     new SfdxWorkspaceChecker(),
     new FilePathGatherer(manifestUri),
     new ForceSourceDeployManifestExecutor(),
-    new ConflictDetectionChecker('Deploy', manifestUri.fsPath)
+    new ConflictDetectionChecker('Deploy', true)
   );
   await commandlet.run();
 }

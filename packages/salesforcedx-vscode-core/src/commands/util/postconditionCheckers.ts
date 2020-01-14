@@ -11,14 +11,17 @@ import {
   PostconditionChecker
 } from '@salesforce/salesforcedx-utils-vscode/out/src/types';
 import { existsSync } from 'fs';
-import { join } from 'path';
+import * as path from 'path';
 import { ConflictDetector } from '../../conflict/conflictDectionService';
 import { ConflictView } from '../../conflict/conflictView';
 import { nls } from '../../messages';
 import { notificationService } from '../../notifications';
 import { telemetryService } from '../../telemetry';
 import { getRootWorkspacePath } from '../../util';
-import { MetadataDictionary } from '../../util/metadataDictionary';
+import {
+  MetadataDictionary,
+  MetadataInfo
+} from '../../util/metadataDictionary';
 import { PathStrategyFactory } from './sourcePathStrategies';
 
 type OneOrMany = LocalComponent | LocalComponent[];
@@ -67,11 +70,11 @@ export class OverwriteComponentPrompt
       ? info.pathStrategy
       : PathStrategyFactory.createDefaultStrategy();
     return this.getFileExtensions(component).some(extension => {
-      const path = join(
+      const filePath = path.join(
         getRootWorkspacePath(),
         pathStrategy.getPathToSource(outputdir, fileName, extension)
       );
-      return existsSync(path);
+      return existsSync(filePath);
     });
   }
 
@@ -207,12 +210,12 @@ export class CompositePostconditionChecker<T>
 
 export class ConflictDetectionChecker
   implements PostconditionChecker<LocalComponent[]> {
-  private arg: any;
+  private isManifest: boolean;
   private operation: string;
 
-  public constructor(operation: string, arg: any) {
+  public constructor(operation: string, isManifest: boolean) {
     this.operation = operation;
-    this.arg = arg;
+    this.isManifest = isManifest;
   }
 
   public async check(
@@ -224,12 +227,26 @@ export class ConflictDetectionChecker
       // (2) a component folder (classes, pages, etc.)
       // (3) application folder
       // (4) a manifest file - complete
-      const path: string = this.arg || null;
+
+      // normalize data
+      let data: LocalComponent[] = [];
+      let manifest: string | undefined;
+      if (Array.isArray(inputs.data)) {
+        data = inputs.data;
+      } else {
+        if (this.isManifest) {
+          manifest = String(inputs.data);
+        } else {
+          data = [this.convertToComponent(String(inputs.data))];
+        }
+      }
+
+      // TODO: need username and package directory:
       const config = {
         username: 'PdtDevHub2',
         outputdir: 'force-app',
-        manifest: path,
-        components: Array.isArray(inputs.data) ? inputs.data : [inputs.data]
+        manifest: manifest,
+        components: data
       };
       const checker = new ConflictDetector(false, true);
       const results = await checker.checkForConflicts2(config);
@@ -253,12 +270,38 @@ export class ConflictDetectionChecker
         return { type: 'CANCEL' };
       }
 
-      // const sourcePath = inputs.data;
       // short-circuit for now:
       // return inputs;
       return { type: 'CANCEL' };
     }
     return { type: 'CANCEL' };
+  }
+
+  private convertToComponent(data: string): LocalComponent {
+    const fullBase = path.relative(getRootWorkspacePath(), data);
+    const parts = path.parse(fullBase);
+
+    let info: MetadataInfo | undefined;
+    if (parts.ext) {
+      info = MetadataDictionary.findByExtension(parts.ext);
+      if (info) {
+        return {
+          fileName: parts.name,
+          type: info.type,
+          outputdir: parts.dir
+        } as LocalComponent;
+      }
+    } else {
+      info = MetadataDictionary.findByDirectory(parts.base);
+      if (info) {
+        return { type: info.type } as LocalComponent;
+      }
+    }
+    return {
+      fileName: parts.base,
+      outputdir: parts.dir
+      // type: 'ApexClass'
+    } as LocalComponent;
   }
 }
 

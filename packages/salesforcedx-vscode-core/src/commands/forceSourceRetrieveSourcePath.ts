@@ -102,7 +102,7 @@ export async function forceSourceRetrieveSourcePath(explorerPath: vscode.Uri) {
     new FilePathGatherer(explorerPath),
     new ForceSourceRetrieveSourcePathExecutor(),
     new CompositePostconditionChecker(
-      new ConflictDetectionChecker('Retrieve', ''),
+      new ConflictDetectionChecker('Retrieve', false),
       new SourcePathChecker()
     )
   );

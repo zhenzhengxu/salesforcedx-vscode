@@ -461,6 +461,8 @@ class DirectoryDiffer {
       });
     }
 
+    // TODO: raise an error if there are no files in the shadow directory.
+
     return {
       missingLocal,
       missingRemote,
@@ -489,8 +491,12 @@ function generateRetrieveManifest(components?: LocalComponent[]): string {
         entries.set(c.type, members);
       });
   } else if (components && components.length === 1) {
-    // if its a metadata folder then ???
-    // if its a metadata resource then look it up
+    // handle a single resource
+    // use a wildcard for a folder
+    const comp = components[0];
+    const membershipName = comp.fileName ? comp.fileName : '*';
+    const members = [membershipName];
+    entries.set(comp.type, members);
   }
 
   if (entries.size > 0) {
