@@ -245,7 +245,7 @@ export class ConflictDetectionChecker
       const config = {
         username: 'PdtDevHub2',
         outputdir: 'force-app',
-        manifest: manifest,
+        manifest,
         components: data
       };
       const checker = new ConflictDetector(false, true);

@@ -78,9 +78,11 @@ export class MetadataDictionary {
 
   public static findByDirectory(dirName: string): MetadataInfo | undefined {
     for (const key in DEFINITIONS) {
-      const item = DEFINITIONS[key];
-      if (item.directory === dirName.toLowerCase()) {
-        return item;
+      if (DEFINITIONS.hasOwnProperty(key)) {
+        const item = DEFINITIONS[key];
+        if (item.directory === dirName.toLowerCase()) {
+          return item;
+        }
       }
     }
     return undefined;
@@ -88,9 +90,11 @@ export class MetadataDictionary {
 
   public static findByExtension(ext: string): MetadataInfo | undefined {
     for (const key in DEFINITIONS) {
-      const item = DEFINITIONS[key];
-      if (item.extensions && item.extensions.includes(ext)) {
-        return item;
+      if (DEFINITIONS.hasOwnProperty(key)) {
+        const item = DEFINITIONS[key];
+        if (item.extensions && item.extensions.includes(ext)) {
+          return item;
+        }
       }
     }
     return undefined;
