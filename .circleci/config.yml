@@ -139,6 +139,8 @@ jobs:
             junit-merge -d junit-aggregate -o junit-aggregate.xml
       - store_test_results:
           path: ./junit-aggregate/
+      - store_artifacts:
+          path: ./junit-aggregate/
       - run:
           name: 'Generate code coverage'
           shell: bash.exe
