@@ -54,6 +54,7 @@
     "mocha-multi-reporters": "^1.1.7",
     "mock-spawn": "0.2.6",
     "nyc": "^13",
+    "showdown": "1.9.1",
     "sinon": "^7.3.1",
     "typescript": "3.1.6",
     "vscode": "^1.1.36"
@@ -776,6 +777,11 @@
           "type": "boolean",
           "default": false,
           "description": "%push_or_deploy_on_save_enabled_description%"
+        },
+        "salesforcedx-vscode-core.show-release-notes": {
+          "type": "boolean",
+          "default": true,
+          "description": "%show_release_notes_description%"
         },
         "salesforcedx-vscode-core.detectConflictsAtSync": {
           "type": "boolean",

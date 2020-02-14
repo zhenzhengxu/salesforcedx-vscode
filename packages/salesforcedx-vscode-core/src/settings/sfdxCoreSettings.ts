@@ -14,6 +14,7 @@ import {
   RETRIEVE_TEST_CODE_COVERAGE,
   SFDX_CORE_CONFIGURATION_NAME,
   SHOW_CLI_SUCCESS_INFO_MSG,
+  SHOW_RELEASE_NOTES,
   TELEMETRY_ENABLED
 } from '../constants';
 /**
@@ -72,6 +73,10 @@ export class SfdxCoreSettings {
 
   public getBetaDeployRetrieve(): boolean {
     return this.getConfigValue(BETA_DEPLOY_RETRIEVE, false);
+  }
+
+  public showReleaseNotes(): boolean {
+    return this.getConfigValue(SHOW_RELEASE_NOTES, true);
   }
 
   private getConfigValue<T>(key: string, defaultValue: T): T {

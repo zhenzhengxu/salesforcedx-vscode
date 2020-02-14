@@ -4,6 +4,9 @@
  * Licensed under the BSD 3-Clause license.
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
+import * as fs from 'fs';
+import * as path from 'path';
+import { isNullOrUndefined } from 'util';
 import * as vscode from 'vscode';
 import { channelService } from './channels';
 import {
@@ -584,10 +587,49 @@ export async function activate(context: vscode.ExtensionContext) {
     taskViewService,
     telemetryService
   };
+  if (sfdxCoreSettings.showReleaseNotes()) displayReleaseNotes(context);
 
   telemetryService.sendExtensionActivationEvent(extensionHRStart);
   console.log('SFDX CLI Extension Activated');
   return api;
+}
+
+function extensionUpdate(context: vscode.ExtensionContext): boolean {
+  const extVersion = require(context.asAbsolutePath('./package.json')).version;
+  const previousVersion = context.globalState.get('EXT_VERSION');
+  if (previousVersion !== extVersion) {
+    context.globalState.update('EXT_VERSION', extVersion);
+    return true;
+  }
+  return false;
+}
+
+export function displayReleaseNotes(context: vscode.ExtensionContext) {
+  try {
+    if (extensionUpdate(context)) {
+      const releaseNotesPath = path.join(
+        __dirname,
+        '..',
+        '..',
+        '..',
+        'salesforcedx-vscode',
+        'CHANGELOG.md'
+      );
+      const showdown = require('showdown');
+      const converter = new showdown.Converter();
+      const releaseNotesPanel = vscode.window.createWebviewPanel(
+        'releaseNotes',
+        'Salesforce Extensions Release Notes',
+        vscode.ViewColumn.One
+      );
+      const releaseNotesHtml = converter.makeHtml(
+        fs.readFileSync(releaseNotesPath, 'utf8')
+      );
+      releaseNotesPanel.webview.html = releaseNotesHtml;
+    }
+  } catch (e) {
+    console.error(e.message);
+  }
 }
 
 export function deactivate(): Promise<void> {
