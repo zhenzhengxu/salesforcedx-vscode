@@ -88,7 +88,8 @@ export class ForceApexTestRunCodeActionExecutor extends SfdxCommandletExecutor<{
 
     execution.processExitSubject.subscribe(async exitCode => {
       this.logMetric(execution.command.logName, startTime);
-      vscode.commands.executeCommand('sfdx.force.apex.log.get');
+      // this is how we chain commands
+      // vscode.commands.executeCommand('sfdx.force.apex.log.get');
     });
 
     notificationService.reportCommandExecutionStatus(

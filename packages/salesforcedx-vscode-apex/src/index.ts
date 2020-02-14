@@ -12,12 +12,14 @@ import * as vscode from 'vscode';
 import { LanguageClient } from 'vscode-languageclient/lib/main';
 import { CodeCoverage, StatusBarToggle } from './codecoverage';
 import {
+  forceApexTailStart,
   forceApexTestClassRunCodeAction,
   forceApexTestClassRunCodeActionDelegate,
   forceApexTestMethodRunCodeAction,
   forceApexTestMethodRunCodeActionDelegate,
   forceGenerateFauxClassesCreate,
-  initSObjectDefinitions
+  initSObjectDefinitions,
+  forceApexTailStop
 } from './commands';
 import {
   ENABLE_SOBJECT_REFRESH_ON_STARTUP,
@@ -182,6 +184,15 @@ function registerCommands(
     'sfdx.force.internal.refreshsobjects',
     forceGenerateFauxClassesCreate
   );
+
+  const forceApexTailStartCmd = vscode.commands.registerCommand(
+    'sfdx.force.apex.tail.start',
+    forceApexTailStart
+  );
+  const forceApexTailStopCmd = vscode.commands.registerCommand(
+    'sfdx.force.apex.tail.stop',
+    forceApexTailStop
+  );
   return vscode.Disposable.from(
     forceApexToggleColorizerCmd,
     forceApexTestLastClassRunCmd,
@@ -190,7 +201,9 @@ function registerCommands(
     forceApexTestLastMethodRunCmd,
     forceApexTestMethodRunCmd,
     forceApexTestMethodRunDelegateCmd,
-    forceGenerateFauxClassesCmd
+    forceGenerateFauxClassesCmd,
+    forceApexTailStartCmd,
+    forceApexTailStopCmd
   );
 }
 
@@ -273,5 +286,9 @@ export async function getApexClassFiles(): Promise<vscode.Uri[]> {
 
 // tslint:disable-next-line:no-empty
 export function deactivate() {
+  if (languageClient) {
+    languageClient.stop();
+  }
+
   telemetryService.sendExtensionDeactivationEvent();
 }

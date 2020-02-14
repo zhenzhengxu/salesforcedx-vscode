@@ -31,6 +31,7 @@
     "expand-home-dir": "0.0.3",
     "find-java-home": "0.2.0",
     "path-exists": "3.0.0",
+    "rxjs": "^5.4.1",
     "shelljs": "0.8.3",
     "vscode-extension-telemetry": "0.0.17",
     "vscode-languageclient": "5.1.1"
@@ -168,6 +169,14 @@
         {
           "command": "sfdx.force.test.view.refresh",
           "when": "false"
+        },
+        {
+          "command": "sfdx.force.apex.tail.start",
+          "when": "sfdx:project_opened"
+        },
+        {
+          "command": "sfdx.force.apex.tail.stop",
+          "when": "sfdx:project_opened"
         }
       ]
     },
@@ -239,6 +248,14 @@
       {
         "command": "sfdx.force.internal.refreshsobjects",
         "title": "%force_sobjects_refresh%"
+      },
+      {
+        "command": "sfdx.force.apex.tail.start",
+        "title": "SFDX: Start Apex Tail"
+      },
+      {
+        "command": "sfdx.force.apex.tail.stop",
+        "title": "SFDX: Stop Apex Tail"
       }
     ],
     "configuration": {
