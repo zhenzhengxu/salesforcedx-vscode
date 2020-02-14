@@ -21,6 +21,11 @@ import {
   ApexTestOutlineProvider,
   TestNode
 } from './testOutlineProvider';
+import {
+  forceApexTestMethodRunCodeAction,
+  forceApexTailStart,
+  forceApexTailStop
+} from '../commands';
 const sfdxCoreExports = vscode.extensions.getExtension(
   'salesforce.salesforcedx-vscode-core'
 )!.exports;
@@ -34,7 +39,8 @@ const sfdxCoreSettings = sfdxCoreExports.sfdxCoreSettings;
 export enum TestRunType {
   All,
   Class,
-  Method
+  Method,
+  Debug
 }
 
 export class ApexTestRunner {
@@ -137,19 +143,31 @@ export class ApexTestRunner {
     const getCodeCoverage = sfdxCoreSettings.getRetrieveTestCodeCoverage();
     if (testRunType === TestRunType.Class) {
       await forceApexTestRunCacheService.setCachedClassTestParam(tests[0]);
-    } else if (testRunType === TestRunType.Method) {
+    } else if (
+      testRunType === TestRunType.Method ||
+      testRunType === TestRunType.Debug
+    ) {
       await forceApexTestRunCacheService.setCachedMethodTestParam(tests[0]);
     }
-    const builder = new ReadableApexTestRunExecutor(
-      tests,
-      getCodeCoverage,
-      tmpFolder
-    );
-    const commandlet = new SfdxCommandlet(
-      new SfdxWorkspaceChecker(),
-      new EmptyParametersGatherer(),
-      builder
-    );
-    await commandlet.run();
+
+    if (testRunType === TestRunType.Debug) {
+      // await vscode.commands.executeCommand('sfdx.force.apex.tail.start');
+      await forceApexTailStart();
+      await forceApexTestMethodRunCodeAction(tests[0]);
+      // await vscode.commands.executeCommand('sfdx.force.apex.tail.stop');
+      // await forceApexTailStop();
+    } else {
+      const builder = new ReadableApexTestRunExecutor(
+        tests,
+        getCodeCoverage,
+        tmpFolder
+      );
+      const commandlet = new SfdxCommandlet(
+        new SfdxWorkspaceChecker(),
+        new EmptyParametersGatherer(),
+        builder
+      );
+      await commandlet.run();
+    }
   }
 }

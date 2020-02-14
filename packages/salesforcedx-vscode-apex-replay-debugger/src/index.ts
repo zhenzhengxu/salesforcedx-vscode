@@ -89,6 +89,19 @@ function registerCommands(): vscode.Disposable {
     }
   );
 
+  const launchFromStreamedLogFileCmd = vscode.commands.registerCommand(
+    'sfdx.launch.replay.debugger.streamed.logfile',
+    lastLogFileUri => {
+      const lastOpenedLog = path.join(
+        vscode.workspace.workspaceFolders![0].uri.fsPath,
+        '.sfdx',
+        'tools',
+        'stream.log'
+      );
+      return launchFromLogFile(lastOpenedLog);
+    }
+  );
+
   const sfdxCreateCheckpointsCmd = vscode.commands.registerCommand(
     'sfdx.create.checkpoints',
     sfdxCreateCheckpoints
@@ -103,7 +116,8 @@ function registerCommands(): vscode.Disposable {
     launchFromLogFileCmd,
     launchFromLastLogFileCmd,
     sfdxCreateCheckpointsCmd,
-    sfdxToggleCheckpointCmd
+    sfdxToggleCheckpointCmd,
+    launchFromStreamedLogFileCmd
   );
 }
 

@@ -11,6 +11,8 @@ import {
   SfdxCommandBuilder
 } from '@salesforce/salesforcedx-utils-vscode/out/src/cli';
 import { ContinueResponse } from '@salesforce/salesforcedx-utils-vscode/out/src/types';
+import * as fs from 'fs';
+import * as path from 'path';
 import { Subject } from 'rxjs/Subject';
 import * as vscode from 'vscode';
 import { nls } from '../messages';
@@ -75,31 +77,57 @@ export class ForceApexTailExecutor extends SfdxCommandletExecutor<{}> {
     execution.stdoutSubject.subscribe(data => {
       console.log('========> listening to command startup');
       stdOut += data.toString();
-      console.log(data.toString());
+      // console.log(data.toString());
     });
 
     // handler errors
     execution.processExitSubject.subscribe(async exitCode => {
-      console.log('========> listening to command errors');
-      console.log(exitCode);
       console.log(
         '===> Contains user_debug ??' + stdOut.includes('USER_DEBUG')
       );
+      console.log('=== stdOut ====>', stdOut);
 
       if (stdOut.includes('USER_DEBUG')) {
+        const fauxClassPath = path.join(
+          vscode.workspace.workspaceFolders![0].uri.fsPath,
+          '.sfdx',
+          'tools',
+          'stream.log'
+        );
+        fs.writeFileSync(fauxClassPath, stdOut);
+        vscode.commands.executeCommand(
+          'sfdx.launch.replay.debugger.streamed.logfile'
+        );
         console.log('lets get fancy');
-        // const regex = /(USER_DEBUG)(\|)(\[\d*\])(\|)(DEBUG)(\|)([A-Za-z\s])*(?=(\d+\:\d+\:\d+\.\d+))/g;
-        const regex = /((USER_DEBUG)(\|)(\[\d*\])(\|)(DEBUG)(\|)([A-Za-z\s])*(?=(\d+\:\d+\:\d+\.\d+)))|((EXCEPTION_THROWN)(\|)(\[\d+\])(\|)([A-Za-z\s\:\.]*)(?=(\d+\:\d+\:\d+\.\d+)))/g;
+        const regex = /((\d+\:\d+\:\d+\.\d+)\s*(\([0-9]+\))(\|)(USER_DEBUG)(\|)(\[\d*\])(\|)(DEBUG)(\|)([A-Za-z\s]*)(?:(\d+\:\d+\:\d+\.\d+)))|((\d+\:\d+\:\d+\.\d+)\s*(\([0-9]+\))(\|)(EXCEPTION_THROWN)(\|)(\[\d+\])(\|)([A-Za-z0-9\s\:\.\,]*)(?:(\d{2}\:\d+\:\d+\.\d+)))/g;
         const found = stdOut.match(regex);
-
+        console.log('=== found ====>', found);
         if (found) {
-          // const regex2 = /(USER_DEBUG)(\|)(\[\d*\])(\|)(DEBUG)(\|)/g;
-          const regex2 = /((USER_DEBUG)(\|)(\[\d*\])(\|)(DEBUG)(\|))|((EXCEPTION_THROWN)(\|)(\[\d+\])(\|))/g;
+          const userDebugRegex = /(\d+\:\d+\:\d+\.\d+)\s*(\([0-9]+\))(\|)(USER_DEBUG)(\|)(\[\d*\])(\|)(DEBUG)(\|)([A-Za-z\s]*)(?:(\d+\:\d+\:\d+\.\d+))/g;
+          const exceptionRegex = /(\d+\:\d+\:\d+\.\d+)\s*(\([0-9]+\))(\|)(EXCEPTION_THROWN)(\|)(\[\d+\])(\|)([A-Za-z0-9\s\:\.\,]*)(?:(\d{2}\:\d+\:\d+\.\d+))/g;
+          let completeLog = '';
+          let matchUD = null;
+          let matchET = null;
           found.forEach(log => {
-            const trimmedLog = log.replace(regex2, '');
-            console.log(trimmedLog);
-            channelService.appendLine(trimmedLog);
+            console.log('====== iterate log line =====> ', log);
+
+            if (log.includes('USER_DEBUG')) {
+              matchUD = logRegex(userDebugRegex, log); // userDebugRegex.exec(log);
+              console.log('====== user debug, matchUD =====> ', matchUD);
+              if (matchUD) {
+                completeLog += matchUD[4] + ': ' + matchUD[10];
+              }
+            }
+
+            if (log.includes('EXCEPTION_THROWN')) {
+              matchET = logRegex(exceptionRegex, log); // exceptionRegex.exec(log);
+              console.log('====== exception thrown, matchET =====> ', matchET);
+              if (matchET) {
+                completeLog += matchET[4] + ': ' + matchET[8];
+              }
+            }
           });
+          channelService.appendLine(completeLog);
         }
       }
     });
@@ -111,6 +139,10 @@ export class ForceApexTailExecutor extends SfdxCommandletExecutor<{}> {
       this.showChannelOutput();
     });
   }
+}
+
+function logRegex(rEx: RegExp, logLine: string): string[] | null {
+  return rEx.exec(logLine);
 }
 
 export async function forceApexTailStart() {
@@ -133,9 +165,9 @@ export async function forceApexTailStop() {
     if (ApexTailService.instance.isHandlerRegistered()) {
       // channelService.appendLine('Successfully stopped Apex Tail');
       await ApexTailService.instance.stopService();
-      notificationService.showSuccessfulExecution(
+      /* notificationService.showSuccessfulExecution(
         'Successfully stopped Apex Tail'
-      );
+      ); */
     } else {
       notificationService.showWarningMessage(
         'Something wrong happened with Apex Tail Stop'

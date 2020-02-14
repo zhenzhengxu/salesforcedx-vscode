@@ -15,6 +15,7 @@ import { ContinueResponse } from '@salesforce/salesforcedx-utils-vscode/out/src/
 import * as vscode from 'vscode';
 import { nls } from '../messages';
 import { forceApexTestRunCacheService, isEmpty } from '../testRunCache';
+import { forceApexTailStop } from './forceApexTail';
 
 const sfdxCoreExports = vscode.extensions.getExtension(
   'salesforce.salesforcedx-vscode-core'
@@ -78,7 +79,11 @@ export class ForceApexTestRunCodeActionExecutor extends SfdxCommandletExecutor<{
       env: { SFDX_JSON_TO_STDOUT: 'true' }
     }).execute(cancellationToken);
 
-    channelService.streamCommandStartStop(execution);
+    // channelService.streamCommandStartStop(execution);
+    channelService.streamCommandStart(
+      execution.command.toString(),
+      execution.command.toCommand()
+    );
     channelService.showChannelOutput();
 
     let stdOut = '';
@@ -90,6 +95,11 @@ export class ForceApexTestRunCodeActionExecutor extends SfdxCommandletExecutor<{
       this.logMetric(execution.command.logName, startTime);
       // this is how we chain commands
       // vscode.commands.executeCommand('sfdx.force.apex.log.get');
+      await forceApexTailStop();
+      channelService.streamCommandExitStop(
+        exitCode,
+        execution.command.toCommand()
+      );
     });
 
     notificationService.reportCommandExecutionStatus(

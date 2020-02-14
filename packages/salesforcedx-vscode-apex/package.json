@@ -123,6 +123,11 @@
           "command": "sfdx.force.test.view.runSingleTest",
           "when": "view == sfdx.force.test.view && viewItem =~ /(apexTest)(_.*|\\b)/",
           "group": "inline"
+        },
+        {
+          "command": "sfdx.force.test.view.debugSingleTest",
+          "when": "view == sfdx.force.test.view && viewItem =~ /(apexTest)(_.*|\\b)/",
+          "group": "inline"
         }
       ],
       "commandPalette": [
@@ -227,6 +232,14 @@
         "icon": {
           "light": "resources/light/play-button.svg",
           "dark": "resources/dark/play-button.svg"
+        }
+      },
+      {
+        "command": "sfdx.force.test.view.debugSingleTest",
+        "title": "Debug Test",
+        "icon": {
+          "light": "resources/light/debug.svg",
+          "dark": "resources/dark/debug.svg"
         }
       },
       {

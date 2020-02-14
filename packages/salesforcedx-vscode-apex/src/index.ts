@@ -13,13 +13,13 @@ import { LanguageClient } from 'vscode-languageclient/lib/main';
 import { CodeCoverage, StatusBarToggle } from './codecoverage';
 import {
   forceApexTailStart,
+  forceApexTailStop,
   forceApexTestClassRunCodeAction,
   forceApexTestClassRunCodeActionDelegate,
   forceApexTestMethodRunCodeAction,
   forceApexTestMethodRunCodeActionDelegate,
   forceGenerateFauxClassesCreate,
-  initSObjectDefinitions,
-  forceApexTailStop
+  initSObjectDefinitions
 } from './commands';
 import {
   ENABLE_SOBJECT_REFRESH_ON_STARTUP,
@@ -253,6 +253,13 @@ async function registerTestView(
     vscode.commands.registerCommand(
       'sfdx.force.test.view.runSingleTest',
       test => testRunner.runApexTests([test.name], TestRunType.Method)
+    )
+  );
+  // Debug Single Test command
+  testViewItems.push(
+    vscode.commands.registerCommand(
+      'sfdx.force.test.view.debugSingleTest',
+      test => testRunner.runApexTests([test.name], TestRunType.Debug)
     )
   );
   // Refresh Test View command
