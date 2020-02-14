@@ -9,6 +9,10 @@ import { TestRunner } from '@salesforce/salesforcedx-utils-vscode/out/src/cli/';
 import * as events from 'events';
 import * as vscode from 'vscode';
 import {
+  forceApexTailStart,
+  forceApexTestMethodRunCodeAction
+} from '../commands';
+import {
   LanguageClientStatus,
   languageClientUtils
 } from '../languageClientUtils';
@@ -21,11 +25,6 @@ import {
   ApexTestOutlineProvider,
   TestNode
 } from './testOutlineProvider';
-import {
-  forceApexTestMethodRunCodeAction,
-  forceApexTailStart,
-  forceApexTailStop
-} from '../commands';
 const sfdxCoreExports = vscode.extensions.getExtension(
   'salesforce.salesforcedx-vscode-core'
 )!.exports;
