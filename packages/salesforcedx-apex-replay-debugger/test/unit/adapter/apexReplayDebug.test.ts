@@ -80,18 +80,32 @@ describe('Replay debugger adapter - unit', () => {
   const projectPath = 'path/project';
 
   describe('Launch', () => {
-    let sendResponseSpy: sinon.SinonSpy;
-    let sendEventSpy: sinon.SinonSpy;
+    let sendResponseSpy: sinon.SinonSpy<[DebugProtocol.Response], void>;
+    let sendEventSpy: sinon.SinonSpy<[DebugProtocol.Event], void>;
     let response: DebugProtocol.LaunchResponse;
     let args: LaunchRequestArguments;
-    let hasLogLinesStub: sinon.SinonStub;
-    let meetsLogLevelRequirementsStub: sinon.SinonStub;
-    let readLogFileStub: sinon.SinonStub;
-    let getLogSizeStub: sinon.SinonStub;
-    let printToDebugConsoleStub: sinon.SinonStub;
-    let errorToDebugConsoleStub: sinon.SinonStub;
-    let scanLogForHeapDumpLinesStub: sinon.SinonStub;
-    let fetchOverlayResultsForApexHeapDumpsStub: sinon.SinonStub;
+    let hasLogLinesStub: sinon.SinonStub<[], boolean>;
+    let meetsLogLevelRequirementsStub: sinon.SinonStub<[], boolean>;
+    let readLogFileStub: sinon.SinonStub<[string], string[]>;
+    let getLogSizeStub: sinon.SinonStub<[], number>;
+    let printToDebugConsoleStub: sinon.SinonStub<
+      [
+        string,
+        (Source | undefined)?,
+        (number | undefined)?,
+        (string | undefined)?
+      ],
+      void
+    >;
+    let errorToDebugConsoleStub: sinon.SinonStub<
+      [string, (Source | undefined)?, (number | undefined)?],
+      void
+    >;
+    let scanLogForHeapDumpLinesStub: sinon.SinonStub<[], boolean>;
+    let fetchOverlayResultsForApexHeapDumpsStub: sinon.SinonStub<
+      [string],
+      Promise<boolean>
+    >;
     const lineBpInfo: LineBreakpointInfo[] = [];
     lineBpInfo.push({
       uri: 'classA',
@@ -261,7 +275,7 @@ describe('Replay debugger adapter - unit', () => {
         .returns(false);
       fetchOverlayResultsForApexHeapDumpsStub = sinon
         .stub(LogContext.prototype, 'fetchOverlayResultsForApexHeapDumps')
-        .returns(true);
+        .returns(Promise.resolve(true));
 
       args.lineBreakpointInfo = lineBpInfo;
       await adapter.launchRequest(response, args);
@@ -285,7 +299,7 @@ describe('Replay debugger adapter - unit', () => {
         .returns(true);
       fetchOverlayResultsForApexHeapDumpsStub = sinon
         .stub(LogContext.prototype, 'fetchOverlayResultsForApexHeapDumps')
-        .returns(true);
+        .returns(Promise.resolve(true));
 
       args.lineBreakpointInfo = lineBpInfo;
       await adapter.launchRequest(response, args);
@@ -308,7 +322,7 @@ describe('Replay debugger adapter - unit', () => {
         .returns(true);
       fetchOverlayResultsForApexHeapDumpsStub = sinon
         .stub(LogContext.prototype, 'fetchOverlayResultsForApexHeapDumps')
-        .returns(false);
+        .returns(Promise.resolve(false));
 
       args.lineBreakpointInfo = lineBpInfo;
       await adapter.launchRequest(response, args);
@@ -336,10 +350,13 @@ describe('Replay debugger adapter - unit', () => {
   });
 
   describe('Configuration done', () => {
-    let sendEventSpy: sinon.SinonSpy;
-    let updateFramesStub: sinon.SinonStub;
-    let continueRequestStub: sinon.SinonStub;
-    let getLaunchArgsStub: sinon.SinonStub;
+    let sendEventSpy: sinon.SinonSpy<[DebugProtocol.Event], void>;
+    let updateFramesStub: sinon.SinonStub<[], void>;
+    let continueRequestStub: sinon.SinonStub<
+      [DebugProtocol.ContinueResponse, DebugProtocol.ContinueArguments],
+      void
+    >;
+    let getLaunchArgsStub: sinon.SinonStub<[], LaunchRequestArguments>;
     let response: DebugProtocol.ConfigurationDoneResponse;
     const args: DebugProtocol.ConfigurationDoneArguments = {};
     const launchRequestArgs: LaunchRequestArguments = {
@@ -402,7 +419,15 @@ describe('Replay debugger adapter - unit', () => {
     let sendResponseSpy: sinon.SinonSpy;
     let response: DebugProtocol.DisconnectResponse;
     let args: DebugProtocol.DisconnectArguments;
-    let printToDebugConsoleStub: sinon.SinonStub;
+    let printToDebugConsoleStub: sinon.SinonStub<
+      [
+        string,
+        (Source | undefined)?,
+        (number | undefined)?,
+        (string | undefined)?
+      ],
+      void
+    >;
 
     beforeEach(() => {
       adapter = new MockApexReplayDebug();

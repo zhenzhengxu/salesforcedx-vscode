@@ -7,17 +7,23 @@
 
 import { expect } from 'chai';
 import * as sinon from 'sinon';
-import { ForceOrgDisplay, OrgInfo, SfdxCommandBuilder } from '../../../src/cli';
+import {
+  CommandBuilder,
+  ForceOrgDisplay,
+  OrgInfo,
+  SfdxCommandBuilder
+} from '../../../src/cli';
 import childProcess = require('child_process');
+import { Command } from '../../../src/cli/commandBuilder';
 
 describe('force:org:display', () => {
   const mockSpawn = require('mock-spawn');
   let command: ForceOrgDisplay;
   let origSpawn: any;
   let mySpawn: any;
-  let cmdWithArgSpy: sinon.SinonSpy;
-  let cmdWithJsonSpy: sinon.SinonSpy;
-  let cmdBuildSpy: sinon.SinonSpy;
+  let cmdWithArgSpy: sinon.SinonSpy<[string], CommandBuilder>;
+  let cmdWithJsonSpy: sinon.SinonSpy<[], CommandBuilder>;
+  let cmdBuildSpy: sinon.SinonSpy<[], Command>;
 
   beforeEach(() => {
     command = new ForceOrgDisplay();

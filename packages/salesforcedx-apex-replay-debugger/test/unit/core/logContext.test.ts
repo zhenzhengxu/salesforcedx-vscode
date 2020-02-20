@@ -7,7 +7,7 @@
 
 import { expect } from 'chai';
 import * as sinon from 'sinon';
-import { StackFrame } from 'vscode-debugadapter';
+import { Source, StackFrame } from 'vscode-debugadapter';
 import {
   ApexReplayDebug,
   LaunchRequestArguments
@@ -30,6 +30,7 @@ import {
 } from '../../../src/constants';
 import { LogContext, LogContextUtil } from '../../../src/core';
 import {
+  DebugLogState,
   FrameEntryState,
   FrameExitState,
   LogEntryState,
@@ -41,15 +42,23 @@ import {
 // tslint:disable:no-unused-expression
 describe('LogContext', () => {
   let context: LogContext;
-  let readLogFileStub: sinon.SinonStub;
-  let getFileSizeStub: sinon.SinonStub;
-  let parseLogEventStub: sinon.SinonStub;
-  let noOpHandleStub: sinon.SinonStub;
-  let shouldTraceLogFileStub: sinon.SinonStub;
-  let printToDebugConsoleStub: sinon.SinonStub;
-  let getTopFrameStub: sinon.SinonStub;
-  let hasHeapDumpStub: sinon.SinonStub;
-  let revertStateAfterHeapDumpSpy: sinon.SinonSpy;
+  let readLogFileStub: sinon.SinonStub<[string], string[]>;
+  let getFileSizeStub: sinon.SinonStub<[string], number>;
+  let parseLogEventStub: sinon.SinonStub<[string], DebugLogState | undefined>;
+  let noOpHandleStub: sinon.SinonStub<[LogContext], boolean>;
+  let shouldTraceLogFileStub: sinon.SinonStub<[], boolean>;
+  let printToDebugConsoleStub: sinon.SinonStub<
+    [
+      string,
+      (Source | undefined)?,
+      (number | undefined)?,
+      (string | undefined)?
+    ],
+    void
+  >;
+  let getTopFrameStub: sinon.SinonStub<[], StackFrame | undefined>;
+  let hasHeapDumpStub: sinon.SinonStub<[], boolean>;
+  let revertStateAfterHeapDumpSpy: sinon.SinonSpy<[], void>;
   const launchRequestArgs: LaunchRequestArguments = {
     logFile: '/path/foo.log',
     trace: true,
@@ -168,6 +177,7 @@ describe('LogContext', () => {
   it('Should handle undefined log event', () => {
     parseLogEventStub = sinon
       .stub(LogContext.prototype, 'parseLogEvent')
+      // @ts-ignore
       .returns(undefined);
 
     context.updateFrames();
@@ -450,7 +460,7 @@ describe('LogContext', () => {
   });
 
   describe('Signature-to-URI', () => {
-    let getTyperefMappingStub: sinon.SinonStub;
+    let getTyperefMappingStub: sinon.SinonStub<[], Map<string, string>>;
     const typerefMapping: Map<string, string> = new Map();
     typerefMapping.set('namespace/Foo$Bar', '/path/foo.cls');
     typerefMapping.set('namespace/Foo', '/path/foo.cls');

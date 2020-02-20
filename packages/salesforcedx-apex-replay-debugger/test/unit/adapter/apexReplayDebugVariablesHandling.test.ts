@@ -18,7 +18,10 @@ import {
   LaunchRequestArguments,
   VariableContainer
 } from '../../../src/adapter/apexReplayDebug';
-import { ApexExecutionOverlayResultCommandSuccess } from '../../../src/commands/apexExecutionOverlayResultCommand';
+import {
+  ApexExecutionOverlayResultCommandSuccess,
+  HeapDumpExtentValue
+} from '../../../src/commands/apexExecutionOverlayResultCommand';
 import { ApexHeapDump, LogContext } from '../../../src/core';
 import { Handles } from '../../../src/core/handles';
 import { HeapDumpService } from '../../../src/core/heapDumpService';
@@ -34,7 +37,7 @@ import {
 // tslint:disable:no-unused-expression
 describe('Replay debugger adapter variable handling - unit', () => {
   let adapter: MockApexReplayDebug;
-  let sendResponseSpy: sinon.SinonSpy;
+  let sendResponseSpy: sinon.SinonSpy<[DebugProtocol.Response], void>;
   const logFileName = 'foo.log';
   const logFilePath = `path/${logFileName}`;
   const projectPath = undefined;
@@ -45,11 +48,14 @@ describe('Replay debugger adapter variable handling - unit', () => {
   };
 
   describe('Scopes request', () => {
-    let hasHeapDumpForTopFrameStub: sinon.SinonStub;
-    let getFrameHandlerStub: sinon.SinonStub;
-    let copyStateForHeapDumpStub: sinon.SinonStub;
-    let replaceVariablesWithHeapDumpStub: sinon.SinonStub;
-    let resetLastSeenHeapDumpLogLineStub: sinon.SinonStub;
+    let hasHeapDumpForTopFrameStub: sinon.SinonStub<[], string | undefined>;
+    let getFrameHandlerStub: sinon.SinonStub<
+      [],
+      Handles<ApexDebugStackFrameInfo>
+    >;
+    let copyStateForHeapDumpStub: sinon.SinonStub<[], void>;
+    let replaceVariablesWithHeapDumpStub: sinon.SinonStub<[], void>;
+    let resetLastSeenHeapDumpLogLineStub: sinon.SinonStub<[], void>;
     let response: DebugProtocol.ScopesResponse;
     let args: DebugProtocol.ScopesArguments;
     let frameHandler: Handles<ApexDebugStackFrameInfo>;
@@ -88,14 +94,13 @@ describe('Replay debugger adapter variable handling - unit', () => {
     it('Should return no scopes for unknown frame', async () => {
       hasHeapDumpForTopFrameStub = sinon
         .stub(LogContext.prototype, 'hasHeapDumpForTopFrame')
-        .returns(false);
+        .returns(undefined);
 
       await adapter.scopesRequest(response, args);
 
       expect(sendResponseSpy.calledOnce).to.be.true;
-      const actualResponse: DebugProtocol.ScopesResponse = sendResponseSpy.getCall(
-        0
-      ).args[0];
+      const actualResponse: DebugProtocol.Response = sendResponseSpy.getCall(0)
+        .args[0];
       expect(actualResponse.success).to.be.true;
       expect(actualResponse.body.scopes.length).to.equal(0);
     });
@@ -103,15 +108,14 @@ describe('Replay debugger adapter variable handling - unit', () => {
     it('Should return local, static, and global scopes', async () => {
       hasHeapDumpForTopFrameStub = sinon
         .stub(LogContext.prototype, 'hasHeapDumpForTopFrame')
-        .returns(false);
+        .returns(undefined);
       const id = frameHandler.create(new ApexDebugStackFrameInfo(0, 'foo'));
       args.frameId = id;
 
       await adapter.scopesRequest(response, args);
 
-      const actualResponse: DebugProtocol.ScopesResponse = sendResponseSpy.getCall(
-        0
-      ).args[0];
+      const actualResponse: DebugProtocol.Response = sendResponseSpy.getCall(0)
+        .args[0];
       expect(actualResponse.success).to.be.true;
       expect(actualResponse.body.scopes.length).to.equal(3);
       expect(actualResponse.body.scopes[0].name).to.equal('Local');
@@ -122,7 +126,7 @@ describe('Replay debugger adapter variable handling - unit', () => {
     it('Should replace with heapdump variables', async () => {
       hasHeapDumpForTopFrameStub = sinon
         .stub(LogContext.prototype, 'hasHeapDumpForTopFrame')
-        .returns(true);
+        .returns('id');
       copyStateForHeapDumpStub = sinon.stub(
         LogContext.prototype,
         'copyStateForHeapDump'
@@ -145,8 +149,8 @@ describe('Replay debugger adapter variable handling - unit', () => {
   });
 
   describe('Variables request', () => {
-    let getVariableHandlerStub: sinon.SinonStub;
-    let getAllVariablesStub: sinon.SinonStub;
+    let getVariableHandlerStub: sinon.SinonStub<[], Handles<VariableContainer>>;
+    let getAllVariablesStub: sinon.SinonStub<[], ApexVariable[]>;
     let response: DebugProtocol.VariablesResponse;
     let args: DebugProtocol.VariablesArguments;
     let variableHandler: Handles<VariableContainer>;
@@ -177,9 +181,8 @@ describe('Replay debugger adapter variable handling - unit', () => {
     it('Should return no variables for unknown scope', async () => {
       await adapter.variablesRequest(response, args);
 
-      const actualResponse: DebugProtocol.VariablesResponse = sendResponseSpy.getCall(
-        0
-      ).args[0];
+      const actualResponse: DebugProtocol.Response = sendResponseSpy.getCall(0)
+        .args[0];
       expect(actualResponse.success).to.be.true;
       expect(actualResponse.body.variables.length).to.equal(0);
     });
@@ -198,9 +201,8 @@ describe('Replay debugger adapter variable handling - unit', () => {
 
       await adapter.variablesRequest(response, args);
 
-      const actualResponse: DebugProtocol.VariablesResponse = sendResponseSpy.getCall(
-        0
-      ).args[0];
+      const actualResponse: DebugProtocol.Response = sendResponseSpy.getCall(0)
+        .args[0];
       expect(actualResponse.success).to.be.true;
       expect(actualResponse.body.variables.length).to.equal(1);
       const apexVariable = actualResponse.body.variables[0];
@@ -221,14 +223,40 @@ describe('Replay debugger adapter variable handling - unit', () => {
     });
 
     describe('replaceVariablesWithHeapDump', () => {
-      let getTopFrameStub: sinon.SinonStub;
-      let getHeapDumpForThisLocationStub: sinon.SinonStub;
-      let createStringRefsFromHeapdumpSpy: sinon.SinonSpy;
-      let updateLeafReferenceContainerSpy: sinon.SinonSpy;
-      let createVariableFromReferenceSpy: sinon.SinonSpy;
-      let getFrameHandlerStub: sinon.SinonStub;
-      let getRefsMapStub: sinon.SinonStub;
-      let getStaticVariablesClassMapStub: sinon.SinonStub;
+      let getTopFrameStub: sinon.SinonStub<[], StackFrame | undefined>;
+      let getHeapDumpForThisLocationStub: sinon.SinonStub<
+        [string, number],
+        ApexHeapDump | undefined
+      >;
+      let createStringRefsFromHeapdumpSpy: sinon.SinonSpy<
+        [ApexExecutionOverlayResultCommandSuccess],
+        void
+      >;
+      let updateLeafReferenceContainerSpy: sinon.SinonSpy<
+        [ApexVariableContainer, HeapDumpExtentValue, string | null],
+        void
+      >;
+      let createVariableFromReferenceSpy: sinon.SinonSpy<
+        [
+          string,
+          ApexVariableContainer,
+          Map<string, ApexVariableContainer | null>,
+          ApexVariableContainer[]
+        ],
+        ApexVariableContainer | undefined
+      >;
+      let getFrameHandlerStub: sinon.SinonStub<
+        [],
+        Handles<ApexDebugStackFrameInfo>
+      >;
+      let getRefsMapStub: sinon.SinonStub<
+        [],
+        Map<string, ApexVariableContainer>
+      >;
+      let getStaticVariablesClassMapStub: sinon.SinonStub<
+        [],
+        Map<string, Map<string, VariableContainer>>
+      >;
       const topFrame: StackFrame = {
         id: 0,
         name: 'Foo.cls',
@@ -672,13 +700,28 @@ describe('Replay debugger adapter variable handling - unit', () => {
     }); // Describe replaceVariablesWithHeapDump
 
     describe('heapDumpTriggerContextVariables', () => {
-      let getTopFrameStub: sinon.SinonStub;
-      let getHeapDumpForThisLocationStub: sinon.SinonStub;
-      let getFrameHandlerStub: sinon.SinonStub;
-      let getRefsMapStub: sinon.SinonStub;
-      let getStaticVariablesClassMapStub: sinon.SinonStub;
-      let isRunningApexTriggerStub: sinon.SinonStub;
-      let getVariableHandlerStub: sinon.SinonStub;
+      let getTopFrameStub: sinon.SinonStub<[], StackFrame | undefined>;
+      let getHeapDumpForThisLocationStub: sinon.SinonStub<
+        [string, number],
+        ApexHeapDump | undefined
+      >;
+      let getFrameHandlerStub: sinon.SinonStub<
+        [],
+        Handles<ApexDebugStackFrameInfo>
+      >;
+      let getRefsMapStub: sinon.SinonStub<
+        [],
+        Map<string, ApexVariableContainer>
+      >;
+      let getStaticVariablesClassMapStub: sinon.SinonStub<
+        [],
+        Map<string, Map<string, VariableContainer>>
+      >;
+      let isRunningApexTriggerStub: sinon.SinonStub<[], boolean>;
+      let getVariableHandlerStub: sinon.SinonStub<
+        [],
+        Handles<VariableContainer>
+      >;
       let variableHandler: Handles<VariableContainer>;
 
       const topFrame: StackFrame = {
