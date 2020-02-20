@@ -30,7 +30,7 @@ describe('Force Project Create', () => {
   const PROJECT_DIR: vscode.Uri[] = [vscode.Uri.parse(WORKSPACE_PATH)];
 
   describe('SelectProjectTemplate Gatherer', () => {
-    let quickPickSpy: sinon.SinonStub;
+    let quickPickSpy: sinon.SinonStub<[], void>;
 
     before(() => {
       quickPickSpy = sinon.stub(vscode.window, 'showQuickPick');
@@ -79,7 +79,7 @@ describe('Force Project Create', () => {
   });
 
   describe('SelectProjectName Gatherer', () => {
-    let inputBoxSpy: sinon.SinonStub;
+    let inputBoxSpy: sinon.SinonStub<[], void>;
 
     before(() => {
       inputBoxSpy = sinon.stub(vscode.window, 'showInputBox');
@@ -119,7 +119,7 @@ describe('Force Project Create', () => {
   });
 
   describe('SelectProjectFolder Gatherer', () => {
-    let showOpenDialogSpy: sinon.SinonStub;
+    let showOpenDialogSpy: sinon.SinonStub<[], void>;
 
     before(() => {
       // showOpenDialog only returns the path or undefined
@@ -152,7 +152,7 @@ describe('Force Project Create', () => {
   });
 
   describe('PathExistsChecker PostCondition', () => {
-    let showWarningBoxSpy: sinon.SinonStub;
+    let showWarningBoxSpy: sinon.SinonStub<[], void>;
 
     before(() => {
       showWarningBoxSpy = sinon.stub(vscode.window, 'showWarningMessage');

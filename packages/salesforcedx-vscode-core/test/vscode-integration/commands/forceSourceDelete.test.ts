@@ -32,7 +32,7 @@ describe('Force Source Delete', () => {
 });
 
 describe('ManifestChecker', () => {
-  let workspaceStub: sinon.SinonStub;
+  let workspaceStub: sinon.SinonStub<[], void>;
   const workspaceFolderPath = path.join('path', 'to', 'workspace', 'folder');
 
   before(() => {
@@ -71,7 +71,7 @@ describe('ConfirmationAndSourcePathGatherer', () => {
   const examplePath = path.join('example', 'path');
   const explorerPath = { fsPath: examplePath } as vscode.Uri;
 
-  let informationMessageStub: sinon.SinonStub;
+  let informationMessageStub: sinon.SinonStub<[], void>;
 
   beforeEach(() => {
     informationMessageStub = sinon.stub(

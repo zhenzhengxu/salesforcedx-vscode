@@ -58,9 +58,9 @@ describe('Force Auth Web Login in Demo  Mode', () => {
 });
 
 describe('Auth Params Gatherer', () => {
-  let inputBoxSpy: sinon.SinonStub;
-  let quickPickStub: sinon.SinonStub;
-  let getProjectUrlStub: sinon.SinonStub;
+  let inputBoxSpy: sinon.SinonStub<[], void>;
+  let quickPickStub: sinon.SinonStub<[], void>;
+  let getProjectUrlStub: sinon.SinonStub<[], void>;
 
   let gatherer: AuthParamsGatherer;
 

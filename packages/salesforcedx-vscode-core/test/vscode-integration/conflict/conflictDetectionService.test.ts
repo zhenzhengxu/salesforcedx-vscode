@@ -85,9 +85,9 @@ describe('Conflict Detection Service Execution', () => {
   );
   const PROJECT_DIR = path.join(PROJ_ROOT, 'conflict-proj');
 
-  let workspaceStub: sinon.SinonStub;
+  let workspaceStub: sinon.SinonStub<[], void>;
   let executor: ConflictDetector;
-  let executeCommandSpy: sinon.SinonStub;
+  let executeCommandSpy: sinon.SinonStub<[], void>;
 
   beforeEach(() => {
     executor = new ConflictDetector(new CommonDirDirectoryDiffer());

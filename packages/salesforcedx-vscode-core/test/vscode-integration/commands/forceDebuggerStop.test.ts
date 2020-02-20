@@ -28,12 +28,12 @@ describe('Debugger stop command', () => {
   describe('Session query', () => {
     let origSpawn: any;
     let mySpawn: any;
-    let workspaceCheckerStub: sinon.SinonStub;
-    let idGathererStub: sinon.SinonStub;
-    let detachExecutorSpy: sinon.SinonSpy;
-    let sessionDetachRunSpy: sinon.SinonSpy;
+    let workspaceCheckerStub: sinon.SinonStub<[], void>;
+    let idGathererStub: sinon.SinonStub<[], void>;
+    let detachExecutorSpy: sinon.SinonSpy<[], void>;
+    let sessionDetachRunSpy: sinon.SinonSpy<[], void>;
     let executor: StopActiveDebuggerSessionExecutor;
-    let infoSpy: sinon.SinonSpy;
+    let infoSpy: sinon.SinonSpy<[], void>;
 
     beforeEach(() => {
       origSpawn = childProcess.spawn;

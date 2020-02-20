@@ -5,7 +5,11 @@
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 /* tslint:disable:no-unused-expression */
-import { RequestService } from '@salesforce/salesforcedx-utils-vscode/out/src/requestService';
+import {
+  RequestService,
+  BaseCommand,
+  RestHttpMethodEnum
+} from '@salesforce/salesforcedx-utils-vscode/out/src/requestService';
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 import { DebugProtocol } from 'vscode-debugprotocol/lib/debugProtocol';
@@ -463,7 +467,10 @@ describe('Debugger adapter variable handling - unit', () => {
 
   describe('resolveApexIdToVariableReference', () => {
     let adapter: ApexDebugForTest;
-    let referencesSpy: sinon.SinonStub;
+    let referencesSpy: sinon.SinonStub<
+      [BaseCommand, (RestHttpMethodEnum | undefined)?],
+      Promise<string>
+    >;
 
     beforeEach(() => {
       adapter = new ApexDebugForTest(new RequestService());
@@ -536,8 +543,8 @@ describe('Debugger adapter variable handling - unit', () => {
   });
 
   describe('ApexDebugStackFrameInfo', () => {
-    let stateSpy: sinon.SinonStub;
-    let sourcePathSpy: sinon.SinonStub;
+    let stateSpy: sinon.SinonStub<[], void>;
+    let sourcePathSpy: sinon.SinonStub<[], void>;
     let adapter: ApexDebugForTest;
 
     beforeEach(() => {
@@ -722,7 +729,7 @@ describe('Debugger adapter variable handling - unit', () => {
 
   describe('scopesRequest', () => {
     let adapter: ApexDebugForTest;
-    let resolveApexIdToVariableReferenceSpy: sinon.SinonStub;
+    let resolveApexIdToVariableReferenceSpy: sinon.SinonStub<[], void>;
 
     beforeEach(() => {
       adapter = new ApexDebugForTest(new RequestService());
@@ -880,7 +887,7 @@ describe('Debugger adapter variable handling - unit', () => {
 
   describe('variablesRequest', () => {
     let adapter: ApexDebugForTest;
-    let resetIdleTimersSpy: sinon.SinonSpy;
+    let resetIdleTimersSpy: sinon.SinonSpy<[], void>;
 
     beforeEach(() => {
       adapter = new ApexDebugForTest(new RequestService());

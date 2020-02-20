@@ -144,10 +144,10 @@ describe('Debugger breakpoint service', () => {
   describe('Create line breakpoint', () => {
     let origSpawn: any;
     let mySpawn: any;
-    let cmdWithArgSpy: sinon.SinonSpy;
-    let cmdWithFlagSpy: sinon.SinonSpy;
-    let cmdWithJsonSpy: sinon.SinonSpy;
-    let cmdBuildSpy: sinon.SinonSpy;
+    let cmdWithArgSpy: sinon.SinonSpy<[], void>;
+    let cmdWithFlagSpy: sinon.SinonSpy<[], void>;
+    let cmdWithJsonSpy: sinon.SinonSpy<[], void>;
+    let cmdBuildSpy: sinon.SinonSpy<[], void>;
 
     beforeEach(() => {
       service = new BreakpointService(new RequestService());
@@ -257,10 +257,10 @@ describe('Debugger breakpoint service', () => {
   describe('Create exception breakpoint', () => {
     let origSpawn: any;
     let mySpawn: any;
-    let cmdWithArgSpy: sinon.SinonSpy;
-    let cmdWithFlagSpy: sinon.SinonSpy;
-    let cmdWithJsonSpy: sinon.SinonSpy;
-    let cmdBuildSpy: sinon.SinonSpy;
+    let cmdWithArgSpy: sinon.SinonSpy<[], void>;
+    let cmdWithFlagSpy: sinon.SinonSpy<[], void>;
+    let cmdWithJsonSpy: sinon.SinonSpy<[], void>;
+    let cmdBuildSpy: sinon.SinonSpy<[], void>;
 
     beforeEach(() => {
       service = new BreakpointService(new RequestService());
@@ -313,10 +313,10 @@ describe('Debugger breakpoint service', () => {
   describe('Delete breakpoint', () => {
     let origSpawn: any;
     let mySpawn: any;
-    let cmdWithArgSpy: sinon.SinonSpy;
-    let cmdWithFlagSpy: sinon.SinonSpy;
-    let cmdWithJsonSpy: sinon.SinonSpy;
-    let cmdBuildSpy: sinon.SinonSpy;
+    let cmdWithArgSpy: sinon.SinonSpy<[], void>;
+    let cmdWithFlagSpy: sinon.SinonSpy<[], void>;
+    let cmdWithJsonSpy: sinon.SinonSpy<[], void>;
+    let cmdBuildSpy: sinon.SinonSpy<[], void>;
 
     beforeEach(() => {
       service = new BreakpointService(new RequestService());
@@ -407,10 +407,10 @@ describe('Debugger breakpoint service', () => {
   });
 
   describe('Reconcile', () => {
-    let addLineBreakpointSpy: sinon.SinonStub;
-    let addExceptionBreakpointSpy: sinon.SinonStub;
-    let deleteBreakpointSpy: sinon.SinonStub;
-    let getTyperefForSpy: sinon.SinonStub;
+    let addLineBreakpointSpy: sinon.SinonStub<[], void>;
+    let addExceptionBreakpointSpy: sinon.SinonStub<[], void>;
+    let deleteBreakpointSpy: sinon.SinonStub<[], void>;
+    let getTyperefForSpy: sinon.SinonStub<[], void>;
 
     beforeEach(() => {
       service = new BreakpointService(new RequestService());

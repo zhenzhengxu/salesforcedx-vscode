@@ -57,8 +57,8 @@ describe('Force Apex Log Get Logging', () => {
     }
   ];
 
-  let getLogsStub: sinon.SinonStub;
-  let showQuickPickStub: sinon.SinonStub;
+  let getLogsStub: sinon.SinonStub<[], void>;
+  let showQuickPickStub: sinon.SinonStub<[], void>;
 
   before(() => {
     getLogsStub = sinon

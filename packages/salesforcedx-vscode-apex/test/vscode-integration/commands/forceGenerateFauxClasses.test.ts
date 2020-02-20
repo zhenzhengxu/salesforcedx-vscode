@@ -38,9 +38,9 @@ const { OrgAuthInfo, ProgressNotification, SfdxCommandlet } = sfdxCoreExports;
 
 describe('ForceGenerateFauxClasses', () => {
   describe('initSObjectDefinitions', () => {
-    let existsSyncStub: sinon.SinonStub;
-    let getUsernameStub: sinon.SinonStub;
-    let commandletSpy: sinon.SinonSpy;
+    let existsSyncStub: sinon.SinonStub<[], void>;
+    let getUsernameStub: sinon.SinonStub<[], void>;
+    let commandletSpy: sinon.SinonSpy<[], void>;
     const projectPath = path.join('sample', 'path');
     const sobjectsPath = path.join(
       projectPath,
@@ -97,10 +97,10 @@ describe('ForceGenerateFauxClasses', () => {
   });
 
   describe('ForceGenerateFauxClassesExecutor', () => {
-    let progressStub: sinon.SinonStub;
-    let generatorStub: sinon.SinonStub;
-    let logStub: sinon.SinonStub;
-    let errorStub: sinon.SinonStub;
+    let progressStub: sinon.SinonStub<[], void>;
+    let generatorStub: sinon.SinonStub<[], void>;
+    let logStub: sinon.SinonStub<[], void>;
+    let errorStub: sinon.SinonStub<[], void>;
 
     const expectedData: any = {
       cancelled: false,
@@ -173,7 +173,7 @@ describe('ForceGenerateFauxClasses', () => {
 
   describe('SObjectRefreshGatherer', () => {
     let gatherer: SObjectRefreshGatherer;
-    let quickPickStub: sinon.SinonStub;
+    let quickPickStub: sinon.SinonStub<[], void>;
 
     beforeEach(() => {
       gatherer = new SObjectRefreshGatherer();

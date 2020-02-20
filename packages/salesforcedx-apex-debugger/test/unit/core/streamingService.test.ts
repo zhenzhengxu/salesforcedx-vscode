@@ -27,8 +27,8 @@ describe('Debugger streaming service', () => {
     let service: StreamingService;
     let origSpawn: any;
     let mySpawn: any;
-    let clientIsConnectedSpy: sinon.SinonStub;
-    let clientSubscribeSpy: sinon.SinonStub;
+    let clientIsConnectedSpy: sinon.SinonStub<[], void>;
+    let clientSubscribeSpy: sinon.SinonStub<[], void>;
     const orgInfo: OrgInfo = {
       username: 'name',
       devHubId: 'devHubId',
@@ -97,9 +97,9 @@ describe('Debugger streaming service', () => {
 
   describe('Disconnect', () => {
     let service: StreamingService;
-    let clientDisconnectSpy: sinon.SinonStub;
-    let clientIsConnectedSpy: sinon.SinonStub;
-    let clientSubscribeSpy: sinon.SinonStub;
+    let clientDisconnectSpy: sinon.SinonStub<[], void>;
+    let clientIsConnectedSpy: sinon.SinonStub<[], void>;
+    let clientSubscribeSpy: sinon.SinonStub<[], void>;
 
     beforeEach(() => {
       service = new StreamingService();
@@ -142,8 +142,8 @@ describe('Debugger streaming service', () => {
 
   describe('Is ready', () => {
     let service: StreamingService;
-    let clientIsConnectedSpy: sinon.SinonStub;
-    let clientSubscribeSpy: sinon.SinonStub;
+    let clientIsConnectedSpy: sinon.SinonStub<[], void>;
+    let clientSubscribeSpy: sinon.SinonStub<[], void>;
 
     beforeEach(() => {
       service = new StreamingService();
@@ -194,8 +194,8 @@ describe('Debugger streaming service', () => {
 
   describe('Get client based on event type', () => {
     let service: StreamingService;
-    let clientSubscribeSpy: sinon.SinonStub;
-    let clientIsConnectedSpy: sinon.SinonStub;
+    let clientSubscribeSpy: sinon.SinonStub<[], void>;
+    let clientIsConnectedSpy: sinon.SinonStub<[], void>;
     const systemEventClient = new StreamingClientInfoBuilder()
       .forChannel(StreamingService.SYSTEM_EVENT_CHANNEL)
       .build();
@@ -339,9 +339,9 @@ describe('Debugger streaming service', () => {
 
   describe('Replay ID', () => {
     let service: StreamingService;
-    let clientSubscribeSpy: sinon.SinonStub;
-    let clientIsConnectedSpy: sinon.SinonStub;
-    let clientSetReplayIdSpy: sinon.SinonSpy;
+    let clientSubscribeSpy: sinon.SinonStub<[], void>;
+    let clientIsConnectedSpy: sinon.SinonStub<[], void>;
+    let clientSetReplayIdSpy: sinon.SinonSpy<[], void>;
     const systemEventClient = new StreamingClientInfoBuilder()
       .forChannel(StreamingService.SYSTEM_EVENT_CHANNEL)
       .build();

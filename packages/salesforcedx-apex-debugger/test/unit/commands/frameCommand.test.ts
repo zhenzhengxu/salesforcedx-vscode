@@ -14,7 +14,7 @@ import { FrameCommand } from '../../../src/commands';
 import { getDefaultHeaders } from './baseDebuggerCommand.test';
 
 describe('Frame command', () => {
-  let sendRequestSpy: sinon.SinonStub;
+  let sendRequestSpy: sinon.SinonStub<[], void>;
   let frameCommand: FrameCommand;
   const requestService = new RequestService();
 

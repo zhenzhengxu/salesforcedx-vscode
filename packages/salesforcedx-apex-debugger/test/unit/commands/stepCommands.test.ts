@@ -18,7 +18,7 @@ import {
 import { getDefaultHeaders } from './baseDebuggerCommand.test';
 
 describe('Step commands', () => {
-  let sendRequestSpy: sinon.SinonStub;
+  let sendRequestSpy: sinon.SinonStub<[], void>;
   const requestService = new RequestService();
 
   beforeEach(() => {

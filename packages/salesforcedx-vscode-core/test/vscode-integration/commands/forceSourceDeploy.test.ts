@@ -26,9 +26,9 @@ import { ForceSourcePushExecutor } from '../../../src/commands/forceSourcePush';
 import { nls } from '../../../src/messages';
 
 describe('Correctly output deploy results', () => {
-  let errorsStub: sinon.SinonStub;
-  let successesStub: sinon.SinonStub;
-  let channelServiceStub: sinon.SinonStub;
+  let errorsStub: sinon.SinonStub<[], void>;
+  let successesStub: sinon.SinonStub<[], void>;
+  let channelServiceStub: sinon.SinonStub<[], void>;
   let output = '';
   const table = new Table();
   let deploySuccess: ForceSourceDeploySuccessResponse;

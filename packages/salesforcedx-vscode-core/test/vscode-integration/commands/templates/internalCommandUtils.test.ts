@@ -43,8 +43,8 @@ describe('Internal Command Utilities', () => {
   });
 
   describe('File Internal Path Gatherer', () => {
-    let existsSyncStub: sinon.SinonStub;
-    let lstatSyncStub: sinon.SinonStub;
+    let existsSyncStub: sinon.SinonStub<[], void>;
+    let lstatSyncStub: sinon.SinonStub<[], void>;
 
     beforeEach(() => {
       existsSyncStub = stub(fs, 'existsSync');

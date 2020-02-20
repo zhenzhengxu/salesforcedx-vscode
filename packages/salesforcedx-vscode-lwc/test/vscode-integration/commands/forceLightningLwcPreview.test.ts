@@ -25,9 +25,9 @@ describe('forceLightningLwcPreview', () => {
   let sandbox: SinonSandbox;
   let devServiceStub: any;
   let openBrowserStub: SinonStub;
-  let existsSyncStub: sinon.SinonStub;
-  let lstatSyncStub: sinon.SinonStub;
-  let showErrorMessageStub: sinon.SinonStub;
+  let existsSyncStub: sinon.SinonStub<[], void>;
+  let lstatSyncStub: sinon.SinonStub<[], void>;
+  let showErrorMessageStub: sinon.SinonStub<[], void>;
 
   beforeEach(() => {
     sandbox = sinon.createSandbox();

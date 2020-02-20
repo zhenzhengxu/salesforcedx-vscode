@@ -416,7 +416,7 @@ describe('Replay debugger adapter - unit', () => {
   });
 
   describe('Disconnect', () => {
-    let sendResponseSpy: sinon.SinonSpy;
+    let sendResponseSpy: sinon.SinonSpy<[], void>;
     let response: DebugProtocol.DisconnectResponse;
     let args: DebugProtocol.DisconnectArguments;
     let printToDebugConsoleStub: sinon.SinonStub<
@@ -460,9 +460,9 @@ describe('Replay debugger adapter - unit', () => {
   });
 
   describe('Threads', () => {
-    let sendResponseSpy: sinon.SinonSpy;
+    let sendResponseSpy: sinon.SinonSpy<[], void>;
     let response: DebugProtocol.ThreadsResponse;
-    let readLogFileStub: sinon.SinonStub;
+    let readLogFileStub: sinon.SinonStub<[], void>;
     const launchRequestArgs: LaunchRequestArguments = {
       logFile: logFilePath,
       trace: true,
@@ -501,11 +501,11 @@ describe('Replay debugger adapter - unit', () => {
   });
 
   describe('Stacktrace', () => {
-    let sendResponseSpy: sinon.SinonSpy;
+    let sendResponseSpy: sinon.SinonSpy<[], void>;
     let response: DebugProtocol.StackTraceResponse;
     let args: DebugProtocol.StackTraceArguments;
-    let readLogFileStub: sinon.SinonStub;
-    let getFramesStub: sinon.SinonStub;
+    let readLogFileStub: sinon.SinonStub<[], void>;
+    let getFramesStub: sinon.SinonStub<[], void>;
     const launchRequestArgs: LaunchRequestArguments = {
       logFile: logFilePath,
       trace: true,
@@ -567,11 +567,11 @@ describe('Replay debugger adapter - unit', () => {
   });
 
   describe('Continue/run', () => {
-    let sendResponseSpy: sinon.SinonSpy;
-    let sendEventSpy: sinon.SinonSpy;
-    let hasLogLinesStub: sinon.SinonStub;
-    let updateFramesStub: sinon.SinonStub;
-    let shouldStopForBreakpointStub: sinon.SinonStub;
+    let sendResponseSpy: sinon.SinonSpy<[], void>;
+    let sendEventSpy: sinon.SinonSpy<[], void>;
+    let hasLogLinesStub: sinon.SinonStub<[], void>;
+    let updateFramesStub: sinon.SinonStub<[], void>;
+    let shouldStopForBreakpointStub: sinon.SinonStub<[], void>;
     let response: DebugProtocol.ContinueResponse;
     let args: DebugProtocol.ContinueArguments;
     const launchRequestArgs: LaunchRequestArguments = {
@@ -669,11 +669,11 @@ describe('Replay debugger adapter - unit', () => {
   });
 
   describe('Stepping', () => {
-    let sendResponseSpy: sinon.SinonSpy;
-    let sendEventSpy: sinon.SinonSpy;
-    let hasLogLinesStub: sinon.SinonStub;
-    let updateFramesStub: sinon.SinonStub;
-    let getNumOfFramesStub: sinon.SinonStub;
+    let sendResponseSpy: sinon.SinonSpy<[], void>;
+    let sendEventSpy: sinon.SinonSpy<[], void>;
+    let hasLogLinesStub: sinon.SinonStub<[], void>;
+    let updateFramesStub: sinon.SinonStub<[], void>;
+    let getNumOfFramesStub: sinon.SinonStub<[], void>;
 
     beforeEach(() => {
       sendResponseSpy = sinon.spy(ApexReplayDebug.prototype, 'sendResponse');
@@ -781,10 +781,10 @@ describe('Replay debugger adapter - unit', () => {
   });
 
   describe('Breakpoints', () => {
-    let sendResponseSpy: sinon.SinonSpy;
-    let sendEventSpy: sinon.SinonSpy;
-    let canSetLineBreakpointStub: sinon.SinonStub;
-    let getTopFrameStub: sinon.SinonStub;
+    let sendResponseSpy: sinon.SinonSpy<[], void>;
+    let sendEventSpy: sinon.SinonSpy<[], void>;
+    let canSetLineBreakpointStub: sinon.SinonStub<[], void>;
+    let getTopFrameStub: sinon.SinonStub<[], void>;
     let response: DebugProtocol.SetBreakpointsResponse;
     let args: DebugProtocol.SetBreakpointsArguments;
     const launchRequestArgs: LaunchRequestArguments = {
@@ -920,10 +920,10 @@ describe('Replay debugger adapter - unit', () => {
 
   describe('Launch request', () => {
     describe('Line breakpoint info', () => {
-      let sendResponseSpy: sinon.SinonSpy;
-      let createMappingsFromLineBreakpointInfo: sinon.SinonSpy;
-      let hasLogLinesStub: sinon.SinonStub;
-      let meetsLogLevelRequirementsStub: sinon.SinonStub;
+      let sendResponseSpy: sinon.SinonSpy<[], void>;
+      let createMappingsFromLineBreakpointInfo: sinon.SinonSpy<[], void>;
+      let hasLogLinesStub: sinon.SinonStub<[], void>;
+      let meetsLogLevelRequirementsStub: sinon.SinonStub<[], void>;
       const initializedResponse = {
         success: true,
         type: 'response',

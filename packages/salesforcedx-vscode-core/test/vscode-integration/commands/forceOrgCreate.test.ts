@@ -27,7 +27,7 @@ describe('Force Org Create', () => {
     const TEST_ORG_EXPIRATION_DAYS_PLUS_ONE_DAY = '8';
     const TEST_ORG_EXPIRATION_DAYS_INPUT_FLOAT = '8.2';
     const TEST_ORG_EXPIRATION_DAYS_INPUT_INVALID_RANGE = '31';
-    let inputBoxSpy: sinon.SinonStub;
+    let inputBoxSpy: sinon.SinonStub<[], void>;
 
     beforeEach(() => {
       inputBoxSpy = sinon.stub(vscode.window, 'showInputBox');

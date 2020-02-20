@@ -29,7 +29,7 @@ describe('Debugger streaming client', () => {
   });
 
   describe('Faye', () => {
-    let fayeHeaderSpy: sinon.SinonSpy;
+    let fayeHeaderSpy: sinon.SinonSpy<[], void>;
 
     beforeEach(() => {
       fayeHeaderSpy = sinon.stub(FayeClient.prototype, 'setHeader');

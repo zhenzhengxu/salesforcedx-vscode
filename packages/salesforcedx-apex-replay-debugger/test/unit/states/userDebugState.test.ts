@@ -19,8 +19,8 @@ import { UserDebugState } from '../../../src/states';
 
 // tslint:disable:no-unused-expression
 describe('User debug event', () => {
-  let warnToDebugConsoleStub: sinon.SinonStub;
-  let getLogLinesStub: sinon.SinonStub;
+  let warnToDebugConsoleStub: sinon.SinonStub<[], void>;
+  let getLogLinesStub: sinon.SinonStub<[], void>;
   let context: LogContext;
   const logFileName = 'foo.log';
   const logFilePath = `path/${logFileName}`;

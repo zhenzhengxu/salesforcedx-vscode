@@ -24,8 +24,8 @@ describe('ISV Debugging Project Bootstrap Command', () => {
   const PROJECT_DIR: vscode.Uri[] = [vscode.Uri.parse(WORKSPACE_PATH)];
 
   describe('EnterForceIdeUri Gatherer', () => {
-    let inputBoxSpy: sinon.SinonStub;
-    let showErrorMessageSpy: sinon.SinonStub;
+    let inputBoxSpy: sinon.SinonStub<[], void>;
+    let showErrorMessageSpy: sinon.SinonStub<[], void>;
 
     before(() => {
       inputBoxSpy = sinon.stub(vscode.window, 'showInputBox');
@@ -343,8 +343,8 @@ describe('ISV Debugging Project Bootstrap Command', () => {
 
   describe('IsvDebugBootstrapExecutor execution', () => {
     let executor: IsvDebugBootstrapExecutor;
-    let executeCommandSpy: sinon.SinonStub;
-    let vscodeCommandSpy: sinon.SinonStub;
+    let executeCommandSpy: sinon.SinonStub<[], void>;
+    let vscodeCommandSpy: sinon.SinonStub<[], void>;
     const TEST_DATA_FOLDER = path.join(
       __dirname,
       '..',

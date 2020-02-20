@@ -69,10 +69,10 @@ describe('getAuthInfoObjects', () => {
 });
 
 describe('Filter Authorization Info', async () => {
-  let defaultDevHubStub: sinon.SinonStub;
-  let getUsernameStub: sinon.SinonStub;
-  let aliasCreateStub: sinon.SinonStub;
-  let aliasKeysStub: sinon.SinonStub;
+  let defaultDevHubStub: sinon.SinonStub<[], void>;
+  let getUsernameStub: sinon.SinonStub<[], void>;
+  let aliasCreateStub: sinon.SinonStub<[], void>;
+  let aliasKeysStub: sinon.SinonStub<[], void>;
   const orgList = new OrgList();
 
   beforeEach(() => {
@@ -198,9 +198,9 @@ describe('Filter Authorization Info', async () => {
 });
 
 describe('Set Default Org', () => {
-  let orgListStub: sinon.SinonStub;
-  let quickPickStub: sinon.SinonStub;
-  let executeCommandStub: sinon.SinonStub;
+  let orgListStub: sinon.SinonStub<[], void>;
+  let quickPickStub: sinon.SinonStub<[], void>;
+  let executeCommandStub: sinon.SinonStub<[], void>;
   const orgsList = [
     'alias - test-username1@gmail.com',
     'test-username2@gmail.com'

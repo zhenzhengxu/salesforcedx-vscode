@@ -17,7 +17,7 @@ import { MockApexReplayDebug } from './apexReplayDebug.test';
 
 // tslint:disable:no-unused-expression
 describe('Debug console', () => {
-  let sendEventSpy: sinon.SinonSpy;
+  let sendEventSpy: sinon.SinonSpy<[], void>;
   let adapter: MockApexReplayDebug;
   const logFileName = 'foo.log';
   const logFilePath = `path/${logFileName}`;

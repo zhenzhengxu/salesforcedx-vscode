@@ -19,7 +19,7 @@ import { MockApexExtension } from './MockApexExtension';
 // tslint:disable:no-unused-expression
 describe('Configuration provider', () => {
   let provider: DebugConfigurationProvider;
-  let getConfigSpy: sinon.SinonSpy;
+  let getConfigSpy: sinon.SinonSpy<[], void>;
   const folder: WorkspaceFolder = {
     name: 'mySfdxProject',
     index: 0,
@@ -27,7 +27,7 @@ describe('Configuration provider', () => {
       fsPath: '/foo'
     } as Uri
   };
-  let mockApexExtension: sinon.SinonStub;
+  let mockApexExtension: sinon.SinonStub<[], void>;
 
   beforeEach(() => {
     mockApexExtension = sinon

@@ -9,7 +9,7 @@ import * as sinon from 'sinon';
 import { ConfigSource, ConfigUtil } from '../../../src/util';
 
 describe('getConfigSource', () => {
-  let getConfigValueStub: sinon.SinonStub;
+  let getConfigValueStub: sinon.SinonStub<[], void>;
   beforeEach(() => {
     getConfigValueStub = sinon.stub(ConfigUtil, 'getConfigValue');
   });

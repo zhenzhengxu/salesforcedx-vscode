@@ -19,8 +19,8 @@ import { FrameEntryState } from '../../../src/states';
 
 // tslint:disable:no-unused-expression
 describe('Frame entry event', () => {
-  let getUriFromSignatureStub: sinon.SinonStub;
-  let getStaticMapStub: sinon.SinonStub;
+  let getUriFromSignatureStub: sinon.SinonStub<[], void>;
+  let getStaticMapStub: sinon.SinonStub<[], void>;
   const logFileName = 'foo.log';
   const logFilePath = `path/${logFileName}`;
   const uriFromSignature = 'file:///path/foo.cls';

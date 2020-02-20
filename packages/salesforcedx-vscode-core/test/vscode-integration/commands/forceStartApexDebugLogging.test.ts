@@ -25,10 +25,10 @@ import { nls } from '../../../src/messages';
 
 // tslint:disable:no-unused-expression
 describe('Force Start Apex Debug Logging', () => {
-  let getTraceFlagIdStub: sinon.SinonStub;
-  let getDebugLevelIdStub: sinon.SinonStub;
-  let startDateStub: sinon.SinonStub;
-  let expDateStub: sinon.SinonStub;
+  let getTraceFlagIdStub: sinon.SinonStub<[], void>;
+  let getDebugLevelIdStub: sinon.SinonStub<[], void>;
+  let startDateStub: sinon.SinonStub<[], void>;
+  let expDateStub: sinon.SinonStub<[], void>;
   const fakeTraceFlagId = 'fakeTraceFlagId';
   const fakeDebugLevelId = 'fakeDebugLevelId';
   const startDate = new Date();

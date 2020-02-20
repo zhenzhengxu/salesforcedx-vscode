@@ -144,7 +144,7 @@ describe('Parameter Gatherers', () => {
   // CONTINUE means that we will execute the forceLogoutAll command
   // CANCEL means that we will not execute the forceLogoutAll command
   describe('DemoModePrompGatherer', () => {
-    let showInformationMessageStub: sinon.SinonStub;
+    let showInformationMessageStub: sinon.SinonStub<[], void>;
 
     before(() => {
       showInformationMessageStub = sinon.stub(window, 'showInformationMessage');
