@@ -7,7 +7,14 @@
 
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { assert, SinonStub, stub } from 'sinon';
-import { CancellationTokenSource, window } from 'vscode';
+import {
+  CancellationTokenSource,
+  window,
+  ViewColumn,
+  MessageItem,
+  MessageOptions,
+  Disposable
+} from 'vscode';
 import { DEFAULT_SFDX_CHANNEL } from '../../../src/channels/channelService';
 import { nls } from '../../../src/messages';
 import { NotificationService } from '../../../src/notifications/notificationService';
@@ -20,27 +27,39 @@ const SHOW_ONLY_STATUS_BAR_BUTTON_TEXT = nls.localize(
 
 // tslint:disable:no-empty
 describe('Notifications', () => {
-  let mShowInformation: SinonStub<[], void>;
-  let mShowWarningMessage: SinonStub<[], void>;
-  let mShowErrorMessage: SinonStub<[], void>;
-  let mShow: SinonStub<[], void>;
-  let mStatusBar: SinonStub<[], void>;
-  let settings: SinonStub<[], void>;
+  let mShowInformation: SinonStub<
+    [string, MessageOptions, ...MessageItem[]],
+    Thenable<MessageItem | undefined>
+  >;
+  let mShowWarningMessage: SinonStub<
+    [string, MessageOptions, ...MessageItem[]],
+    Thenable<MessageItem | undefined>
+  >;
+  let mShowErrorMessage: SinonStub<
+    [string, MessageOptions, ...MessageItem[]],
+    Thenable<MessageItem | undefined>
+  >;
+  let mShow: SinonStub<
+    [(ViewColumn | undefined)?, (boolean | undefined)?],
+    void
+  >;
+  let mStatusBar: SinonStub<[string], Disposable>;
+  let settings: SinonStub<[], boolean>;
 
   beforeEach(() => {
     mShow = stub(DEFAULT_SFDX_CHANNEL, 'show');
     mShowInformation = stub(window, 'showInformationMessage').returns(
-      Promise.resolve(null)
+      Promise.resolve(undefined)
     );
     mShowWarningMessage = stub(window, 'showWarningMessage').returns(
-      Promise.resolve(null)
+      Promise.resolve(undefined)
     );
     mShowErrorMessage = stub(window, 'showErrorMessage').returns(
-      Promise.resolve(null)
+      Promise.resolve(undefined)
     );
-    mStatusBar = stub(window, 'setStatusBarMessage').returns(
-      Promise.resolve(null)
-    );
+    mStatusBar = stub(window, 'setStatusBarMessage').returns({
+      dispose() {}
+    });
     settings = stub(SfdxCoreSettings.prototype, 'getShowCLISuccessMsg').returns(
       true
     );
