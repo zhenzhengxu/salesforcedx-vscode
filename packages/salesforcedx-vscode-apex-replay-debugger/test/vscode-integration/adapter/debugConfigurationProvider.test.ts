@@ -15,6 +15,7 @@ import { expect } from 'chai';
 import * as sinon from 'sinon';
 import {
   DebugConfiguration,
+  Extension,
   ExtensionContext,
   extensions,
   Uri,
@@ -28,7 +29,7 @@ import { MockApexExtension } from './MockApexExtension';
 // tslint:disable:no-unused-expression
 describe('Configuration provider', () => {
   let provider: DebugConfigurationProvider;
-  let getConfigSpy: sinon.SinonSpy<[], void>;
+  let getConfigSpy: sinon.SinonSpy<[(string | undefined)?], DebugConfiguration>;
   const folder: WorkspaceFolder = {
     name: 'myWorkspaceFolder',
     index: 0,
@@ -36,7 +37,10 @@ describe('Configuration provider', () => {
       fsPath: '/foo'
     } as Uri
   };
-  let mockApexExtension: sinon.SinonStub<[], void>;
+  let mockApexExtension: sinon.SinonStub<
+    [string],
+    Extension<unknown> | undefined
+  >;
 
   beforeEach(() => {
     getConfigSpy = sinon.spy(DebugConfigurationProvider, 'getConfig');

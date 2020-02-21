@@ -1,5 +1,7 @@
+import { Command } from '@salesforce/salesforcedx-utils-vscode/out/src/cli';
 import * as AdmZip from 'adm-zip';
 import { expect } from 'chai';
+import { SpawnOptions } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as shell from 'shelljs';
@@ -24,25 +26,48 @@ describe('ISV Debugging Project Bootstrap Command', () => {
   const PROJECT_DIR: vscode.Uri[] = [vscode.Uri.parse(WORKSPACE_PATH)];
 
   describe('EnterForceIdeUri Gatherer', () => {
-    let inputBoxSpy: sinon.SinonStub<[], void>;
-    let showErrorMessageSpy: sinon.SinonStub<[], void>;
+    let inputBoxSpy: sinon.SinonStub<
+      [
+        (vscode.InputBoxOptions | undefined)?,
+        (vscode.CancellationToken | undefined)?
+      ],
+      Thenable<string | undefined>
+    >;
+    let showErrorMessageSpy: sinon.SinonStub<
+      [string, vscode.MessageOptions, ...vscode.MessageItem[]],
+      Thenable<vscode.MessageItem | undefined>
+    >;
 
     before(() => {
       inputBoxSpy = sinon.stub(vscode.window, 'showInputBox');
-      inputBoxSpy.onCall(0).returns(undefined);
-      inputBoxSpy.onCall(1).returns('');
+      inputBoxSpy.onCall(0).returns(Promise.resolve(undefined));
+      inputBoxSpy.onCall(1).returns(Promise.resolve(''));
       inputBoxSpy
         .onCall(2)
-        .returns(`forceide://abc?url=${LOGIN_URL}&sessionId=${SESSION_ID}`);
-      inputBoxSpy.onCall(3).returns(`forceide://abc?url=${LOGIN_URL}`);
-      inputBoxSpy.onCall(4).returns(`forceide://abc?sessionId=${SESSION_ID}`);
+        .returns(
+          Promise.resolve(
+            `forceide://abc?url=${LOGIN_URL}&sessionId=${SESSION_ID}`
+          )
+        );
+      inputBoxSpy
+        .onCall(3)
+        .returns(Promise.resolve(`forceide://abc?url=${LOGIN_URL}`));
+      inputBoxSpy
+        .onCall(4)
+        .returns(Promise.resolve(`forceide://abc?sessionId=${SESSION_ID}`));
       inputBoxSpy
         .onCall(5)
-        .returns(`forceide://abc?url=${LOGIN_URL}&sessionId=${SESSION_ID}`);
+        .returns(
+          Promise.resolve(
+            `forceide://abc?url=${LOGIN_URL}&sessionId=${SESSION_ID}`
+          )
+        );
       inputBoxSpy
         .onCall(6)
         .returns(
-          `forceide://abc?url=${LOGIN_URL}&secure=0&sessionId=${SESSION_ID}`
+          Promise.resolve(
+            `forceide://abc?url=${LOGIN_URL}&secure=0&sessionId=${SESSION_ID}`
+          )
         );
       showErrorMessageSpy = sinon.stub(vscode.window, 'showErrorMessage');
     });
@@ -343,8 +368,19 @@ describe('ISV Debugging Project Bootstrap Command', () => {
 
   describe('IsvDebugBootstrapExecutor execution', () => {
     let executor: IsvDebugBootstrapExecutor;
-    let executeCommandSpy: sinon.SinonStub<[], void>;
-    let vscodeCommandSpy: sinon.SinonStub<[], void>;
+    let executeCommandSpy: sinon.SinonStub<
+      [
+        Command,
+        SpawnOptions,
+        vscode.CancellationTokenSource,
+        vscode.CancellationToken
+      ],
+      Promise<string>
+    >;
+    let vscodeCommandSpy: sinon.SinonStub<
+      [string, ...any[]],
+      Thenable<unknown>
+    >;
     const TEST_DATA_FOLDER = path.join(
       __dirname,
       '..',
@@ -381,7 +417,9 @@ describe('ISV Debugging Project Bootstrap Command', () => {
       executeCommandSpy
         .onCall(2)
         .returns(
-          '{"status":0,"result":{"totalSize":1,"done":true,"records":[{"attributes":{"type":"Organization","url":"/services/data/v42.0/sobjects/Organization/00D1F0000008gTUUAY"},"NamespacePrefix":null}]}}'
+          Promise.resolve(
+            '{"status":0,"result":{"totalSize":1,"done":true,"records":[{"attributes":{"type":"Organization","url":"/services/data/v42.0/sobjects/Organization/00D1F0000008gTUUAY"},"NamespacePrefix":null}]}}'
+          )
         );
 
       // fake org source retrieval into unpackaged.zip
@@ -389,24 +427,27 @@ describe('ISV Debugging Project Bootstrap Command', () => {
         const zip = new AdmZip();
         zip.addLocalFolder(path.join(TEST_DATA_FOLDER, 'org-source'));
         zip.writeZip(path.join(projectMetadataTempPath, 'unpackaged.zip'));
+        return Promise.resolve('');
       });
 
       // fake package list retrieval
       executeCommandSpy.onCall(5).returns(
-        JSON.stringify({
-          status: 0,
-          result: [
-            {
-              Id: '0A3xx000000000bCAA',
-              SubscriberPackageId: '033xx00000008cpAAA',
-              SubscriberPackageName: 'mypackage',
-              SubscriberPackageNamespace: 'developer',
-              SubscriberPackageVersionId: '04txx000000079pAAA',
-              SubscriberPackageVersionName: 'Third',
-              SubscriberPackageVersionNumber: '1.3.0.1'
-            }
-          ]
-        })
+        Promise.resolve(
+          JSON.stringify({
+            status: 0,
+            result: [
+              {
+                Id: '0A3xx000000000bCAA',
+                SubscriberPackageId: '033xx00000008cpAAA',
+                SubscriberPackageName: 'mypackage',
+                SubscriberPackageNamespace: 'developer',
+                SubscriberPackageVersionId: '04txx000000079pAAA',
+                SubscriberPackageVersionName: 'Third',
+                SubscriberPackageVersionNumber: '1.3.0.1'
+              }
+            ]
+          })
+        )
       );
 
       // fake package source retrieval into unpackaged.zip
@@ -414,6 +455,7 @@ describe('ISV Debugging Project Bootstrap Command', () => {
         const zip = new AdmZip();
         zip.addLocalFolder(path.join(TEST_DATA_FOLDER, 'packages-source'));
         zip.writeZip(path.join(projectMetadataTempPath, 'unpackaged.zip'));
+        return Promise.resolve('');
       });
 
       // fake package metadate convert
@@ -426,6 +468,7 @@ describe('ISV Debugging Project Bootstrap Command', () => {
             'mypackage'
           )
         );
+        return Promise.resolve('');
       });
 
       const input = {

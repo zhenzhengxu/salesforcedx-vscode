@@ -19,7 +19,7 @@ import {
 import { createExpectedXHROptions } from './apexExecutionOverlayActionCommand.test';
 
 describe('QueryExistingOverlayActionIdsCommand command', () => {
-  let sendRequestSpy: sinon.SinonStub<[], void>;
+  let sendRequestSpy: sinon.SinonStub<[XHROptions], Promise<XHRResponse>>;
   let queryOverlayActionCommand: QueryExistingOverlayActionIdsCommand;
   const requestService = new RequestService();
   const userId = '005xx000001UcFFAKE';

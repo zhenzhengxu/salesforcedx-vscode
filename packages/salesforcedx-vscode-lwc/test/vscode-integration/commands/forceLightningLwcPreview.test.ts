@@ -25,9 +25,9 @@ describe('forceLightningLwcPreview', () => {
   let sandbox: SinonSandbox;
   let devServiceStub: any;
   let openBrowserStub: SinonStub;
-  let existsSyncStub: sinon.SinonStub<[], void>;
-  let lstatSyncStub: sinon.SinonStub<[], void>;
-  let showErrorMessageStub: sinon.SinonStub<[], void>;
+  let existsSyncStub: sinon.SinonStub<[fs.PathLike], boolean>;
+  let lstatSyncStub: sinon.SinonStub<[fs.PathLike], fs.Stats>;
+  let showErrorMessageStub: sinon.SinonStub<any[], any>;
 
   beforeEach(() => {
     sandbox = sinon.createSandbox();
@@ -62,6 +62,7 @@ describe('forceLightningLwcPreview', () => {
     const sourceUri = { path: testPath } as vscode.Uri;
 
     existsSyncStub.returns(true);
+    // @ts-ignore
     lstatSyncStub.returns({
       isDirectory() {
         return false;
@@ -92,6 +93,7 @@ describe('forceLightningLwcPreview', () => {
     const sourceUri = { path: testPath } as vscode.Uri;
 
     existsSyncStub.returns(true);
+    // @ts-ignore
     lstatSyncStub.returns({
       isDirectory() {
         return true;
@@ -122,6 +124,7 @@ describe('forceLightningLwcPreview', () => {
     const sourceUri = { path: testPath } as vscode.Uri;
 
     existsSyncStub.returns(true);
+    // @ts-ignore
     lstatSyncStub.returns({
       isDirectory() {
         return true;
@@ -141,6 +144,7 @@ describe('forceLightningLwcPreview', () => {
     const sourceUri = { path: testPath } as vscode.Uri;
 
     existsSyncStub.returns(true);
+    // @ts-ignore
     lstatSyncStub.returns({
       isDirectory() {
         return false;
@@ -190,6 +194,7 @@ describe('forceLightningLwcPreview', () => {
     const sourceUri = { path: testPath } as vscode.Uri;
 
     existsSyncStub.returns(true);
+    // @ts-ignore
     lstatSyncStub.returns({
       isDirectory() {
         return true;

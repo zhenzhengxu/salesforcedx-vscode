@@ -30,18 +30,27 @@ describe('Force Project Create', () => {
   const PROJECT_DIR: vscode.Uri[] = [vscode.Uri.parse(WORKSPACE_PATH)];
 
   describe('SelectProjectTemplate Gatherer', () => {
-    let quickPickSpy: sinon.SinonStub<[], void>;
+    let quickPickSpy: sinon.SinonStub<
+      [
+        vscode.QuickPickItem[] | Thenable<vscode.QuickPickItem[]>,
+        (vscode.QuickPickOptions | undefined)?,
+        (vscode.CancellationToken | undefined)?
+      ],
+      Thenable<any>
+    >;
 
     before(() => {
       quickPickSpy = sinon.stub(vscode.window, 'showQuickPick');
-      quickPickSpy.onCall(0).returns(undefined);
-      quickPickSpy.onCall(1).returns('');
+      quickPickSpy.onCall(0).returns(Promise.resolve(undefined));
+      quickPickSpy.onCall(1).returns(Promise.resolve(''));
       quickPickSpy
         .onCall(2)
         .returns(
-          new ProjectTemplateItem(
-            'force_project_create_analytics_template_display_text',
-            'force_project_create_analytics_template'
+          Promise.resolve(
+            new ProjectTemplateItem(
+              'force_project_create_analytics_template_display_text',
+              'force_project_create_analytics_template'
+            )
           )
         );
     });
@@ -79,13 +88,19 @@ describe('Force Project Create', () => {
   });
 
   describe('SelectProjectName Gatherer', () => {
-    let inputBoxSpy: sinon.SinonStub<[], void>;
+    let inputBoxSpy: sinon.SinonStub<
+      [
+        (vscode.InputBoxOptions | undefined)?,
+        (vscode.CancellationToken | undefined)?
+      ],
+      Thenable<string | undefined>
+    >;
 
     before(() => {
       inputBoxSpy = sinon.stub(vscode.window, 'showInputBox');
-      inputBoxSpy.onCall(0).returns(undefined);
-      inputBoxSpy.onCall(1).returns('');
-      inputBoxSpy.onCall(2).returns(PROJECT_NAME);
+      inputBoxSpy.onCall(0).returns(Promise.resolve(undefined));
+      inputBoxSpy.onCall(1).returns(Promise.resolve(''));
+      inputBoxSpy.onCall(2).returns(Promise.resolve(PROJECT_NAME));
     });
 
     after(() => {
@@ -119,13 +134,16 @@ describe('Force Project Create', () => {
   });
 
   describe('SelectProjectFolder Gatherer', () => {
-    let showOpenDialogSpy: sinon.SinonStub<[], void>;
+    let showOpenDialogSpy: sinon.SinonStub<
+      [vscode.OpenDialogOptions],
+      Thenable<vscode.Uri[] | undefined>
+    >;
 
     before(() => {
       // showOpenDialog only returns the path or undefined
       showOpenDialogSpy = sinon.stub(vscode.window, 'showOpenDialog');
-      showOpenDialogSpy.onCall(0).returns(undefined);
-      showOpenDialogSpy.onCall(1).returns(PROJECT_DIR);
+      showOpenDialogSpy.onCall(0).returns(Promise.resolve(undefined));
+      showOpenDialogSpy.onCall(1).returns(Promise.resolve(PROJECT_DIR));
     });
 
     after(() => {
@@ -152,16 +170,21 @@ describe('Force Project Create', () => {
   });
 
   describe('PathExistsChecker PostCondition', () => {
-    let showWarningBoxSpy: sinon.SinonStub<[], void>;
+    let showWarningBoxSpy: sinon.SinonStub<
+      [string, vscode.MessageOptions, ...vscode.MessageItem[]],
+      Thenable<vscode.MessageItem | undefined | string>
+    >;
 
     before(() => {
       showWarningBoxSpy = sinon.stub(vscode.window, 'showWarningMessage');
       showWarningBoxSpy
         .onCall(0)
-        .returns(nls.localize('warning_prompt_overwrite_cancel'));
+        .returns(
+          Promise.resolve(nls.localize('warning_prompt_overwrite_cancel'))
+        );
       showWarningBoxSpy
         .onCall(1)
-        .returns(nls.localize('warning_prompt_overwrite'));
+        .returns(Promise.resolve(nls.localize('warning_prompt_overwrite')));
     });
 
     after(() => {

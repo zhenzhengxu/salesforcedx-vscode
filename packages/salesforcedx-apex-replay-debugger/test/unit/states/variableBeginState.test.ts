@@ -19,7 +19,7 @@ import { FrameEntryState, VariableBeginState } from '../../../src/states';
 
 // tslint:disable:no-unused-expression
 describe('Variable begin scope event', () => {
-  let getUriFromSignatureStub: sinon.SinonStub<[], void>;
+  let getUriFromSignatureStub: sinon.SinonStub<[string], string>;
   let getStaticMapStub: sinon.SinonStub<[], void>;
   const logFileName = 'foo.log';
   const logFilePath = `path/${logFileName}`;
@@ -43,6 +43,8 @@ describe('Variable begin scope event', () => {
       .returns(uriFromSignature);
     getStaticMapStub = sinon
       .stub(LogContext.prototype, 'getStaticVariablesClassMap')
+      // TODO: Needs fixing. Type is wrong.
+      // @ts-ignore
       .returns(map);
   });
 

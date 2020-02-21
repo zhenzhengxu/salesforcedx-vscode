@@ -43,8 +43,8 @@ describe('Internal Command Utilities', () => {
   });
 
   describe('File Internal Path Gatherer', () => {
-    let existsSyncStub: sinon.SinonStub<[], void>;
-    let lstatSyncStub: sinon.SinonStub<[], void>;
+    let existsSyncStub: sinon.SinonStub<[fs.PathLike], boolean>;
+    let lstatSyncStub: sinon.SinonStub<[fs.PathLike], fs.Stats>;
 
     beforeEach(() => {
       existsSyncStub = stub(fs, 'existsSync');
@@ -59,6 +59,7 @@ describe('Internal Command Utilities', () => {
     it('Should return Continue', async () => {
       existsSyncStub.returns(true);
       const testDir = path.join('path', 'to', 'outside', 'dir');
+      // @ts-ignore
       lstatSyncStub.returns({
         isDirectory() {
           return true;
@@ -78,6 +79,7 @@ describe('Internal Command Utilities', () => {
     it('Should return Cancel if path is not a directory', async () => {
       existsSyncStub.returns(true);
       const testDir = Uri.parse('file:///path/to/outside/dir');
+      // @ts-ignore
       lstatSyncStub.returns({
         isDirectory() {
           return false;
@@ -92,6 +94,7 @@ describe('Internal Command Utilities', () => {
     it('Should return Cancel if path does not exist', async () => {
       existsSyncStub.returns(false);
       const testDir = Uri.parse('file:///path/to/outside/dir');
+      // @ts-ignore
       lstatSyncStub.returns({
         isDirectory() {
           return false;

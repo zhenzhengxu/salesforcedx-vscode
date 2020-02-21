@@ -57,7 +57,7 @@ describe('ApexExecutionOverlayAction basic class tests', () => {
 
 // This set of ApexExecutionOverlayActionCommand tests are going to be using the RequestService
 describe('ApexExecutionOverlayAction command', () => {
-  let sendRequestSpy: sinon.SinonStub<[], void>;
+  let sendRequestSpy: sinon.SinonStub<[XHROptions], Promise<XHRResponse>>;
   let overlayActionCommand: ApexExecutionOverlayActionCommand;
 
   const actionObjectId = '1doxx000000FAKE';

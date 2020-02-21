@@ -32,7 +32,7 @@ describe('Force Source Delete', () => {
 });
 
 describe('ManifestChecker', () => {
-  let workspaceStub: sinon.SinonStub<[], void>;
+  let workspaceStub: sinon.SinonStub<any[], any>;
   const workspaceFolderPath = path.join('path', 'to', 'workspace', 'folder');
 
   before(() => {
@@ -71,7 +71,10 @@ describe('ConfirmationAndSourcePathGatherer', () => {
   const examplePath = path.join('example', 'path');
   const explorerPath = { fsPath: examplePath } as vscode.Uri;
 
-  let informationMessageStub: sinon.SinonStub<[], void>;
+  let informationMessageStub: sinon.SinonStub<
+    [string, vscode.MessageOptions, ...vscode.MessageItem[]],
+    Thenable<vscode.MessageItem | string | undefined>
+  >;
 
   beforeEach(() => {
     informationMessageStub = sinon.stub(
@@ -86,7 +89,7 @@ describe('ConfirmationAndSourcePathGatherer', () => {
 
   it('Should return cancel if the user cancels the command', async () => {
     informationMessageStub.returns(
-      nls.localize('cancel_delete_source_button_text')
+      Promise.resolve(nls.localize('cancel_delete_source_button_text'))
     );
 
     const gatherer = new ConfirmationAndSourcePathGatherer(explorerPath);
@@ -97,7 +100,7 @@ describe('ConfirmationAndSourcePathGatherer', () => {
 
   it('Should return Continue if the user chooses to proceed', async () => {
     informationMessageStub.returns(
-      nls.localize('confirm_delete_source_button_text')
+      Promise.resolve(nls.localize('confirm_delete_source_button_text'))
     );
 
     const gatherer = new ConfirmationAndSourcePathGatherer(explorerPath);

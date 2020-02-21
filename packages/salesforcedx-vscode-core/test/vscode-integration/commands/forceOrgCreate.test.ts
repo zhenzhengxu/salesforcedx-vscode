@@ -27,7 +27,13 @@ describe('Force Org Create', () => {
     const TEST_ORG_EXPIRATION_DAYS_PLUS_ONE_DAY = '8';
     const TEST_ORG_EXPIRATION_DAYS_INPUT_FLOAT = '8.2';
     const TEST_ORG_EXPIRATION_DAYS_INPUT_INVALID_RANGE = '31';
-    let inputBoxSpy: sinon.SinonStub<[], void>;
+    let inputBoxSpy: sinon.SinonStub<
+      [
+        (vscode.InputBoxOptions | undefined)?,
+        (vscode.CancellationToken | undefined)?
+      ],
+      Thenable<string | undefined>
+    >;
 
     beforeEach(() => {
       inputBoxSpy = sinon.stub(vscode.window, 'showInputBox');
@@ -38,7 +44,7 @@ describe('Force Org Create', () => {
     });
 
     it('Should return cancel if alias is undefined', async () => {
-      inputBoxSpy.onCall(0).returns(undefined);
+      inputBoxSpy.onCall(0).returns(Promise.resolve(undefined));
       const gatherer = new AliasGatherer();
       const response = await gatherer.gather();
       expect(inputBoxSpy.callCount).to.equal(1);
@@ -46,8 +52,8 @@ describe('Force Org Create', () => {
     });
 
     it('Should return Continue with default alias if user input is empty string', async () => {
-      inputBoxSpy.onCall(0).returns('');
-      inputBoxSpy.onCall(1).returns(TEST_ORG_EXPIRATION_DAYS);
+      inputBoxSpy.onCall(0).returns(Promise.resolve(''));
+      inputBoxSpy.onCall(1).returns(Promise.resolve(TEST_ORG_EXPIRATION_DAYS));
       const gatherer = new AliasGatherer();
       const response = await gatherer.gather();
       expect(inputBoxSpy.callCount).to.equal(2);
@@ -60,8 +66,8 @@ describe('Force Org Create', () => {
     });
 
     it('Should consider an empty string as valid input for the alias', async () => {
-      inputBoxSpy.onCall(0).returns('');
-      inputBoxSpy.onCall(1).returns('');
+      inputBoxSpy.onCall(0).returns(Promise.resolve(''));
+      inputBoxSpy.onCall(1).returns(Promise.resolve(''));
       await new AliasGatherer().gather();
       const opts = inputBoxSpy.getCall(0).args[0] as vscode.InputBoxOptions;
       if (opts.validateInput) {
@@ -72,8 +78,8 @@ describe('Force Org Create', () => {
     });
 
     it('Should consider an empty string as valid input for the expiration days', async () => {
-      inputBoxSpy.onCall(0).returns('');
-      inputBoxSpy.onCall(1).returns('');
+      inputBoxSpy.onCall(0).returns(Promise.resolve(''));
+      inputBoxSpy.onCall(1).returns(Promise.resolve(''));
       await new AliasGatherer().gather();
       const opts = inputBoxSpy.getCall(1).args[0] as vscode.InputBoxOptions;
       if (opts.validateInput) {
@@ -84,8 +90,10 @@ describe('Force Org Create', () => {
     });
 
     it('Should return Continue with inputted alias if user input is not undefined or empty', async () => {
-      inputBoxSpy.onCall(0).returns(TEST_ALIAS);
-      inputBoxSpy.onCall(1).returns(TEST_ORG_EXPIRATION_DAYS_PLUS_ONE_DAY);
+      inputBoxSpy.onCall(0).returns(Promise.resolve(TEST_ALIAS));
+      inputBoxSpy
+        .onCall(1)
+        .returns(Promise.resolve(TEST_ORG_EXPIRATION_DAYS_PLUS_ONE_DAY));
       const gatherer = new AliasGatherer();
       const response = await gatherer.gather();
       expect(inputBoxSpy.callCount).to.equal(2);
@@ -101,8 +109,8 @@ describe('Force Org Create', () => {
     });
 
     it('Should return Continue with default scratch org expiration days if input is empty string', async () => {
-      inputBoxSpy.onCall(0).returns(TEST_ALIAS);
-      inputBoxSpy.onCall(1).returns('');
+      inputBoxSpy.onCall(0).returns(Promise.resolve(TEST_ALIAS));
+      inputBoxSpy.onCall(1).returns(Promise.resolve(''));
       const gatherer = new AliasGatherer();
       const response = await gatherer.gather();
       expect(inputBoxSpy.callCount).to.equal(2);
@@ -114,8 +122,8 @@ describe('Force Org Create', () => {
     });
 
     it('Should return Cancel since the user canceled (pressed ESC) the process when defining the expiration for the scratch org', async () => {
-      inputBoxSpy.onCall(0).returns(TEST_ALIAS);
-      inputBoxSpy.onCall(1).returns(undefined);
+      inputBoxSpy.onCall(0).returns(Promise.resolve(TEST_ALIAS));
+      inputBoxSpy.onCall(1).returns(Promise.resolve(undefined));
       const gatherer = new AliasGatherer();
       const response = await gatherer.gather();
       expect(inputBoxSpy.callCount).to.equal(2);

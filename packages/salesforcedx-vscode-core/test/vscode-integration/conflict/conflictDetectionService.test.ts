@@ -5,12 +5,14 @@
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
+import { Command } from '@salesforce/salesforcedx-utils-vscode/out/src/cli';
 import * as AdmZip from 'adm-zip';
 import { expect } from 'chai';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as shell from 'shelljs';
 import { stub } from 'sinon';
+import { CancellationToken, CancellationTokenSource } from 'vscode';
 import {
   CommonDirDirectoryDiffer,
   ConflictDetectionConfig,
@@ -85,9 +87,12 @@ describe('Conflict Detection Service Execution', () => {
   );
   const PROJECT_DIR = path.join(PROJ_ROOT, 'conflict-proj');
 
-  let workspaceStub: sinon.SinonStub<[], void>;
+  let workspaceStub: sinon.SinonStub<any[], any>;
   let executor: ConflictDetector;
-  let executeCommandSpy: sinon.SinonStub<[], void>;
+  let executeCommandSpy: sinon.SinonStub<
+    [Command, string, CancellationTokenSource, CancellationToken],
+    Promise<string>
+  >;
 
   beforeEach(() => {
     executor = new ConflictDetector(new CommonDirDirectoryDiffer());
@@ -115,6 +120,7 @@ describe('Conflict Detection Service Execution', () => {
       const zip = new AdmZip();
       zip.addLocalFolder(path.join(TEST_DATA_FOLDER, 'org-source'));
       zip.writeZip(path.join(cachePath, 'unpackaged.zip'));
+      return Promise.resolve('');
     });
 
     // simulate conversion to source format
@@ -124,6 +130,7 @@ describe('Conflict Detection Service Execution', () => {
         path.join(cachePath, 'unpackaged/'),
         path.join(cachePath, 'converted/')
       );
+      return Promise.resolve('');
     });
 
     const input: ConflictDetectionConfig = {

@@ -12,7 +12,7 @@ import {
 import { expect } from 'chai';
 import { join } from 'path';
 import * as sinon from 'sinon';
-import { window } from 'vscode';
+import { MessageItem, MessageOptions, window } from 'vscode';
 import {
   CommandletExecutor,
   CompositeParametersGatherer,
@@ -144,7 +144,10 @@ describe('Parameter Gatherers', () => {
   // CONTINUE means that we will execute the forceLogoutAll command
   // CANCEL means that we will not execute the forceLogoutAll command
   describe('DemoModePrompGatherer', () => {
-    let showInformationMessageStub: sinon.SinonStub<[], void>;
+    let showInformationMessageStub: sinon.SinonStub<
+      [string, MessageOptions, ...MessageItem[]],
+      Thenable<MessageItem | string | undefined>
+    >;
 
     before(() => {
       showInformationMessageStub = sinon.stub(window, 'showInformationMessage');
@@ -155,7 +158,9 @@ describe('Parameter Gatherers', () => {
     });
 
     it('Should return CONTINUE if message is Cancel', async () => {
-      showInformationMessageStub.onFirstCall().returns('Cancel');
+      showInformationMessageStub
+        .onFirstCall()
+        .returns(Promise.resolve('Cancel'));
       const gatherer = new DemoModePromptGatherer();
       const result = await gatherer.gather();
       expect(result.type).to.equal('CONTINUE');
@@ -163,7 +168,9 @@ describe('Parameter Gatherers', () => {
     });
 
     it('Should return CANCEL if message is Authorize Org', async () => {
-      showInformationMessageStub.onFirstCall().returns('Cancel');
+      showInformationMessageStub
+        .onFirstCall()
+        .returns(Promise.resolve('Cancel'));
       const gatherer = new DemoModePromptGatherer();
       const result = await gatherer.gather();
       expect(result.type).to.equal('CANCEL');
@@ -221,9 +228,11 @@ describe('Parameter Gatherers', () => {
       );
       const showMenuStub = sinon.stub(selector, 'showMenu');
       const choice = customOptions[5];
-      getPackageDirPathsStub.returns(packageDirs);
-      showMenuStub.onFirstCall().returns(SelectOutputDir.customDirOption);
-      showMenuStub.onSecondCall().returns(choice);
+      getPackageDirPathsStub.returns(Promise.resolve(packageDirs));
+      showMenuStub
+        .onFirstCall()
+        .returns(Promise.resolve(SelectOutputDir.customDirOption));
+      showMenuStub.onSecondCall().returns(Promise.resolve(choice));
 
       const response = await selector.gather();
 

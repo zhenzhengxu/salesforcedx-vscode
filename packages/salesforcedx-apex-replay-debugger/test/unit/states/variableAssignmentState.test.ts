@@ -23,7 +23,7 @@ import {
 
 // tslint:disable:no-unused-expression
 describe('Variable assignment event', () => {
-  let getUriFromSignatureStub: sinon.SinonStub<[], void>;
+  let getUriFromSignatureStub: sinon.SinonStub<[string], string>;
   let context: LogContext;
   const logFileName = 'foo.log';
   const logFilePath = `path/${logFileName}`;

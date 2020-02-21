@@ -416,7 +416,7 @@ describe('Replay debugger adapter - unit', () => {
   });
 
   describe('Disconnect', () => {
-    let sendResponseSpy: sinon.SinonSpy<[], void>;
+    let sendResponseSpy: sinon.SinonSpy<[DebugProtocol.Response], void>;
     let response: DebugProtocol.DisconnectResponse;
     let args: DebugProtocol.DisconnectArguments;
     let printToDebugConsoleStub: sinon.SinonStub<
@@ -460,9 +460,9 @@ describe('Replay debugger adapter - unit', () => {
   });
 
   describe('Threads', () => {
-    let sendResponseSpy: sinon.SinonSpy<[], void>;
+    let sendResponseSpy: sinon.SinonSpy<[DebugProtocol.Response], void>;
     let response: DebugProtocol.ThreadsResponse;
-    let readLogFileStub: sinon.SinonStub<[], void>;
+    let readLogFileStub: sinon.SinonStub<[string], string[]>;
     const launchRequestArgs: LaunchRequestArguments = {
       logFile: logFilePath,
       trace: true,
@@ -490,9 +490,8 @@ describe('Replay debugger adapter - unit', () => {
       adapter.threadsRequest(response);
 
       expect(sendResponseSpy.calledOnce).to.be.true;
-      const actualResponse: DebugProtocol.ThreadsResponse = sendResponseSpy.getCall(
-        0
-      ).args[0];
+      const actualResponse: DebugProtocol.Response = sendResponseSpy.getCall(0)
+        .args[0];
       expect(actualResponse.success).to.be.true;
       expect(actualResponse.body.threads.length).to.equal(1);
       const thread: Thread = actualResponse.body.threads[0];
@@ -501,11 +500,11 @@ describe('Replay debugger adapter - unit', () => {
   });
 
   describe('Stacktrace', () => {
-    let sendResponseSpy: sinon.SinonSpy<[], void>;
+    let sendResponseSpy: sinon.SinonSpy<[DebugProtocol.Response], void>;
     let response: DebugProtocol.StackTraceResponse;
     let args: DebugProtocol.StackTraceArguments;
-    let readLogFileStub: sinon.SinonStub<[], void>;
-    let getFramesStub: sinon.SinonStub<[], void>;
+    let readLogFileStub: sinon.SinonStub<[string], string[]>;
+    let getFramesStub: sinon.SinonStub<[], StackFrame[]>;
     const launchRequestArgs: LaunchRequestArguments = {
       logFile: logFilePath,
       trace: true,
@@ -556,9 +555,8 @@ describe('Replay debugger adapter - unit', () => {
       adapter.stackTraceRequest(response, args);
 
       expect(sendResponseSpy.calledOnce).to.be.true;
-      const actualResponse: DebugProtocol.StackTraceResponse = sendResponseSpy.getCall(
-        0
-      ).args[0];
+      const actualResponse: DebugProtocol.Response = sendResponseSpy.getCall(0)
+        .args[0];
       expect(actualResponse.success).to.be.true;
       expect(actualResponse.body.stackFrames).to.eql(
         sampleStackFrames.slice().reverse()
@@ -567,11 +565,11 @@ describe('Replay debugger adapter - unit', () => {
   });
 
   describe('Continue/run', () => {
-    let sendResponseSpy: sinon.SinonSpy<[], void>;
-    let sendEventSpy: sinon.SinonSpy<[], void>;
-    let hasLogLinesStub: sinon.SinonStub<[], void>;
+    let sendResponseSpy: sinon.SinonSpy<[DebugProtocol.Response], void>;
+    let sendEventSpy: sinon.SinonSpy<[DebugProtocol.Event], void>;
+    let hasLogLinesStub: sinon.SinonStub<[], boolean>;
     let updateFramesStub: sinon.SinonStub<[], void>;
-    let shouldStopForBreakpointStub: sinon.SinonStub<[], void>;
+    let shouldStopForBreakpointStub: sinon.SinonStub<[], boolean>;
     let response: DebugProtocol.ContinueResponse;
     let args: DebugProtocol.ContinueArguments;
     const launchRequestArgs: LaunchRequestArguments = {
@@ -613,9 +611,8 @@ describe('Replay debugger adapter - unit', () => {
       adapter.continueRequest(response, args);
 
       expect(sendResponseSpy.calledOnce).to.be.true;
-      const actualResponse: DebugProtocol.StackTraceResponse = sendResponseSpy.getCall(
-        0
-      ).args[0];
+      const actualResponse: DebugProtocol.Response = sendResponseSpy.getCall(0)
+        .args[0];
       expect(actualResponse.success).to.be.true;
       expect(sendEventSpy.calledOnce).to.be.true;
       expect(sendEventSpy.getCall(0).args[0]).to.be.instanceof(TerminatedEvent);
@@ -636,9 +633,8 @@ describe('Replay debugger adapter - unit', () => {
       adapter.continueRequest(response, args);
 
       expect(sendResponseSpy.calledOnce).to.be.true;
-      const actualResponse: DebugProtocol.StackTraceResponse = sendResponseSpy.getCall(
-        0
-      ).args[0];
+      const actualResponse: DebugProtocol.Response = sendResponseSpy.getCall(0)
+        .args[0];
       expect(actualResponse.success).to.be.true;
       expect(sendEventSpy.called).to.be.false;
     });
@@ -658,9 +654,8 @@ describe('Replay debugger adapter - unit', () => {
       adapter.continueRequest(response, args);
 
       expect(sendResponseSpy.calledOnce).to.be.true;
-      const actualResponse: DebugProtocol.StackTraceResponse = sendResponseSpy.getCall(
-        0
-      ).args[0];
+      const actualResponse: DebugProtocol.Response = sendResponseSpy.getCall(0)
+        .args[0];
       expect(actualResponse.success).to.be.true;
       expect(sendEventSpy.calledOnce).to.be.true;
       const event = sendEventSpy.getCall(0).args[0];
@@ -669,11 +664,11 @@ describe('Replay debugger adapter - unit', () => {
   });
 
   describe('Stepping', () => {
-    let sendResponseSpy: sinon.SinonSpy<[], void>;
-    let sendEventSpy: sinon.SinonSpy<[], void>;
-    let hasLogLinesStub: sinon.SinonStub<[], void>;
+    let sendResponseSpy: sinon.SinonSpy<[DebugProtocol.Response], void>;
+    let sendEventSpy: sinon.SinonSpy<[DebugProtocol.Event], void>;
+    let hasLogLinesStub: sinon.SinonStub<[], boolean>;
     let updateFramesStub: sinon.SinonStub<[], void>;
-    let getNumOfFramesStub: sinon.SinonStub<[], void>;
+    let getNumOfFramesStub: sinon.SinonStub<[], number>;
 
     beforeEach(() => {
       sendResponseSpy = sinon.spy(ApexReplayDebug.prototype, 'sendResponse');
@@ -713,9 +708,8 @@ describe('Replay debugger adapter - unit', () => {
       );
 
       expect(sendResponseSpy.calledOnce).to.be.true;
-      const actualResponse: DebugProtocol.StackTraceResponse = sendResponseSpy.getCall(
-        0
-      ).args[0];
+      const actualResponse: DebugProtocol.Response = sendResponseSpy.getCall(0)
+        .args[0];
       expect(actualResponse.success).to.be.true;
       expect(sendEventSpy.calledOnce).to.be.true;
       const event = sendEventSpy.getCall(0).args[0];
@@ -741,9 +735,8 @@ describe('Replay debugger adapter - unit', () => {
       );
 
       expect(sendResponseSpy.calledOnce).to.be.true;
-      const actualResponse: DebugProtocol.StackTraceResponse = sendResponseSpy.getCall(
-        0
-      ).args[0];
+      const actualResponse: DebugProtocol.Response = sendResponseSpy.getCall(0)
+        .args[0];
       expect(actualResponse.success).to.be.true;
       expect(sendEventSpy.calledOnce).to.be.true;
       const event = sendEventSpy.getCall(0).args[0];
@@ -769,9 +762,8 @@ describe('Replay debugger adapter - unit', () => {
       );
 
       expect(sendResponseSpy.calledOnce).to.be.true;
-      const actualResponse: DebugProtocol.StackTraceResponse = sendResponseSpy.getCall(
-        0
-      ).args[0];
+      const actualResponse: DebugProtocol.Response = sendResponseSpy.getCall(0)
+        .args[0];
       expect(actualResponse.success).to.be.true;
       expect(sendEventSpy.calledOnce).to.be.true;
       const event = sendEventSpy.getCall(0).args[0];
@@ -781,10 +773,10 @@ describe('Replay debugger adapter - unit', () => {
   });
 
   describe('Breakpoints', () => {
-    let sendResponseSpy: sinon.SinonSpy<[], void>;
-    let sendEventSpy: sinon.SinonSpy<[], void>;
-    let canSetLineBreakpointStub: sinon.SinonStub<[], void>;
-    let getTopFrameStub: sinon.SinonStub<[], void>;
+    let sendResponseSpy: sinon.SinonSpy<[DebugProtocol.Response], void>;
+    let sendEventSpy: sinon.SinonSpy<[DebugProtocol.Event], void>;
+    let canSetLineBreakpointStub: sinon.SinonStub<[string, number], boolean>;
+    let getTopFrameStub: sinon.SinonStub<[], StackFrame | undefined>;
     let response: DebugProtocol.SetBreakpointsResponse;
     let args: DebugProtocol.SetBreakpointsArguments;
     const launchRequestArgs: LaunchRequestArguments = {
@@ -849,9 +841,8 @@ describe('Replay debugger adapter - unit', () => {
       adapter.setBreakPointsRequest(response, args);
 
       expect(sendResponseSpy.calledOnce).to.be.true;
-      const actualResponse: DebugProtocol.SetBreakpointsResponse = sendResponseSpy.getCall(
-        0
-      ).args[0];
+      const actualResponse: DebugProtocol.Response = sendResponseSpy.getCall(0)
+        .args[0];
       expect(actualResponse.success).to.be.true;
       expect(actualResponse.body.breakpoints).to.be.empty;
     });
@@ -862,9 +853,8 @@ describe('Replay debugger adapter - unit', () => {
       adapter.setBreakPointsRequest(response, args);
 
       expect(sendResponseSpy.calledOnce).to.be.true;
-      const actualResponse: DebugProtocol.SetBreakpointsResponse = sendResponseSpy.getCall(
-        0
-      ).args[0];
+      const actualResponse: DebugProtocol.Response = sendResponseSpy.getCall(0)
+        .args[0];
       expect(actualResponse.success).to.be.true;
       expect(actualResponse.body.breakpoints).to.be.empty;
     });
@@ -890,9 +880,8 @@ describe('Replay debugger adapter - unit', () => {
       adapter.setBreakPointsRequest(response, args);
 
       expect(sendResponseSpy.calledOnce).to.be.true;
-      const actualResponse: DebugProtocol.SetBreakpointsResponse = sendResponseSpy.getCall(
-        0
-      ).args[0];
+      const actualResponse: DebugProtocol.Response = sendResponseSpy.getCall(0)
+        .args[0];
       expect(actualResponse.success).to.be.true;
       expect(actualResponse.body.breakpoints).to.deep.equal([
         {
@@ -920,10 +909,13 @@ describe('Replay debugger adapter - unit', () => {
 
   describe('Launch request', () => {
     describe('Line breakpoint info', () => {
-      let sendResponseSpy: sinon.SinonSpy<[], void>;
-      let createMappingsFromLineBreakpointInfo: sinon.SinonSpy<[], void>;
-      let hasLogLinesStub: sinon.SinonStub<[], void>;
-      let meetsLogLevelRequirementsStub: sinon.SinonStub<[], void>;
+      let sendResponseSpy: sinon.SinonSpy<[DebugProtocol.Response], void>;
+      let createMappingsFromLineBreakpointInfo: sinon.SinonSpy<
+        [LineBreakpointInfo[]],
+        void
+      >;
+      let hasLogLinesStub: sinon.SinonStub<[], boolean>;
+      let meetsLogLevelRequirementsStub: sinon.SinonStub<[], boolean>;
       const initializedResponse = {
         success: true,
         type: 'response',

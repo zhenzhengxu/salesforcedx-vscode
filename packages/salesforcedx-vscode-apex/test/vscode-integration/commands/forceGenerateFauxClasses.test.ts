@@ -13,6 +13,7 @@ import {
 import { SObjectCategory } from '@salesforce/salesforcedx-sobjects-faux-generator/out/src/describe';
 import {
   FauxClassGenerator,
+  SObjectRefreshResult,
   SObjectRefreshSource
 } from '@salesforce/salesforcedx-sobjects-faux-generator/out/src/generator';
 import { ContinueResponse } from '@salesforce/salesforcedx-utils-vscode/out/src/types';
@@ -38,9 +39,9 @@ const { OrgAuthInfo, ProgressNotification, SfdxCommandlet } = sfdxCoreExports;
 
 describe('ForceGenerateFauxClasses', () => {
   describe('initSObjectDefinitions', () => {
-    let existsSyncStub: sinon.SinonStub<[], void>;
-    let getUsernameStub: sinon.SinonStub<[], void>;
-    let commandletSpy: sinon.SinonSpy<[], void>;
+    let existsSyncStub: sinon.SinonStub<[fs.PathLike], boolean>;
+    let getUsernameStub: sinon.SinonStub<any[], any>;
+    let commandletSpy: sinon.SinonStub<any[], any>;
     const projectPath = path.join('sample', 'path');
     const sobjectsPath = path.join(
       projectPath,
@@ -97,10 +98,16 @@ describe('ForceGenerateFauxClasses', () => {
   });
 
   describe('ForceGenerateFauxClassesExecutor', () => {
-    let progressStub: sinon.SinonStub<[], void>;
-    let generatorStub: sinon.SinonStub<[], void>;
-    let logStub: sinon.SinonStub<[], void>;
-    let errorStub: sinon.SinonStub<[], void>;
+    let progressStub: sinon.SinonStub<any[], any>;
+    let generatorStub: sinon.SinonStub<
+      [string, SObjectCategory, SObjectRefreshSource],
+      Promise<SObjectRefreshResult>
+    >;
+    let logStub: sinon.SinonStub<any[], any>;
+    let errorStub: sinon.SinonStub<
+      [{ message: string; stack?: string | undefined }, any?],
+      void
+    >;
 
     const expectedData: any = {
       cancelled: false,
@@ -112,7 +119,7 @@ describe('ForceGenerateFauxClasses', () => {
       progressStub = sinon.stub(ProgressNotification, 'show');
       generatorStub = sinon
         .stub(FauxClassGenerator.prototype, 'generate')
-        .returns({ data: expectedData });
+        .returns(Promise.resolve({ data: expectedData }));
       logStub = sinon.stub(
         ForceGenerateFauxClassesExecutor.prototype,
         'logMetric'
@@ -173,18 +180,29 @@ describe('ForceGenerateFauxClasses', () => {
 
   describe('SObjectRefreshGatherer', () => {
     let gatherer: SObjectRefreshGatherer;
-    let quickPickStub: sinon.SinonStub<[], void>;
+    let quickPickStub: sinon.SinonStub<
+      [
+        vscode.QuickPickItem[] | Thenable<vscode.QuickPickItem[]>,
+        (vscode.QuickPickOptions | undefined)?,
+        (vscode.CancellationToken | undefined)?
+      ],
+      Thenable<any>
+    >;
 
     beforeEach(() => {
       gatherer = new SObjectRefreshGatherer();
       quickPickStub = sinon.stub(vscode.window, 'showQuickPick');
-      quickPickStub.returns(nls.localize('sobject_refresh_all'));
+      quickPickStub.returns(
+        Promise.resolve(nls.localize('sobject_refresh_all'))
+      );
     });
 
     afterEach(() => quickPickStub.restore());
 
     it('Should return All sObjects', async () => {
-      quickPickStub.returns(nls.localize('sobject_refresh_all'));
+      quickPickStub.returns(
+        Promise.resolve(nls.localize('sobject_refresh_all'))
+      );
       const response = (await gatherer.gather()) as ContinueResponse<
         RefreshSelection
       >;
@@ -192,7 +210,9 @@ describe('ForceGenerateFauxClasses', () => {
     });
 
     it('Should return Custom sObjects', async () => {
-      quickPickStub.returns(nls.localize('sobject_refresh_custom'));
+      quickPickStub.returns(
+        Promise.resolve(nls.localize('sobject_refresh_custom'))
+      );
       const response = (await gatherer.gather()) as ContinueResponse<
         RefreshSelection
       >;
@@ -200,7 +220,9 @@ describe('ForceGenerateFauxClasses', () => {
     });
 
     it('Should return Standard sObjects', async () => {
-      quickPickStub.returns(nls.localize('sobject_refresh_standard'));
+      quickPickStub.returns(
+        Promise.resolve(nls.localize('sobject_refresh_standard'))
+      );
       const response = (await gatherer.gather()) as ContinueResponse<
         RefreshSelection
       >;

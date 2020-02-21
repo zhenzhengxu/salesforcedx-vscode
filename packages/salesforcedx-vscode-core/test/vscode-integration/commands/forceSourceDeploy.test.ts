@@ -26,9 +26,15 @@ import { ForceSourcePushExecutor } from '../../../src/commands/forceSourcePush';
 import { nls } from '../../../src/messages';
 
 describe('Correctly output deploy results', () => {
-  let errorsStub: sinon.SinonStub<[], void>;
-  let successesStub: sinon.SinonStub<[], void>;
-  let channelServiceStub: sinon.SinonStub<[], void>;
+  let errorsStub: sinon.SinonStub<
+    [],
+    ForceSourceDeployErrorResponse | undefined
+  >;
+  let successesStub: sinon.SinonStub<
+    [],
+    ForceSourceDeploySuccessResponse | undefined
+  >;
+  let channelServiceStub: sinon.SinonStub<[string], void>;
   let output = '';
   const table = new Table();
   let deploySuccess: ForceSourceDeploySuccessResponse;
@@ -200,6 +206,7 @@ describe('Correctly output deploy results', () => {
 
   it('Should show error name and message if there are no results', () => {
     successesStub.returns(undefined);
+    // @ts-ignore We know the shape isn't consistent, but thats okay for the test.
     errorsStub.returns({
       status: 1,
       name: 'Deploy Failed',

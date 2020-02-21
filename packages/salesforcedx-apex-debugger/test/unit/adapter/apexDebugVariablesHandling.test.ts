@@ -6,8 +6,8 @@
  */
 /* tslint:disable:no-unused-expression */
 import {
-  RequestService,
   BaseCommand,
+  RequestService,
   RestHttpMethodEnum
 } from '@salesforce/salesforcedx-utils-vscode/out/src/requestService';
 import { expect } from 'chai';
@@ -543,8 +543,11 @@ describe('Debugger adapter variable handling - unit', () => {
   });
 
   describe('ApexDebugStackFrameInfo', () => {
-    let stateSpy: sinon.SinonStub<[], void>;
-    let sourcePathSpy: sinon.SinonStub<[], void>;
+    let stateSpy: sinon.SinonStub<
+      [BaseCommand, (RestHttpMethodEnum | undefined)?],
+      Promise<string>
+    >;
+    let sourcePathSpy: sinon.SinonStub<[string], string | undefined>;
     let adapter: ApexDebugForTest;
 
     beforeEach(() => {
@@ -729,7 +732,10 @@ describe('Debugger adapter variable handling - unit', () => {
 
   describe('scopesRequest', () => {
     let adapter: ApexDebugForTest;
-    let resolveApexIdToVariableReferenceSpy: sinon.SinonStub<[], void>;
+    let resolveApexIdToVariableReferenceSpy: sinon.SinonStub<
+      [string, number | undefined],
+      Promise<number | undefined>
+    >;
 
     beforeEach(() => {
       adapter = new ApexDebugForTest(new RequestService());
@@ -813,7 +819,7 @@ describe('Debugger adapter variable handling - unit', () => {
       frameInfo.locals[0] = variableValue;
       resolveApexIdToVariableReferenceSpy = sinon
         .stub(ApexDebugForTest.prototype, 'resolveApexIdToVariableReference')
-        .returns(1001);
+        .returns(Promise.resolve(1001));
       const expectedVariableObj = new ApexVariable(
         variableValue,
         ApexVariableKind.Local,
@@ -841,7 +847,7 @@ describe('Debugger adapter variable handling - unit', () => {
       frameInfo.statics[0] = variableValue;
       resolveApexIdToVariableReferenceSpy = sinon
         .stub(ApexDebugForTest.prototype, 'resolveApexIdToVariableReference')
-        .returns(1001);
+        .returns(Promise.resolve(1001));
       const expectedVariableObj = new ApexVariable(
         variableValue,
         ApexVariableKind.Static,
@@ -869,7 +875,7 @@ describe('Debugger adapter variable handling - unit', () => {
       frameInfo.globals[0] = variableValue;
       resolveApexIdToVariableReferenceSpy = sinon
         .stub(ApexDebugForTest.prototype, 'resolveApexIdToVariableReference')
-        .returns(1001);
+        .returns(Promise.resolve(1001));
       const expectedVariableObj = new ApexVariable(
         variableValue,
         ApexVariableKind.Global,
@@ -887,7 +893,7 @@ describe('Debugger adapter variable handling - unit', () => {
 
   describe('variablesRequest', () => {
     let adapter: ApexDebugForTest;
-    let resetIdleTimersSpy: sinon.SinonSpy<[], void>;
+    let resetIdleTimersSpy: sinon.SinonSpy<[], any[]>;
 
     beforeEach(() => {
       adapter = new ApexDebugForTest(new RequestService());

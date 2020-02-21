@@ -14,7 +14,7 @@ import { RunCommand } from '../../../src/commands';
 import { getDefaultHeaders } from './baseDebuggerCommand.test';
 
 describe('Run command', () => {
-  let sendRequestSpy: sinon.SinonStub<[], void>;
+  let sendRequestSpy: sinon.SinonStub<[XHROptions], Promise<XHRResponse>>;
   let runCommand: RunCommand;
   const requestService = new RequestService();
 

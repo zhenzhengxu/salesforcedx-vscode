@@ -8,7 +8,7 @@
 import { expect } from 'chai';
 import { EOL } from 'os';
 import * as sinon from 'sinon';
-import { StackFrame } from 'vscode-debugadapter';
+import { Source, StackFrame } from 'vscode-debugadapter';
 import {
   ApexReplayDebug,
   LaunchRequestArguments
@@ -19,8 +19,11 @@ import { UserDebugState } from '../../../src/states';
 
 // tslint:disable:no-unused-expression
 describe('User debug event', () => {
-  let warnToDebugConsoleStub: sinon.SinonStub<[], void>;
-  let getLogLinesStub: sinon.SinonStub<[], void>;
+  let warnToDebugConsoleStub: sinon.SinonStub<
+    [string, (Source | undefined)?, (number | undefined)?],
+    void
+  >;
+  let getLogLinesStub: sinon.SinonStub<[], string[]>;
   let context: LogContext;
   const logFileName = 'foo.log';
   const logFilePath = `path/${logFileName}`;

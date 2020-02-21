@@ -14,7 +14,7 @@ import { StateCommand } from '../../../src/commands';
 import { getDefaultHeaders } from './baseDebuggerCommand.test';
 
 describe('State command', () => {
-  let sendRequestSpy: sinon.SinonStub<[], void>;
+  let sendRequestSpy: sinon.SinonStub<[XHROptions], Promise<XHRResponse>>;
   let stateCommand: StateCommand;
   const requestService = new RequestService();
 

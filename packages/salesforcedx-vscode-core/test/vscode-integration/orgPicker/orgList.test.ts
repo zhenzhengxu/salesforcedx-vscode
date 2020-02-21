@@ -5,6 +5,7 @@
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import { Aliases, AuthInfo } from '@salesforce/core';
+import { AnyJson } from '@salesforce/ts-types';
 import { expect } from 'chai';
 import * as fs from 'fs';
 import * as sinon from 'sinon';
@@ -12,7 +13,7 @@ import { isNullOrUndefined } from 'util';
 import * as vscode from 'vscode';
 import { nls } from '../../../src/messages';
 import { FileInfo, OrgList } from '../../../src/orgPicker';
-import { OrgAuthInfo } from '../../../src/util';
+import { ConfigSource, OrgAuthInfo } from '../../../src/util';
 
 describe('getAuthInfoObjects', () => {
   it('should return a list of FileInfo objects when given an array of file names', async () => {
@@ -69,10 +70,13 @@ describe('getAuthInfoObjects', () => {
 });
 
 describe('Filter Authorization Info', async () => {
-  let defaultDevHubStub: sinon.SinonStub<[], void>;
-  let getUsernameStub: sinon.SinonStub<[], void>;
-  let aliasCreateStub: sinon.SinonStub<[], void>;
-  let aliasKeysStub: sinon.SinonStub<[], void>;
+  let defaultDevHubStub: sinon.SinonStub<
+    [boolean, (ConfigSource.Local | ConfigSource.Global | undefined)?],
+    Promise<string | undefined>
+  >;
+  let getUsernameStub: sinon.SinonStub<[string], Promise<string>>;
+  let aliasCreateStub: sinon.SinonStub<[unknown], any>;
+  let aliasKeysStub: sinon.SinonStub<[AnyJson], string[]>;
   const orgList = new OrgList();
 
   beforeEach(() => {
@@ -112,7 +116,7 @@ describe('Filter Authorization Info', async () => {
         })
       )
     ];
-    defaultDevHubStub.returns(null);
+    defaultDevHubStub.returns(Promise.resolve(undefined));
     aliasCreateStub.returns(Aliases.prototype);
     aliasKeysStub.returns([]);
     const authList = await orgList.filterAuthInfo(authInfoObjects);
@@ -136,8 +140,8 @@ describe('Filter Authorization Info', async () => {
         })
       )
     ];
-    defaultDevHubStub.returns('test-devhub1@gmail.com');
-    getUsernameStub.returns('test-devhub1@gmail.com');
+    defaultDevHubStub.returns(Promise.resolve('test-devhub1@gmail.com'));
+    getUsernameStub.returns(Promise.resolve('test-devhub1@gmail.com'));
     aliasCreateStub.returns(Aliases.prototype);
     aliasKeysStub.returns([]);
     const authList = await orgList.filterAuthInfo(authInfoObjects);
@@ -161,8 +165,8 @@ describe('Filter Authorization Info', async () => {
         })
       )
     ];
-    defaultDevHubStub.returns('dev hub alias');
-    getUsernameStub.returns('test-devhub1@gmail.com');
+    defaultDevHubStub.returns(Promise.resolve('dev hub alias'));
+    getUsernameStub.returns(Promise.resolve('test-devhub1@gmail.com'));
     aliasCreateStub.returns(Aliases.prototype);
     aliasKeysStub.returns([]);
     const authList = await orgList.filterAuthInfo(authInfoObjects);
@@ -188,7 +192,7 @@ describe('Filter Authorization Info', async () => {
         })
       )
     ];
-    defaultDevHubStub.returns(null);
+    defaultDevHubStub.returns(Promise.resolve(undefined));
     aliasCreateStub.returns(Aliases.prototype);
     aliasKeysStub.onFirstCall().returns(['alias1']);
     aliasKeysStub.returns([]);
@@ -198,9 +202,19 @@ describe('Filter Authorization Info', async () => {
 });
 
 describe('Set Default Org', () => {
-  let orgListStub: sinon.SinonStub<[], void>;
-  let quickPickStub: sinon.SinonStub<[], void>;
-  let executeCommandStub: sinon.SinonStub<[], void>;
+  let orgListStub: sinon.SinonStub<[], Promise<string[] | null>>;
+  let quickPickStub: sinon.SinonStub<
+    [
+      vscode.QuickPickItem[] | Thenable<vscode.QuickPickItem[]>,
+      (vscode.QuickPickOptions | undefined)?,
+      (vscode.CancellationToken | undefined)?
+    ],
+    Thenable<any>
+  >;
+  let executeCommandStub: sinon.SinonStub<
+    [string, ...any[]],
+    Thenable<unknown>
+  >;
   const orgsList = [
     'alias - test-username1@gmail.com',
     'test-username2@gmail.com'
@@ -220,16 +234,18 @@ describe('Set Default Org', () => {
   });
 
   it('should return Cancel if selection is undefined', async () => {
-    orgListStub.returns(orgsList);
-    quickPickStub.returns(undefined);
+    orgListStub.returns(Promise.resolve(orgsList));
+    quickPickStub.returns(Promise.resolve(undefined));
     const response = await orgList.setDefaultOrg();
     expect(response.type).to.equal('CANCEL');
   });
 
   it('should return Continue and call force:auth:web:login command if SFDX: Authorize an Org is selected', async () => {
-    orgListStub.returns(orgsList);
+    orgListStub.returns(Promise.resolve(orgsList));
     quickPickStub.returns(
-      '$(plus) ' + nls.localize('force_auth_web_login_authorize_org_text')
+      Promise.resolve(
+        '$(plus) ' + nls.localize('force_auth_web_login_authorize_org_text')
+      )
     );
     const response = await orgList.setDefaultOrg();
     expect(response.type).to.equal('CONTINUE');
@@ -239,9 +255,11 @@ describe('Set Default Org', () => {
   });
 
   it('should return Continue and call force:org:create command if SFDX: Create a Default Scratch Org is selected', async () => {
-    orgListStub.returns(orgsList);
+    orgListStub.returns(Promise.resolve(orgsList));
     quickPickStub.returns(
-      '$(plus) ' + nls.localize('force_org_create_default_scratch_org_text')
+      Promise.resolve(
+        '$(plus) ' + nls.localize('force_org_create_default_scratch_org_text')
+      )
     );
     const response = await orgList.setDefaultOrg();
     expect(response.type).to.equal('CONTINUE');
@@ -251,9 +269,11 @@ describe('Set Default Org', () => {
   });
 
   it('should return Continue and call force:auth:dev:hub command if SFDX: Authorize a Dev Hub is selected', async () => {
-    orgListStub.returns(orgsList);
+    orgListStub.returns(Promise.resolve(orgsList));
     quickPickStub.returns(
-      '$(plus) ' + nls.localize('force_auth_web_login_authorize_dev_hub_text')
+      Promise.resolve(
+        '$(plus) ' + nls.localize('force_auth_web_login_authorize_dev_hub_text')
+      )
     );
     const response = await orgList.setDefaultOrg();
     expect(response.type).to.equal('CONTINUE');
@@ -263,8 +283,10 @@ describe('Set Default Org', () => {
   });
 
   it('should return Continue and call force:config:set command if a username/alias is selected', async () => {
-    orgListStub.returns(orgsList);
-    quickPickStub.returns('$(plus)' + orgsList[0].split(' ', 1));
+    orgListStub.returns(Promise.resolve(orgsList));
+    quickPickStub.returns(
+      Promise.resolve('$(plus)' + orgsList[0].split(' ', 1))
+    );
     const response = await orgList.setDefaultOrg();
     expect(response.type).to.equal('CONTINUE');
     const commandResult = expect(

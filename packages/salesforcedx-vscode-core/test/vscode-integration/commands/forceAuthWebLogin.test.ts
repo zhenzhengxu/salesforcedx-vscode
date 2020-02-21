@@ -58,9 +58,22 @@ describe('Force Auth Web Login in Demo  Mode', () => {
 });
 
 describe('Auth Params Gatherer', () => {
-  let inputBoxSpy: sinon.SinonStub<[], void>;
-  let quickPickStub: sinon.SinonStub<[], void>;
-  let getProjectUrlStub: sinon.SinonStub<[], void>;
+  let inputBoxSpy: sinon.SinonStub<
+    [
+      (vscode.InputBoxOptions | undefined)?,
+      (vscode.CancellationToken | undefined)?
+    ],
+    Thenable<string | undefined>
+  >;
+  let quickPickStub: sinon.SinonStub<
+    [
+      vscode.QuickPickItem[] | Thenable<vscode.QuickPickItem[]>,
+      (vscode.QuickPickOptions | undefined)?,
+      (vscode.CancellationToken | undefined)?
+    ],
+    Thenable<any>
+  >;
+  let getProjectUrlStub: sinon.SinonStub<[], Promise<string | undefined>>;
 
   let gatherer: AuthParamsGatherer;
 
@@ -69,22 +82,23 @@ describe('Auth Params Gatherer', () => {
     customUrl: string | undefined,
     orgAlias: string | undefined
   ) => {
-    quickPickStub.returns(orgType);
+    quickPickStub.returns(Promise.resolve(orgType));
     let inputBoxCall = 0;
     if (orgType && orgType === gatherer.orgTypes.custom) {
-      inputBoxSpy.onCall(inputBoxCall).returns(customUrl);
+      inputBoxSpy.onCall(inputBoxCall).returns(Promise.resolve(customUrl));
       inputBoxCall += 1;
     }
-    inputBoxSpy.onCall(inputBoxCall).returns(orgAlias);
+    inputBoxSpy.onCall(inputBoxCall).returns(Promise.resolve(orgAlias));
   };
 
   beforeEach(() => {
     gatherer = new AuthParamsGatherer();
     inputBoxSpy = sinon.stub(vscode.window, 'showInputBox');
+    vscode.window.showInputBox();
     quickPickStub = sinon.stub(vscode.window, 'showQuickPick');
     getProjectUrlStub = sinon
       .stub(gatherer, 'getProjectLoginUrl')
-      .returns(TEST_URL);
+      .returns(Promise.resolve(TEST_URL));
   });
 
   afterEach(() => {
@@ -101,7 +115,7 @@ describe('Auth Params Gatherer', () => {
     });
 
     it('Should not give Project Default option is sfdcLoginUrl property doesn’t exist', async () => {
-      getProjectUrlStub.returns(undefined);
+      getProjectUrlStub.returns(Promise.resolve(undefined));
       const items = await gatherer.getQuickPickItems();
       const { label } = gatherer.orgTypes.project;
       expect(items.length).to.equal(3);

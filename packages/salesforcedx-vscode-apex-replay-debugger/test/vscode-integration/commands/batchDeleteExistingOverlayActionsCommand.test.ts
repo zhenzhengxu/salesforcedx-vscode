@@ -24,7 +24,7 @@ import {
 } from '../../../src/commands/batchDeleteExistingOverlayActionsCommand';
 import { createExpectedXHROptions } from './apexExecutionOverlayActionCommand.test';
 
-let sendRequestSpy: sinon.SinonStub<[], void>;
+let sendRequestSpy: sinon.SinonStub<[XHROptions], Promise<XHRResponse>>;
 let batchDeleteCommand: BatchDeleteExistingOverlayActionCommand;
 const requestService = new RequestService();
 const tempApexExecutionOverlayId = '1doxx00000FAKE';

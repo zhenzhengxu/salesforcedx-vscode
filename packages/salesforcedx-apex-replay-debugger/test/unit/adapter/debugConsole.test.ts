@@ -17,7 +17,7 @@ import { MockApexReplayDebug } from './apexReplayDebug.test';
 
 // tslint:disable:no-unused-expression
 describe('Debug console', () => {
-  let sendEventSpy: sinon.SinonSpy<[], void>;
+  let sendEventSpy: sinon.SinonSpy<[DebugProtocol.Event], void>;
   let adapter: MockApexReplayDebug;
   const logFileName = 'foo.log';
   const logFilePath = `path/${logFileName}`;
@@ -104,8 +104,7 @@ describe('Debug console', () => {
       adapter.printToDebugConsole('test', source, 5, 'stdout');
 
       expect(sendEventSpy.calledOnce).to.be.true;
-      const outputEvent: DebugProtocol.OutputEvent = sendEventSpy.getCall(0)
-        .args[0];
+      const outputEvent: DebugProtocol.Event = sendEventSpy.getCall(0).args[0];
       expect(outputEvent.body.output).to.have.string('test');
       expect(outputEvent.body.category).to.equal('stdout');
       expect(outputEvent.body.line).to.equal(5);
@@ -134,8 +133,7 @@ describe('Debug console', () => {
       adapter.warnToDebugConsole('test');
 
       expect(sendEventSpy.calledOnce).to.be.true;
-      const outputEvent: DebugProtocol.OutputEvent = sendEventSpy.getCall(0)
-        .args[0];
+      const outputEvent: DebugProtocol.Event = sendEventSpy.getCall(0).args[0];
       expect(outputEvent.body.output).to.have.string('test');
       expect(outputEvent.body.category).to.equal('console');
     });
@@ -161,8 +159,7 @@ describe('Debug console', () => {
       adapter.errorToDebugConsole('test');
 
       expect(sendEventSpy.calledOnce).to.be.true;
-      const outputEvent: DebugProtocol.OutputEvent = sendEventSpy.getCall(0)
-        .args[0];
+      const outputEvent: DebugProtocol.Event = sendEventSpy.getCall(0).args[0];
       expect(outputEvent.body.output).to.have.string('test');
       expect(outputEvent.body.category).to.equal('stderr');
     });

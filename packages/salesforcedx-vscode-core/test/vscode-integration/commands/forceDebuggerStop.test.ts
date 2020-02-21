@@ -28,12 +28,21 @@ describe('Debugger stop command', () => {
   describe('Session query', () => {
     let origSpawn: any;
     let mySpawn: any;
-    let workspaceCheckerStub: sinon.SinonStub<[], void>;
-    let idGathererStub: sinon.SinonStub<[], void>;
-    let detachExecutorSpy: sinon.SinonSpy<[], void>;
-    let sessionDetachRunSpy: sinon.SinonSpy<[], void>;
+    let workspaceCheckerStub: sinon.SinonStub<[], boolean>;
+    let idGathererStub: sinon.SinonStub<
+      [],
+      Promise<ContinueResponse<IdSelection>>
+    >;
+    let detachExecutorSpy: sinon.SinonSpy<
+      [ContinueResponse<IdSelection>],
+      void
+    >;
+    let sessionDetachRunSpy: sinon.SinonSpy<[], Promise<void>>;
     let executor: StopActiveDebuggerSessionExecutor;
-    let infoSpy: sinon.SinonSpy<[], void>;
+    let infoSpy: sinon.SinonSpy<
+      [string, ...string[]],
+      Thenable<string | undefined>
+    >;
 
     beforeEach(() => {
       origSpawn = childProcess.spawn;
@@ -44,7 +53,7 @@ describe('Debugger stop command', () => {
         .returns(true);
       idGathererStub = sinon
         .stub(IdGatherer.prototype, 'gather')
-        .returns({ type: 'CONTINUE' });
+        .returns(Promise.resolve({ type: 'CONTINUE', data: { id: '' } }));
       detachExecutorSpy = sinon.spy(
         DebuggerSessionDetachExecutor.prototype,
         'execute'

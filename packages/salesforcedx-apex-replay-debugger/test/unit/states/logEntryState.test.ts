@@ -16,7 +16,7 @@ import { LogEntryState } from '../../../src/states';
 
 // tslint:disable:no-unused-expression
 describe('LogEntry event', () => {
-  let readLogFileStub: sinon.SinonStub<[], void>;
+  let readLogFileStub: sinon.SinonStub<[string], string[]>;
 
   beforeEach(() => {
     readLogFileStub = sinon

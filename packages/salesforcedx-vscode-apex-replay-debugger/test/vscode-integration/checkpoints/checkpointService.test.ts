@@ -174,7 +174,10 @@ describe('Verify checkpoint callback for vscode.debug.onDidChangeBreakpoints', (
   // as a base and append a number onto it.
   const breakpointId = '6c1d848c-fake-4c2c-8b90-5fabe1740da4';
 
-  let lockSpy: sinon.SinonSpy<[], void>;
+  let lockSpy: sinon.SinonSpy<
+    [string | string[], (done: any) => any, (any | undefined)?],
+    PromiseLike<any>
+  >;
   beforeEach(() => {
     lockSpy = sinon.spy(AsyncLock.prototype, 'acquire');
   });
@@ -699,8 +702,8 @@ describe('Verify SFDX Toggle Checkpoint callback, sfdxToggleCheckpoint', () => {
     .stub(cpService, 'fetchActiveSelectionLineNumber')
     .returns(lineInput - 1);
   /* tslint:enable */
-  let addBreakpointsStub: sinon.SinonStub<[], void>;
-  let removeBreakpointsStub: sinon.SinonStub<[], void>;
+  let addBreakpointsStub: sinon.SinonStub<[vscode.Breakpoint[]], void>;
+  let removeBreakpointsStub: sinon.SinonStub<[vscode.Breakpoint[]], void>;
   let bpAdd: vscode.Breakpoint[] = [];
   let bpArr: vscode.Breakpoint[] = [];
 

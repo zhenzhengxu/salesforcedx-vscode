@@ -75,15 +75,24 @@ describe('Force Apex Test Run', () => {
   });
 
   describe('Tests selector', () => {
-    let quickPickStub: sinon.SinonStub<[], void>;
+    let quickPickStub: sinon.SinonStub<
+      [
+        vscode.QuickPickItem[] | Thenable<vscode.QuickPickItem[]>,
+        (vscode.QuickPickOptions | undefined)?,
+        (vscode.CancellationToken | undefined)?
+      ],
+      Thenable<any>
+    >;
     beforeEach(() => {
-      quickPickStub = sinon.stub(vscode.window, 'showQuickPick').returns({
-        label: nls.localize('force_apex_test_run_all_test_label'),
-        description: nls.localize(
-          'force_apex_test_run_all_tests_description_text'
-        ),
-        type: TestType.All
-      });
+      quickPickStub = sinon.stub(vscode.window, 'showQuickPick').returns(
+        Promise.resolve({
+          label: nls.localize('force_apex_test_run_all_test_label'),
+          description: nls.localize(
+            'force_apex_test_run_all_tests_description_text'
+          ),
+          type: TestType.All
+        })
+      );
     });
 
     afterEach(() => {
@@ -97,7 +106,7 @@ describe('Force Apex Test Run', () => {
       expect(result.type).to.equal('CONTINUE');
       expect(quickPickStub.getCall(0).args.length).to.equal(1);
       const fileItems: ApexTestQuickPickItem[] = quickPickStub.getCall(0)
-        .args[0];
+        .args[0] as ApexTestQuickPickItem[];
       expect(fileItems.length).to.equal(3);
       expect(fileItems[0].label).to.equal('DemoSuite');
       expect(fileItems[0].type).to.equal(TestType.Suite);

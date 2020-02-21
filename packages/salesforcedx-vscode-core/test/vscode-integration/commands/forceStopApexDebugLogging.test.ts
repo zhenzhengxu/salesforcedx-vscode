@@ -13,7 +13,7 @@ import { nls } from '../../../src/messages';
 
 // tslint:disable:no-unused-expression
 describe('Force Source Status', () => {
-  let getDebugLevelIdStub: sinon.SinonStub<[], void>;
+  let getDebugLevelIdStub: sinon.SinonStub<[], string | undefined>;
   const fakeTraceFlagId = 'fakeDebugLevelId';
 
   before(() => {

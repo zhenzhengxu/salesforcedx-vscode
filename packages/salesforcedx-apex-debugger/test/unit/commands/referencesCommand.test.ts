@@ -14,7 +14,7 @@ import { ReferencesCommand } from '../../../src/commands';
 import { getDefaultHeaders } from './baseDebuggerCommand.test';
 
 describe('References command', () => {
-  let sendRequestSpy: sinon.SinonStub<[], void>;
+  let sendRequestSpy: sinon.SinonStub<[XHROptions], Promise<XHRResponse>>;
   let referencesCommand: ReferencesCommand;
   const requestService = new RequestService();
 

@@ -12,15 +12,16 @@ import Uri from 'vscode-uri';
 import {
   ApexReplayDebug,
   ApexVariable,
-  LaunchRequestArguments
+  LaunchRequestArguments,
+  VariableContainer
 } from '../../../src/adapter/apexReplayDebug';
 import { LogContext } from '../../../src/core';
 import { FrameEntryState } from '../../../src/states';
 
 // tslint:disable:no-unused-expression
 describe('Frame entry event', () => {
-  let getUriFromSignatureStub: sinon.SinonStub<[], void>;
-  let getStaticMapStub: sinon.SinonStub<[], void>;
+  let getUriFromSignatureStub: sinon.SinonStub<[string], string>;
+  let getStaticMapStub: sinon.SinonStub<[], Map<string, VariableContainer>>;
   const logFileName = 'foo.log';
   const logFilePath = `path/${logFileName}`;
   const uriFromSignature = 'file:///path/foo.cls';
@@ -42,6 +43,9 @@ describe('Frame entry event', () => {
       .returns(uriFromSignature);
     getStaticMapStub = sinon
       .stub(LogContext.prototype, 'getStaticVariablesClassMap')
+      // TODO: This is returning the wrong type. Needs fixing, but the change appears
+      // rather large so going to leave the test as is.
+      // @ts-ignore
       .returns(map);
   });
 

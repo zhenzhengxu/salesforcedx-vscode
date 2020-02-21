@@ -40,7 +40,7 @@ describe('ApexExecutionOverlayResult basic class tests', () => {
 });
 
 describe('ApexExecutionOverlayResult basic heapdump response parsing, no actionScript', () => {
-  let sendRequestSpy: sinon.SinonStub<[], void>;
+  let sendRequestSpy: sinon.SinonStub<[XHROptions], Promise<XHRResponse>>;
   let overlayResultCommand: ApexExecutionOverlayResultCommand;
   const requestServiceInstanceUrl = 'https://www.salesforce.com';
   const heapdumpKey = '07nxx00000000BOAAY';
@@ -264,7 +264,7 @@ describe('ApexExecutionOverlayResult basic heapdump response parsing, no actionS
 });
 
 describe('ApexExecutionOverlayResult heapdump parsing with ActionScript SOQL results', () => {
-  let sendRequestSpy: sinon.SinonStub<[], void>;
+  let sendRequestSpy: sinon.SinonStub<[XHROptions], Promise<XHRResponse>>;
   let overlayResultCommand: ApexExecutionOverlayResultCommand;
   const requestServiceInstanceUrl = 'https://www.salesforce.com';
   const heapdumpKey = '07nxx00000000BOAAY';
@@ -471,7 +471,7 @@ describe('ApexExecutionOverlayResult heapdump parsing with ActionScript SOQL res
 });
 
 describe('ApexExecutionOverlayResult heapdump parsing with ActionScript SOQL results', () => {
-  let sendRequestSpy: sinon.SinonStub<[], void>;
+  let sendRequestSpy: sinon.SinonStub<[XHROptions], Promise<XHRResponse>>;
   let overlayResultCommand: ApexExecutionOverlayResultCommand;
   const requestServiceInstanceUrl = 'https://www.salesforce.com';
   const heapdumpKey = '07nxx00000000BOAAY';

@@ -5,7 +5,11 @@
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
-import { SfdxCommandBuilder } from '@salesforce/salesforcedx-utils-vscode/out/src/cli';
+import {
+  Command,
+  CommandBuilder,
+  SfdxCommandBuilder
+} from '@salesforce/salesforcedx-utils-vscode/out/src/cli';
 import { RequestService } from '@salesforce/salesforcedx-utils-vscode/out/src/requestService';
 import { expect } from 'chai';
 import * as sinon from 'sinon';
@@ -144,10 +148,10 @@ describe('Debugger breakpoint service', () => {
   describe('Create line breakpoint', () => {
     let origSpawn: any;
     let mySpawn: any;
-    let cmdWithArgSpy: sinon.SinonSpy<[], void>;
-    let cmdWithFlagSpy: sinon.SinonSpy<[], void>;
-    let cmdWithJsonSpy: sinon.SinonSpy<[], void>;
-    let cmdBuildSpy: sinon.SinonSpy<[], void>;
+    let cmdWithArgSpy: sinon.SinonSpy<[string], CommandBuilder>;
+    let cmdWithFlagSpy: sinon.SinonSpy<[string, string], CommandBuilder>;
+    let cmdWithJsonSpy: sinon.SinonSpy<[], CommandBuilder>;
+    let cmdBuildSpy: sinon.SinonSpy<[], Command>;
 
     beforeEach(() => {
       service = new BreakpointService(new RequestService());
@@ -257,10 +261,10 @@ describe('Debugger breakpoint service', () => {
   describe('Create exception breakpoint', () => {
     let origSpawn: any;
     let mySpawn: any;
-    let cmdWithArgSpy: sinon.SinonSpy<[], void>;
-    let cmdWithFlagSpy: sinon.SinonSpy<[], void>;
-    let cmdWithJsonSpy: sinon.SinonSpy<[], void>;
-    let cmdBuildSpy: sinon.SinonSpy<[], void>;
+    let cmdWithArgSpy: sinon.SinonSpy<[string], CommandBuilder>;
+    let cmdWithFlagSpy: sinon.SinonSpy<[string, string], CommandBuilder>;
+    let cmdWithJsonSpy: sinon.SinonSpy<[], CommandBuilder>;
+    let cmdBuildSpy: sinon.SinonSpy<[], Command>;
 
     beforeEach(() => {
       service = new BreakpointService(new RequestService());
@@ -313,10 +317,10 @@ describe('Debugger breakpoint service', () => {
   describe('Delete breakpoint', () => {
     let origSpawn: any;
     let mySpawn: any;
-    let cmdWithArgSpy: sinon.SinonSpy<[], void>;
-    let cmdWithFlagSpy: sinon.SinonSpy<[], void>;
-    let cmdWithJsonSpy: sinon.SinonSpy<[], void>;
-    let cmdBuildSpy: sinon.SinonSpy<[], void>;
+    let cmdWithArgSpy: sinon.SinonSpy<[string], CommandBuilder>;
+    let cmdWithFlagSpy: sinon.SinonSpy<[string, string], CommandBuilder>;
+    let cmdWithJsonSpy: sinon.SinonSpy<[], CommandBuilder>;
+    let cmdBuildSpy: sinon.SinonSpy<[], Command>;
 
     beforeEach(() => {
       service = new BreakpointService(new RequestService());
@@ -407,10 +411,19 @@ describe('Debugger breakpoint service', () => {
   });
 
   describe('Reconcile', () => {
-    let addLineBreakpointSpy: sinon.SinonStub<[], void>;
-    let addExceptionBreakpointSpy: sinon.SinonStub<[], void>;
-    let deleteBreakpointSpy: sinon.SinonStub<[], void>;
-    let getTyperefForSpy: sinon.SinonStub<[], void>;
+    let addLineBreakpointSpy: sinon.SinonStub<
+      [string, string, string, number],
+      Promise<string | undefined>
+    >;
+    let addExceptionBreakpointSpy: sinon.SinonStub<
+      [string, string, string],
+      Promise<string | undefined>
+    >;
+    let deleteBreakpointSpy: sinon.SinonStub<
+      [string, string],
+      Promise<string | undefined>
+    >;
+    let getTyperefForSpy: sinon.SinonStub<[string, number], string | undefined>;
 
     beforeEach(() => {
       service = new BreakpointService(new RequestService());
@@ -541,7 +554,7 @@ describe('Debugger breakpoint service', () => {
     it('Should create new exception breakpoint', async () => {
       addExceptionBreakpointSpy = sinon
         .stub(BreakpointService.prototype, 'createExceptionBreakpoint')
-        .returns('07bFAKE8');
+        .returns(Promise.resolve('07bFAKE8'));
 
       await service.reconcileExceptionBreakpoints(
         'someProjectPath',
@@ -567,7 +580,7 @@ describe('Debugger breakpoint service', () => {
     it('Should not create existing exception breakpoint', async () => {
       addExceptionBreakpointSpy = sinon
         .stub(BreakpointService.prototype, 'createExceptionBreakpoint')
-        .returns('07bFAKE7');
+        .returns(Promise.resolve('07bFAKE7'));
 
       await service.reconcileExceptionBreakpoints(
         'someProjectPath',

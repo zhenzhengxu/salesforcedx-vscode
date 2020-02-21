@@ -11,7 +11,13 @@ import {
 } from '@salesforce/salesforcedx-apex-debugger/out/src';
 import { expect } from 'chai';
 import * as sinon from 'sinon';
-import { DebugConfiguration, extensions, Uri, WorkspaceFolder } from 'vscode';
+import {
+  DebugConfiguration,
+  Extension,
+  extensions,
+  Uri,
+  WorkspaceFolder
+} from 'vscode';
 import { DebugConfigurationProvider } from '../../../src/adapter/debugConfigurationProvider';
 import { nls } from '../../../src/messages';
 import { MockApexExtension } from './MockApexExtension';
@@ -19,7 +25,10 @@ import { MockApexExtension } from './MockApexExtension';
 // tslint:disable:no-unused-expression
 describe('Configuration provider', () => {
   let provider: DebugConfigurationProvider;
-  let getConfigSpy: sinon.SinonSpy<[], void>;
+  let getConfigSpy: sinon.SinonSpy<
+    [WorkspaceFolder | undefined],
+    DebugConfiguration
+  >;
   const folder: WorkspaceFolder = {
     name: 'mySfdxProject',
     index: 0,
@@ -27,7 +36,10 @@ describe('Configuration provider', () => {
       fsPath: '/foo'
     } as Uri
   };
-  let mockApexExtension: sinon.SinonStub<[], void>;
+  let mockApexExtension: sinon.SinonStub<
+    [string],
+    Extension<unknown> | undefined
+  >;
 
   beforeEach(() => {
     mockApexExtension = sinon

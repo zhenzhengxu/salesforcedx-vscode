@@ -38,7 +38,7 @@ export function getDefaultHeaders(contentLength: number): any {
 }
 
 describe('Base command', () => {
-  let sendRequestSpy: sinon.SinonStub<[], void>;
+  let sendRequestSpy: sinon.SinonStub<[XHROptions], Promise<XHRResponse>>;
   let dummyCommand: DummyCommand;
   let requestService: RequestService;
 
