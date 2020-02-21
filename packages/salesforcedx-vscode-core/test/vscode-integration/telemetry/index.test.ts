@@ -14,11 +14,11 @@ import { MockContext } from './MockContext';
 
 describe('Telemetry', () => {
   const machineId = '45678903';
-  let mShowInformation: SinonStub;
-  let settings: SinonStub;
+  let mShowInformation: SinonStub<[], void>;
+  let settings: SinonStub<[], void>;
   let mockContext: MockContext;
-  let reporter: SinonStub;
-  let exceptionEvent: SinonStub;
+  let reporter: SinonStub<[], void>;
+  let exceptionEvent: SinonStub<[], void>;
 
   describe('in dev mode', () => {
     beforeEach(() => {

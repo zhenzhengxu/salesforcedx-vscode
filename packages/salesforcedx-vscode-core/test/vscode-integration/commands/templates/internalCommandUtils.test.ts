@@ -19,7 +19,7 @@ import { SfdxCoreSettings } from '../../../../src/settings/sfdxCoreSettings';
 
 describe('Internal Command Utilities', () => {
   describe('Internal Workspace Checker', () => {
-    let settings: SinonStub;
+    let settings: SinonStub<[], boolean>;
 
     beforeEach(() => {
       settings = stub(SfdxCoreSettings.prototype, 'getInternalDev');

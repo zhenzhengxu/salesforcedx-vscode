@@ -21,6 +21,7 @@ import {
   PathStrategyFactory
 } from '../../../../src/commands/util';
 import {
+  ConflictDetectionConfig,
   conflictDetector,
   DirectoryDiffResults
 } from '../../../../src/conflict';
@@ -58,9 +59,15 @@ describe('Postcondition Checkers', () => {
   });
 
   describe('OverwriteComponentPrompt', () => {
-    let existsStub: SinonStub;
-    let modalStub: SinonStub;
-    let promptStub: SinonStub;
+    let existsStub: SinonStub<[fs.PathLike], boolean>;
+    let modalStub: SinonStub<
+      [string, ...string[]],
+      Thenable<string | undefined>
+    >;
+    let promptStub: SinonStub<
+      [LocalComponent[]],
+      Promise<Set<LocalComponent> | undefined>
+    >;
     const checker = new OverwriteComponentPrompt();
 
     beforeEach(() => {
@@ -96,6 +103,7 @@ describe('Postcondition Checkers', () => {
 
       it('Should determine a component exists if at least one of its file extensions do', async () => {
         const dictionaryStub = env.stub(MetadataDictionary, 'getInfo');
+        // @ts-ignore
         dictionaryStub.returns({
           pathStrategy: PathStrategyFactory.createDefaultStrategy(),
           extensions: ['.a', '.b', '.c']
@@ -292,10 +300,16 @@ describe('Postcondition Checkers', () => {
   });
 
   describe('ConflictDetectionChecker', () => {
-    let modalStub: SinonStub;
-    let settingsStub: SinonStub;
-    let detectorStub: SinonStub;
-    let appendLineStub: SinonStub;
+    let modalStub: SinonStub<
+      [string, ...string[]],
+      Thenable<string | undefined>
+    >;
+    let settingsStub: SinonStub<[], boolean>;
+    let detectorStub: SinonStub<
+      [ConflictDetectionConfig],
+      Promise<DirectoryDiffResults>
+    >;
+    let appendLineStub: SinonStub<[string], void>;
     let channelOutput: string[] = [];
 
     beforeEach(() => {
@@ -348,7 +362,7 @@ describe('Postcondition Checkers', () => {
       const postChecker = new ConflictDetectionChecker(emptyMessages);
       const usernameStub = env
         .stub(postChecker, 'getDefaultUsernameOrAlias')
-        .returns(undefined);
+        .returns(Promise.resolve(undefined));
       settingsStub.returns(true);
 
       const response = await postChecker.check(validInput);
@@ -360,10 +374,10 @@ describe('Postcondition Checkers', () => {
       const postChecker = new ConflictDetectionChecker(emptyMessages);
       const usernameStub = env
         .stub(postChecker, 'getDefaultUsernameOrAlias')
-        .returns('MyAlias');
+        .returns(Promise.resolve('MyAlias'));
       const packageDirStub = env
         .stub(SfdxPackageDirectories, 'getDefaultPackageDir')
-        .returns(undefined);
+        .returns(Promise.resolve(undefined));
       settingsStub.returns(true);
 
       const response = await postChecker.check(validInput);
@@ -375,13 +389,17 @@ describe('Postcondition Checkers', () => {
     it('Should return ContinueResponse when no conflicts are detected', async () => {
       const postChecker = new ConflictDetectionChecker(emptyMessages);
       settingsStub.returns(true);
-      env.stub(postChecker, 'getDefaultUsernameOrAlias').returns('MyAlias');
+      env
+        .stub(postChecker, 'getDefaultUsernameOrAlias')
+        .returns(Promise.resolve('MyAlias'));
       env
         .stub(SfdxPackageDirectories, 'getDefaultPackageDir')
-        .returns('force-app');
-      detectorStub.returns({
-        different: new Set<string>()
-      } as DirectoryDiffResults);
+        .returns(Promise.resolve('force-app'));
+      detectorStub.returns(
+        Promise.resolve({
+          different: new Set<string>()
+        } as DirectoryDiffResults)
+      );
 
       const response = await postChecker.check(validInput);
       expect(response.type).to.equal('CONTINUE');
@@ -393,19 +411,21 @@ describe('Postcondition Checkers', () => {
       settingsStub.returns(true);
       const usernameStub = env
         .stub(postChecker, 'getDefaultUsernameOrAlias')
-        .returns('MyAlias');
+        .returns(Promise.resolve('MyAlias'));
       const packageDirStub = env
         .stub(SfdxPackageDirectories, 'getDefaultPackageDir')
-        .returns('force-app');
-      detectorStub.returns({
-        different: new Set<string>([
-          'main/default/objects/Property__c/fields/Broker__c.field-meta.xml',
-          'main/default/aura/auraPropertySummary/auraPropertySummaryController.js'
-        ]),
-        scannedLocal: 4,
-        scannedRemote: 6
-      } as DirectoryDiffResults);
-      modalStub.returns('Cancel');
+        .returns(Promise.resolve('force-app'));
+      detectorStub.returns(
+        Promise.resolve({
+          different: new Set<string>([
+            'main/default/objects/Property__c/fields/Broker__c.field-meta.xml',
+            'main/default/aura/auraPropertySummary/auraPropertySummaryController.js'
+          ]),
+          scannedLocal: 4,
+          scannedRemote: 6
+        } as DirectoryDiffResults)
+      );
+      modalStub.returns(Promise.resolve('Cancel'));
 
       const response = await postChecker.check(validInput);
       expect(response.type).to.equal('CANCEL');
@@ -432,14 +452,20 @@ describe('Postcondition Checkers', () => {
     it('Should post a warning and return ContinueResponse when conflicts are detected and overwritten', async () => {
       const postChecker = new ConflictDetectionChecker(retrieveMessages);
       settingsStub.returns(true);
-      env.stub(postChecker, 'getDefaultUsernameOrAlias').returns('MyAlias');
+      env
+        .stub(postChecker, 'getDefaultUsernameOrAlias')
+        .returns(Promise.resolve('MyAlias'));
       env
         .stub(SfdxPackageDirectories, 'getDefaultPackageDir')
-        .returns('force-app');
-      detectorStub.returns({
-        different: new Set<string>('MyClass.cls')
-      } as DirectoryDiffResults);
-      modalStub.returns(nls.localize('conflict_detect_override'));
+        .returns(Promise.resolve('force-app'));
+      detectorStub.returns(
+        Promise.resolve({
+          different: new Set<string>('MyClass.cls')
+        } as DirectoryDiffResults)
+      );
+      modalStub.returns(
+        Promise.resolve(nls.localize('conflict_detect_override'))
+      );
 
       const response = await postChecker.check(validInput);
       expect(response.type).to.equal('CONTINUE');

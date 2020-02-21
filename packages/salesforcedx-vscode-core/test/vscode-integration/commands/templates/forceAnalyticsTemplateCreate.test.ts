@@ -14,7 +14,7 @@ import { SfdxCoreSettings } from '../../../../src/settings/sfdxCoreSettings';
 
 // tslint:disable:no-unused-expression
 describe('Force Analytics Template Create', () => {
-  let settings: SinonStub;
+  let settings: SinonStub<[], boolean>;
 
   beforeEach(() => {
     settings = stub(SfdxCoreSettings.prototype, 'getInternalDev');

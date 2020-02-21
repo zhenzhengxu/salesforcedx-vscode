@@ -23,8 +23,8 @@ const OrgType = context.OrgType;
 /* tslint:disable:no-unused-expression */
 
 describe('Push or Deploy on Save', () => {
-  let appendLineStub: SinonStub;
-  let showErrorMessageStub: SinonStub;
+  let appendLineStub: SinonStub<[], void>;
+  let showErrorMessageStub: SinonStub<[], void>;
   beforeEach(() => {
     appendLineStub = stub(channelService, 'appendLine');
     showErrorMessageStub = stub(notificationService, 'showErrorMessage');
@@ -112,8 +112,8 @@ describe('Push or Deploy on Save', () => {
   });
 
   describe('DeployQueue', () => {
-    let getWorkspaceOrgTypeStub: SinonStub;
-    let executeCommandStub: SinonStub;
+    let getWorkspaceOrgTypeStub: SinonStub<[], void>;
+    let executeCommandStub: SinonStub<[], void>;
 
     beforeEach(() => {
       DeployQueue.reset();

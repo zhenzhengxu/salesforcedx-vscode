@@ -5,7 +5,8 @@
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
-import { ConfigFile } from '@salesforce/core';
+import { ConfigContents, ConfigFile } from '@salesforce/core';
+import { AnyJson } from '@salesforce/ts-types';
 import { expect } from 'chai';
 import { sandbox, SinonSandbox, SinonSpy, SinonStub } from 'sinon';
 import {
@@ -32,11 +33,17 @@ describe('Force Auth Web Login for Dev Hub', () => {
 });
 
 describe('configureDefaultDevHubLocation on processExit of ForceAuthDevHubExecutor', () => {
-  let getDefaultDevHubUsernameStub: SinonStub;
-  let setGlobalDefaultDevHubStub: SinonStub;
-  let configWriteStub: SinonStub;
-  let configSetStub: SinonStub;
-  let configCreateSpy: SinonSpy;
+  let getDefaultDevHubUsernameStub: SinonStub<
+    [boolean, (ConfigSource.Local | ConfigSource.Global | undefined)?],
+    Promise<string | undefined>
+  >;
+  let setGlobalDefaultDevHubStub: SinonStub<[string], Promise<void>>;
+  let configWriteStub: SinonStub<
+    [(ConfigContents | undefined)?],
+    Promise<ConfigContents>
+  >;
+  let configSetStub: SinonStub<[string, AnyJson], ConfigContents>;
+  let configCreateSpy: SinonSpy<[unknown], Promise<any>>;
 
   const authWebLogin = ForceAuthDevHubExecutor.prototype;
   let sb: SinonSandbox;
@@ -61,8 +68,10 @@ describe('configureDefaultDevHubLocation on processExit of ForceAuthDevHubExecut
   });
 
   it('Should set global dev hub if there is no global already, but a local has been defined', async () => {
-    getDefaultDevHubUsernameStub.onCall(0).returns(undefined);
-    getDefaultDevHubUsernameStub.onCall(1).returns('test@test.com');
+    getDefaultDevHubUsernameStub.onCall(0).returns(Promise.resolve(undefined));
+    getDefaultDevHubUsernameStub
+      .onCall(1)
+      .returns(Promise.resolve('test@test.com'));
 
     await authWebLogin.configureDefaultDevHubLocation();
 
@@ -77,7 +86,7 @@ describe('configureDefaultDevHubLocation on processExit of ForceAuthDevHubExecut
   });
 
   it('Should do nothing if there is no local dev hub to refer to', async () => {
-    getDefaultDevHubUsernameStub.returns(undefined);
+    getDefaultDevHubUsernameStub.returns(Promise.resolve(undefined));
 
     await authWebLogin.configureDefaultDevHubLocation();
 
@@ -96,7 +105,7 @@ describe('configureDefaultDevHubLocation on processExit of ForceAuthDevHubExecut
     const testUsername = 'test@test.com';
 
     await authWebLogin.setGlobalDefaultDevHub(testUsername);
-
+    // @ts-ignore
     expect(configCreateSpy.getCall(0).args[0].isGlobal).to.be.true;
     expect(
       configSetStub.calledWith(DEFAULT_DEV_HUB_USERNAME_KEY, testUsername)

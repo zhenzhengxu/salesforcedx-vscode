@@ -43,8 +43,8 @@ describe('TestView', () => {
     const coreExports = vscode.extensions.getExtension(
       'salesforce.salesforcedx-vscode-core'
     )!.exports;
-    let commandletSpy: SinonSpy;
-    let getCoverageStub: SinonStub;
+    let commandletSpy: SinonSpy<any[], any>;
+    let getCoverageStub: SinonStub<any[], any>;
     let languageClientUtils: LanguageClientUtils;
 
     beforeEach(() => {
@@ -187,9 +187,15 @@ describe('TestView', () => {
   });
 
   describe('Read JSON file and update tests', () => {
-    let readFolderStub: SinonStub;
-    let readFileStub: SinonStub;
-    let parseJSONStub: SinonStub;
+    let readFolderStub: SinonStub<
+      [
+        fs.PathLike,
+        (string | { encoding?: string | null | undefined } | null | undefined)?
+      ],
+      string[] | Buffer[]
+    >;
+    let readFileStub: SinonStub<any[], any>;
+    let parseJSONStub: SinonStub<any[], any>;
     // let jsonSummaryAll: FullTestResult;
 
     beforeEach(() => {
@@ -263,11 +269,20 @@ describe('TestView', () => {
   });
 
   describe('Navigate to test definition or error', () => {
-    let readFolderStub: SinonStub;
-    let readFileStub: SinonStub;
-    let parseJSONStub: SinonStub;
-    let showTextDocumentStub: SinonStub;
-    let eventEmitterStub: SinonStub;
+    let readFolderStub: SinonStub<
+      [
+        fs.PathLike,
+        (string | { encoding?: string | null | undefined } | null | undefined)?
+      ],
+      string[] | Buffer[]
+    >;
+    let readFileStub: SinonStub<any[], any>;
+    let parseJSONStub: SinonStub<any[], any>;
+    let showTextDocumentStub: SinonStub<
+      [vscode.Uri, (vscode.TextDocumentShowOptions | undefined)?],
+      Thenable<vscode.TextEditor | void>
+    >;
+    let eventEmitterStub: SinonStub<[string | symbol, ...any[]], boolean>;
 
     let testRunner: ApexTestRunner;
     const eventEmitter = new events.EventEmitter();

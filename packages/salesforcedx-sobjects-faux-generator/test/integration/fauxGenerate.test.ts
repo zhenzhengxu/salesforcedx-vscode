@@ -12,7 +12,7 @@ import { expect } from 'chai';
 import { EventEmitter } from 'events';
 import * as fs from 'fs';
 import * as path from 'path';
-import { XHRResponse } from 'request-light';
+import { XHROptions, XHRResponse } from 'request-light';
 import { SinonStub, stub } from 'sinon';
 import { SObjectCategory, SObjectDescribe } from '../../src/describe';
 import { ConfigUtil } from '../../src/describe/configUtil';
@@ -103,11 +103,13 @@ describe('Generate faux classes for SObjects', () => {
     const describeGlobalStub = stub(
       SObjectDescribe.prototype,
       'describeGlobal'
-    ).returns([
-      'MyCustomObject2__c',
-      'MyCustomObject3__c',
-      'MyCustomObject__c'
-    ]);
+    ).returns(
+      Promise.resolve([
+        'MyCustomObject2__c',
+        'MyCustomObject3__c',
+        'MyCustomObject__c'
+      ])
+    );
     const fsExistSyncStub = stub(fs, 'existsSync').returns(true);
 
     const generator = getGenerator();
@@ -150,19 +152,23 @@ describe('Generate faux classes for SObjects', () => {
   });
 
   describe('Check results', () => {
-    let fsExistSyncStub: SinonStub;
-    let getUsername: SinonStub;
-    let authInfo: SinonStub;
-    let xhrMock: SinonStub;
-    let connection: SinonStub;
-    let refreshAuth: SinonStub;
+    let fsExistSyncStub: SinonStub<[fs.PathLike], boolean>;
+    let getUsername: SinonStub<[string], Promise<string | undefined>>;
+    let authInfo: SinonStub<[], Promise<string | undefined>>;
+    let xhrMock: SinonStub<[XHROptions], Promise<XHRResponse>>;
+    let connection: SinonStub<[], Promise<string | undefined>>;
+    let refreshAuth: SinonStub<[], Promise<void>>;
 
     beforeEach(() => {
-      getUsername = stub(ConfigUtil, 'getUsername').returns('test@example.com');
+      getUsername = stub(ConfigUtil, 'getUsername').returns(
+        Promise.resolve('test@example.com')
+      );
       authInfo = stub(AuthInfo, 'create').returns({
+        // @ts-ignore
         getConnectionOptions: () => CONNECTION_DATA
       });
       connection = stub(Org.prototype, 'getConnection').returns(
+        // @ts-ignore
         CONNECTION_DATA
       );
       xhrMock = stub(SObjectDescribe.prototype, 'runRequest');
@@ -184,7 +190,7 @@ describe('Generate faux classes for SObjects', () => {
       const describeGlobalStub = stub(
         SObjectDescribe.prototype,
         'describeGlobal'
-      ).returns(['ApexPageInfo']);
+      ).returns(Promise.resolve(['ApexPageInfo']));
 
       xhrMock.returns(
         Promise.resolve({
@@ -228,7 +234,7 @@ describe('Generate faux classes for SObjects', () => {
       const describeGlobalStub = stub(
         SObjectDescribe.prototype,
         'describeGlobal'
-      ).returns(['ApexPageInfo']);
+      ).returns(Promise.resolve(['ApexPageInfo']));
 
       xhrMock.returns(
         Promise.resolve({

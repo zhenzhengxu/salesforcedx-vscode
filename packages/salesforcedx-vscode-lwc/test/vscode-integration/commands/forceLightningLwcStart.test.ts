@@ -80,8 +80,8 @@ describe('forceLightningLwcStart', () => {
       let taskViewServiceStubs: { [key: string]: SinonStub };
       let notificationServiceStubs: { [key: string]: SinonStub };
       let devServiceStub: any;
-      let openBrowserStub: SinonStub;
-      let cliCommandExecutorStub: SinonStub;
+      let openBrowserStub: SinonStub<[], void>;
+      let cliCommandExecutorStub: SinonStub<[], void>;
 
       beforeEach(() => {
         sandbox = sinon.createSandbox();
@@ -248,9 +248,9 @@ describe('forceLightningLwcStart', () => {
 
   describe('forceLightningLwcStart function', () => {
     let sandbox: SinonSandbox;
-    let showWarningStub: SinonStub;
+    let showWarningStub: SinonStub<[], void>;
     let devServiceStub: any;
-    let commandletStub: SinonStub;
+    let commandletStub: SinonStub<[], void>;
 
     beforeEach(() => {
       sandbox = sinon.createSandbox();

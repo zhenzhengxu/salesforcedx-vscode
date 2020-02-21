@@ -13,7 +13,7 @@ import { isCLIInstalled, showCLINotInstalledMessage } from '../../../src/util';
 
 describe('SFDX CLI Configuration utility', () => {
   describe('isCLIInstalled', () => {
-    let whichStub: SinonStub;
+    let whichStub: SinonStub<[], void>;
 
     beforeEach(() => {
       whichStub = stub(shelljs, 'which');
@@ -48,7 +48,7 @@ describe('SFDX CLI Configuration utility', () => {
   });
 
   describe('showCLINotInstalledMessage', () => {
-    let mShowWarning: SinonStub;
+    let mShowWarning: SinonStub<[], void>;
 
     beforeEach(() => {
       mShowWarning = stub(window, 'showWarningMessage').returns(

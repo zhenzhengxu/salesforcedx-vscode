@@ -18,11 +18,11 @@ import {
   TestType
 } from '../../../../src/testSupport/types';
 
-let existsSyncStub: SinonStub;
-let sfdxTaskExecuteStub: SinonStub;
-let activeTextEditorStub: SinonStub;
-let getTempFolderStub: SinonStub;
-let watchTestResultsStub: SinonStub;
+let existsSyncStub: SinonStub<[], void>;
+let sfdxTaskExecuteStub: SinonStub<[], void>;
+let activeTextEditorStub: SinonStub<[], void>;
+let getTempFolderStub: SinonStub<[], void>;
+let watchTestResultsStub: SinonStub<[], void>;
 export function createMockTestFileInfo() {
   const mockDirectory = path.join(
     vscode.workspace.workspaceFolders![0].uri.fsPath,

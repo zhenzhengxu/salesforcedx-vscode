@@ -20,12 +20,12 @@ const SHOW_ONLY_STATUS_BAR_BUTTON_TEXT = nls.localize(
 
 // tslint:disable:no-empty
 describe('Notifications', () => {
-  let mShowInformation: SinonStub;
-  let mShowWarningMessage: SinonStub;
-  let mShowErrorMessage: SinonStub;
-  let mShow: SinonStub;
-  let mStatusBar: SinonStub;
-  let settings: SinonStub;
+  let mShowInformation: SinonStub<[], void>;
+  let mShowWarningMessage: SinonStub<[], void>;
+  let mShowErrorMessage: SinonStub<[], void>;
+  let mShow: SinonStub<[], void>;
+  let mStatusBar: SinonStub<[], void>;
+  let settings: SinonStub<[], void>;
 
   beforeEach(() => {
     mShow = stub(DEFAULT_SFDX_CHANNEL, 'show');

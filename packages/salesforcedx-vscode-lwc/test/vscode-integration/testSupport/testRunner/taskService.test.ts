@@ -13,9 +13,9 @@ import {
 } from '../../../../src/testSupport/testRunner/taskService';
 
 describe('Task Service Unit Tests', () => {
-  let executeTaskStub: SinonStub;
-  let onDidStartTaskStub: SinonStub;
-  let onDidEndTaskStub: SinonStub;
+  let executeTaskStub: SinonStub<[], void>;
+  let onDidStartTaskStub: SinonStub<[], void>;
+  let onDidEndTaskStub: SinonStub<[], void>;
   let onDidStartTaskEmitter: vscode.EventEmitter<vscode.TaskStartEvent>;
   let onDidEndTaskEmitter: vscode.EventEmitter<vscode.TaskEndEvent>;
   let taskServiceRegistration: vscode.Disposable;

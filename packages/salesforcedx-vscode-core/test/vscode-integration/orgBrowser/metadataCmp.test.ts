@@ -16,7 +16,7 @@ import { getRootWorkspacePath, OrgAuthInfo } from '../../../src/util';
 
 // tslint:disable:no-unused-expression
 describe('get metadata components path', () => {
-  let getUsernameStub: SinonStub;
+  let getUsernameStub: SinonStub<[], void>;
   const rootWorkspacePath = getRootWorkspacePath();
   const cmpUtil = new ComponentUtils();
   const alias = 'test user 1';
@@ -59,7 +59,7 @@ describe('get metadata components path', () => {
 });
 
 describe('build metadata components list', () => {
-  let readFileStub: SinonStub;
+  let readFileStub: SinonStub<[], void>;
   const cmpUtil = new ComponentUtils();
   beforeEach(() => {
     readFileStub = stub(fs, 'readFileSync');
@@ -176,14 +176,14 @@ describe('build metadata components list', () => {
 });
 
 describe('load metadata component data', () => {
-  let readFileStub: SinonStub;
-  let getUsernameStub: SinonStub;
-  let fileExistsStub: SinonStub;
-  let buildComponentsStub: SinonStub;
-  let execStub: SinonStub;
-  let cmdOutputStub: SinonStub;
-  let writeFileStub: SinonStub;
-  let getComponentsPathStub: SinonStub;
+  let readFileStub: SinonStub<[], void>;
+  let getUsernameStub: SinonStub<[], void>;
+  let fileExistsStub: SinonStub<[], void>;
+  let buildComponentsStub: SinonStub<[], void>;
+  let execStub: SinonStub<[], void>;
+  let cmdOutputStub: SinonStub<[], void>;
+  let writeFileStub: SinonStub<[], void>;
+  let getComponentsPathStub: SinonStub<[], void>;
   const cmpUtil = new ComponentUtils();
   const defaultOrg = 'defaultOrg@test.com';
   const metadataType = 'ApexClass';

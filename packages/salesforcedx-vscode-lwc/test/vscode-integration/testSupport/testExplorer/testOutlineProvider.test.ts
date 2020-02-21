@@ -44,7 +44,7 @@ import {
 
 describe('LWC Test Outline Provider', () => {
   describe('Should load exiting test files into test explorer view Unit Tests', () => {
-    let findAllTestFileInfoStub: SinonStub;
+    let findAllTestFileInfoStub: SinonStub<[], void>;
     beforeEach(() => {
       findAllTestFileInfoStub = stub(lwcTestIndexer, 'findAllTestFileInfo');
     });
@@ -126,9 +126,9 @@ describe('LWC Test Outline Provider', () => {
       actualTestCaseNodes = await outlineProvder.getChildren(actualFileNode);
     });
 
-    let activeTextEditorStub: SinonStub;
-    let showTextDocumentStub: SinonStub;
-    let revealRangeStub: SinonStub;
+    let activeTextEditorStub: SinonStub<[], void>;
+    let showTextDocumentStub: SinonStub<[], void>;
+    let revealRangeStub: SinonStub<[], void>;
     const mockActiveTextEditor = {
       document: {
         lineAt: (line: number) => {}

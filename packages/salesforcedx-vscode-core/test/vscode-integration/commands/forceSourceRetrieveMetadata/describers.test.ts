@@ -15,8 +15,8 @@ import { SfdxPackageDirectories } from '../../../../src/sfdxProject';
 const env = sandbox.create();
 
 describe('Retrieve Metadata Describers', () => {
-  let packageStub: SinonStub;
-  let refreshStub: SinonStub;
+  let packageStub: SinonStub<[], Promise<string[]>>;
+  let refreshStub: SinonStub<[BrowserNode], Promise<void>>;
 
   const node = new BrowserNode('Test', NodeType.MetadataType, 'TestType', {
     suffix: '.t',
@@ -31,8 +31,10 @@ describe('Retrieve Metadata Describers', () => {
   beforeEach(() => {
     packageStub = env
       .stub(SfdxPackageDirectories, 'getPackageDirectoryPaths')
-      .returns(['p1', 'p2']);
-    refreshStub = env.stub(orgBrowser, 'refreshAndExpand').callsFake(() => '');
+      .returns(Promise.resolve(['p1', 'p2']));
+    refreshStub = env
+      .stub(orgBrowser, 'refreshAndExpand')
+      .callsFake(() => Promise.resolve());
   });
 
   afterEach(() => env.restore());
@@ -59,6 +61,7 @@ describe('Retrieve Metadata Describers', () => {
     it('Should refresh the available components before gathering', async () => {
       refreshStub.callsFake(() => {
         node.setComponents(['Test1'], NodeType.MetadataCmp);
+        return Promise.resolve();
       });
       expect(await describer.gatherOutputLocations()).to.eql(
         generateComponents(1)

@@ -17,7 +17,7 @@ import { getRootWorkspacePath } from '../../../src/util';
 
 // tslint:disable:no-unused-expression
 describe('SFDX project predicate', () => {
-  let mExistsSync: SinonStub;
+  let mExistsSync: SinonStub<[], void>;
 
   beforeEach(() => {
     mExistsSync = stub(fs, 'existsSync');

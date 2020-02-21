@@ -10,9 +10,9 @@ import { TelemetryService } from '../../../src/telemetry/telemetry';
 
 describe('Telemetry', () => {
   let reporter: TelemetryReporter;
-  let sendEvent: SinonStub;
-  let sendExceptionEvent: SinonStub;
-  let processHrtimeStub: SinonStub;
+  let sendEvent: SinonStub<[], void>;
+  let sendExceptionEvent: SinonStub<[], void>;
+  let processHrtimeStub: SinonStub<[], void>;
   const mockDuration = [100, 100];
 
   beforeEach(() => {

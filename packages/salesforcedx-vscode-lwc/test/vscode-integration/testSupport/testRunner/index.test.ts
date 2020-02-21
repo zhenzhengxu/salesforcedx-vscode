@@ -29,9 +29,9 @@ import {
 
 describe('LWC Test Runner', () => {
   describe('getLwcTestRunnerExecutable Unit Tests', () => {
-    let existsSyncStub: SinonStub;
-    let notificationStub: SinonStub;
-    let telemetryStub: SinonStub;
+    let existsSyncStub: SinonStub<[], void>;
+    let notificationStub: SinonStub<[], void>;
+    let telemetryStub: SinonStub<[], void>;
     beforeEach(() => {
       existsSyncStub = stub(fs, 'existsSync');
       notificationStub = stub(vscode.window, 'showErrorMessage');
@@ -77,8 +77,8 @@ describe('LWC Test Runner', () => {
   });
 
   describe('Jest Execution Info Unit Tests', () => {
-    let uuidStub: SinonStub;
-    let getTempFolderStub: SinonStub;
+    let uuidStub: SinonStub<[], void>;
+    let getTempFolderStub: SinonStub<[], void>;
     beforeEach(() => {
       uuidStub = stub(uuid, 'v4');
       const mockUuid = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';

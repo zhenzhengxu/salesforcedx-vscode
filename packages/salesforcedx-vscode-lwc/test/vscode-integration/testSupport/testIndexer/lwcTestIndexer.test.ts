@@ -77,8 +77,8 @@ describe('LWC Test Indexer', () => {
         children: [...mockItBlocks]
       }
     };
-    let createFileSystemWatcherStub: SinonStub;
-    let parseStub: SinonStub;
+    let createFileSystemWatcherStub: SinonStub<[], void>;
+    let parseStub: SinonStub<[], void>;
     beforeEach(async () => {
       createFileSystemWatcherStub = stub(
         vscode.workspace,

@@ -16,8 +16,8 @@ import { getRootWorkspacePath, OrgAuthInfo } from '../../../src/util';
 
 // tslint:disable:no-unused-expression
 describe('get metadata types folder', () => {
-  let getDefaultUsernameStub: SinonStub;
-  let getUsernameStub: SinonStub;
+  let getDefaultUsernameStub: SinonStub<[], void>;
+  let getUsernameStub: SinonStub<[], void>;
   const rootWorkspacePath = getRootWorkspacePath();
   const typeUtil = new TypeUtils();
   beforeEach(() => {
@@ -46,7 +46,7 @@ describe('get metadata types folder', () => {
 });
 
 describe('build metadata types list', () => {
-  let readFileStub: SinonStub;
+  let readFileStub: SinonStub<[], void>;
   const typeUtil = new TypeUtils();
   const fileData = JSON.stringify({
     status: 0,
@@ -100,14 +100,14 @@ describe('build metadata types list', () => {
 });
 
 describe('load metadata types data', () => {
-  let readFileStub: SinonStub;
-  let getUsernameStub: SinonStub;
-  let fileExistsStub: SinonStub;
-  let buildTypesStub: SinonStub;
-  let execStub: SinonStub;
-  let cmdOutputStub: SinonStub;
-  let writeFileStub: SinonStub;
-  let getTypesFolderStub: SinonStub;
+  let readFileStub: SinonStub<[], void>;
+  let getUsernameStub: SinonStub<[], void>;
+  let fileExistsStub: SinonStub<[], void>;
+  let buildTypesStub: SinonStub<[], void>;
+  let execStub: SinonStub<[], void>;
+  let cmdOutputStub: SinonStub<[], void>;
+  let writeFileStub: SinonStub<[], void>;
+  let getTypesFolderStub: SinonStub<[], void>;
   const typeUtil = new TypeUtils();
   const defaultOrg = 'defaultOrg@test.com';
   let filePath = '/test/metadata/';

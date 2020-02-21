@@ -39,8 +39,11 @@ describe('Force Source Retrieve with Sourcepath Option', () => {
 
 describe('SourcePathChecker', () => {
   let workspacePath: string;
-  let appendLineSpy: SinonStub;
-  let showErrorMessageSpy: SinonStub;
+  let appendLineSpy: SinonStub<[string], void>;
+  let showErrorMessageSpy: SinonStub<
+    [string, ...string[]],
+    Thenable<string | undefined>
+  >;
   beforeEach(() => {
     workspacePath = getRootWorkspacePath();
     appendLineSpy = stub(channelService, 'appendLine');
@@ -56,7 +59,7 @@ describe('SourcePathChecker', () => {
     const isInPackageDirectoryStub = stub(
       SfdxPackageDirectories,
       'isInPackageDirectory'
-    ).returns(true);
+    ).returns(Promise.resolve(true));
     const pathChecker = new SourcePathChecker();
     const sourcePath = path.join(workspacePath, 'package');
     const continueResponse = (await pathChecker.check({
@@ -75,7 +78,7 @@ describe('SourcePathChecker', () => {
     const isInPackageDirectoryStub = stub(
       SfdxPackageDirectories,
       'isInPackageDirectory'
-    ).returns(false);
+    ).returns(Promise.resolve(false));
     const pathChecker = new SourcePathChecker();
     const cancelResponse = (await pathChecker.check({
       type: 'CONTINUE',

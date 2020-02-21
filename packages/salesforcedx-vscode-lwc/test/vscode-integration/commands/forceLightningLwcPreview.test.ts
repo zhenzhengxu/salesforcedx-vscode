@@ -24,7 +24,7 @@ const { SfdxCommandlet, notificationService } = sfdxCoreExports;
 describe('forceLightningLwcPreview', () => {
   let sandbox: SinonSandbox;
   let devServiceStub: any;
-  let openBrowserStub: SinonStub;
+  let openBrowserStub: SinonStub<[], void>;
   let existsSyncStub: sinon.SinonStub<[fs.PathLike], boolean>;
   let lstatSyncStub: sinon.SinonStub<[fs.PathLike], fs.Stats>;
   let showErrorMessageStub: sinon.SinonStub<any[], any>;

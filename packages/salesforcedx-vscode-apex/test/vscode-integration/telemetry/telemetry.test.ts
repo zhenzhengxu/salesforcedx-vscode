@@ -10,7 +10,14 @@ import { TelemetryService } from '../../../src/telemetry/telemetry';
 
 describe('Telemetry', () => {
   let reporter: TelemetryReporter;
-  let sendEvent: SinonStub;
+  let sendEvent: SinonStub<
+    [
+      string,
+      ({ [key: string]: string } | undefined)?,
+      ({ [key: string]: number } | undefined)?
+    ],
+    void
+  >;
 
   beforeEach(() => {
     reporter = new TelemetryReporter('salesforcedx-vscode', 'v1', 'test567890');

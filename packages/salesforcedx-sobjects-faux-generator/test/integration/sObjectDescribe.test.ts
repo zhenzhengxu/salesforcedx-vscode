@@ -5,11 +5,11 @@
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
-import { AuthInfo, Org } from '@salesforce/core';
+import { AuthInfo, Connection, Org } from '@salesforce/core';
 import { CommandOutput } from '@salesforce/salesforcedx-utils-vscode/out/src/cli';
 import { fail } from 'assert';
 import { expect } from 'chai';
-import { XHRResponse } from 'request-light';
+import { XHROptions, XHRResponse } from 'request-light';
 import { SinonStub, stub } from 'sinon';
 import { ConfigUtil } from '../../src/describe/configUtil';
 import {
@@ -27,18 +27,24 @@ const CONNECTION_DATA = {
 
 // tslint:disable:no-unused-expression
 describe('Fetch sObjects', () => {
-  let getUsername: SinonStub;
-  let connection: SinonStub;
-  let xhrMock: SinonStub;
-  let authInfo: SinonStub;
-  let refreshAuth: SinonStub;
+  let getUsername: SinonStub<[string], Promise<string | undefined>>;
+  let connection: SinonStub<[], Connection>;
+  let xhrMock: SinonStub<[XHROptions], Promise<XHRResponse>>;
+  let authInfo: SinonStub<[], Promise<string | undefined>>;
+  let refreshAuth: SinonStub<[], Promise<void>>;
 
   beforeEach(() => {
     authInfo = stub(AuthInfo, 'create').returns({
+      // @ts-ignore
       getConnectionOptions: () => CONNECTION_DATA
     });
-    getUsername = stub(ConfigUtil, 'getUsername').returns('test@example.com');
-    connection = stub(Org.prototype, 'getConnection').returns(CONNECTION_DATA);
+    getUsername = stub(ConfigUtil, 'getUsername').returns(
+      Promise.resolve('test@example.com')
+    );
+    connection = stub(Org.prototype, 'getConnection').returns(
+      // @ts-ignore
+      CONNECTION_DATA
+    );
     refreshAuth = stub(Org.prototype, 'refreshAuth');
     xhrMock = stub(SObjectDescribe.prototype, 'runRequest');
   });
@@ -67,7 +73,7 @@ describe('Fetch sObjects', () => {
       result: ['MyCustomObject2__c', 'MyCustomObject3__c', 'MyCustomObject__c']
     };
     const cmdOutputStub = stub(CommandOutput.prototype, 'getCmdResult').returns(
-      JSON.stringify(responseData)
+      Promise.resolve(JSON.stringify(responseData))
     );
     const execStub = stub(ForceListSObjectSchemaExecutor.prototype, 'execute');
     const result = await sobjectdescribe.describeGlobal(
@@ -96,14 +102,17 @@ describe('Fetch sObjects', () => {
   it('Should ensure valid session token', async () => {
     const sobjectTypes = ['object1', 'object2', 'object3'];
     xhrMock.onFirstCall().throws({ status: 401 });
-    xhrMock
-      .onSecondCall()
-      .returns({ responseText: JSON.stringify(mockDescribeResponse) });
+    xhrMock.onSecondCall().returns(
+      Promise.resolve({
+        responseText: JSON.stringify(mockDescribeResponse)
+      } as XHRResponse)
+    );
     refreshAuth.callsFake(() => {
       connection.returns({
         accessToken: 'another-test-token',
         instanceUrl: 'https://na1.salesforce.com'
-      });
+      } as Connection);
+      return Promise.resolve();
     });
     await sobjectdescribe.describeSObjectBatch(
       'test/project/uri',

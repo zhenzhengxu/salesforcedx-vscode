@@ -36,11 +36,11 @@ import {
 } from '../mocks';
 
 describe('Force LWC Test Debug - Code Action', () => {
-  let uuidStub: SinonStub;
-  let debugStub: SinonStub;
-  let lwcTestRunnerStub: SinonStub;
-  let processHrtimeStub: SinonStub;
-  let telemetryStub: SinonStub;
+  let uuidStub: SinonStub<[], void>;
+  let debugStub: SinonStub<[], void>;
+  let lwcTestRunnerStub: SinonStub<[], void>;
+  let processHrtimeStub: SinonStub<[], void>;
+  let telemetryStub: SinonStub<[], void>;
   const mockUuid = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
   beforeEach(() => {
     uuidStub = stub(uuid, 'v4');

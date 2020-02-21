@@ -18,7 +18,7 @@ const PROJECT_PATH = path.join('sfdx', 'project', 'path');
 /* tslint:disable:no-unused-expression */
 describe('SFDX Package Directories', () => {
   describe('getPackageDirectoryPaths', () => {
-    let sfdxProjectConfigStub: SinonStub;
+    let sfdxProjectConfigStub: SinonStub<[], void>;
     afterEach(() => {
       sfdxProjectConfigStub.restore();
     });
@@ -87,7 +87,7 @@ describe('SFDX Package Directories', () => {
   });
 
   describe('getPackageDirectoryFullPaths', () => {
-    let workspaceStub: SinonStub;
+    let workspaceStub: SinonStub<[], void>;
 
     beforeEach(() => {
       workspaceStub = stubRootWorkspace(PROJECT_PATH);
@@ -111,7 +111,7 @@ describe('SFDX Package Directories', () => {
   });
 
   describe('isInPackageDirectory', () => {
-    let getPackageDirectoryFullPathsStub: SinonStub;
+    let getPackageDirectoryFullPathsStub: SinonStub<[], void>;
     afterEach(() => {
       getPackageDirectoryFullPathsStub.restore();
     });
@@ -157,7 +157,7 @@ describe('SFDX Package Directories', () => {
   });
 
   describe('getDefaultPackageDir', () => {
-    let sfdxProjectConfigStub: SinonStub;
+    let sfdxProjectConfigStub: SinonStub<[], void>;
     afterEach(() => {
       sfdxProjectConfigStub.restore();
     });

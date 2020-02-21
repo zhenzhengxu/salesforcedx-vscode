@@ -19,10 +19,13 @@ import { notificationService } from '../../../src/notifications';
 
 // tslint:disable:no-unused-expression
 describe('Force Source Diff', () => {
-  let appendLineStub: SinonStub;
-  let uriFileSpy: SinonStub;
-  let vscodeDiffSpy: SinonStub;
-  let notificationStub: SinonStub;
+  let appendLineStub: SinonStub<[string], void>;
+  let uriFileSpy: SinonStub<[string], Uri>;
+  let vscodeDiffSpy: SinonStub<[string, ...any[]], Thenable<unknown>>;
+  let notificationStub: SinonStub<
+    [string, ...string[]],
+    Thenable<string | undefined>
+  >;
 
   beforeEach(() => {
     appendLineStub = stub(channelService, 'appendLine');

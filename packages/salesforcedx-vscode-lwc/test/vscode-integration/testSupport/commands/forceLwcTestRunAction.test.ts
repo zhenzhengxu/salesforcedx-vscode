@@ -29,8 +29,8 @@ import {
 
 describe('Force LWC Test Run - Code Action', () => {
   describe('Telemetry for running tests', () => {
-    let telemetryStub: SinonStub;
-    let processHrtimeStub: SinonStub;
+    let telemetryStub: SinonStub<[], void>;
+    let processHrtimeStub: SinonStub<[], void>;
     beforeEach(() => {
       telemetryStub = stub(telemetryService, 'sendCommandEvent');
       telemetryStub.returns(Promise.resolve());
@@ -63,8 +63,8 @@ describe('Force LWC Test Run - Code Action', () => {
   });
 
   describe('Run Test File', () => {
-    let uuidStub: SinonStub;
-    let executeTaskStub: SinonStub;
+    let uuidStub: SinonStub<[], void>;
+    let executeTaskStub: SinonStub<[], void>;
     const mockUuid = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
     beforeEach(() => {
       mockGetLwcTestRunnerExecutable();

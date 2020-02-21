@@ -5,7 +5,11 @@
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
-import { SfdxCommandBuilder } from '@salesforce/salesforcedx-utils-vscode/out/src/cli';
+import {
+  Command,
+  CommandBuilder,
+  SfdxCommandBuilder
+} from '@salesforce/salesforcedx-utils-vscode/out/src/cli';
 import { RequestService } from '@salesforce/salesforcedx-utils-vscode/out/src/requestService';
 import { expect } from 'chai';
 import { createSandbox, SinonSandbox, SinonSpy } from 'sinon';
@@ -34,10 +38,10 @@ describe('Debugger session service', () => {
     let sandboxStub: SinonSandbox;
     let origSpawn: any;
     let mySpawn: any;
-    let cmdWithArgSpy: SinonSpy;
-    let cmdWithFlagSpy: SinonSpy;
-    let cmdWithJsonSpy: SinonSpy;
-    let cmdBuildSpy: SinonSpy;
+    let cmdWithArgSpy: SinonSpy<[string], CommandBuilder>;
+    let cmdWithFlagSpy: SinonSpy<[string, string], CommandBuilder>;
+    let cmdWithJsonSpy: SinonSpy<[], CommandBuilder>;
+    let cmdBuildSpy: SinonSpy<[], Command>;
 
     beforeEach(() => {
       origSpawn = childProcess.spawn;
@@ -156,10 +160,10 @@ describe('Debugger session service', () => {
     let origSpawn: any;
     let mySpawn: any;
     let sandboxStub: SinonSandbox;
-    let cmdWithArgSpy: SinonSpy;
-    let cmdWithFlagSpy: SinonSpy;
-    let cmdWithJsonSpy: SinonSpy;
-    let cmdBuildSpy: SinonSpy;
+    let cmdWithArgSpy: SinonSpy<[string], CommandBuilder>;
+    let cmdWithFlagSpy: SinonSpy<[string, string], CommandBuilder>;
+    let cmdWithJsonSpy: SinonSpy<[], CommandBuilder>;
+    let cmdBuildSpy: SinonSpy<[], Command>;
 
     beforeEach(() => {
       sandboxStub = createSandbox();

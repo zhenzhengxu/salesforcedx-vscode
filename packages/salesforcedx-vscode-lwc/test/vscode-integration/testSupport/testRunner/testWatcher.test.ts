@@ -18,8 +18,8 @@ import {
 
 describe('Test Watcher', () => {
   describe('Telemetry for watching tests', () => {
-    let telemetryStub: SinonStub;
-    let processHrtimeStub: SinonStub;
+    let telemetryStub: SinonStub<[], void>;
+    let processHrtimeStub: SinonStub<[], void>;
     beforeEach(() => {
       telemetryStub = stub(telemetryService, 'sendCommandEvent');
       telemetryStub.returns(Promise.resolve());

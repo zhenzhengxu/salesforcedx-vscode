@@ -16,7 +16,7 @@ import { DevServerService } from '../../../src/service/devServerService';
 describe('forceLightningLwcOpen', () => {
   let sandbox: SinonSandbox;
   let devServiceStub: any;
-  let openBrowserStub: SinonStub;
+  let openBrowserStub: SinonStub<[], void>;
 
   beforeEach(() => {
     sandbox = sinon.createSandbox();
