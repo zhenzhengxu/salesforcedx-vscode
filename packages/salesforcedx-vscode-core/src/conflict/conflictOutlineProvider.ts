@@ -7,8 +7,8 @@
 import { isNullOrUndefined } from '@salesforce/salesforcedx-utils-vscode/out/src/helpers';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { nls } from '../messages';
 import { conflictResolutionService } from '.';
+import { nls } from '../messages';
 
 export type ConflictFile = {
   fileName: string; // should be relPath, fileName, type, ...

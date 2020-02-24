@@ -9,10 +9,10 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { ConflictDetector } from './conflictDetectionService';
 import {
-  ConflictFile,
-  performOperation,
   acceptLocal,
-  acceptRemote
+  acceptRemote,
+  ConflictFile,
+  performOperation
 } from './conflictOutlineProvider';
 import { ConflictResolutionService } from './conflictResolutionService';
 import { ConflictView } from './conflictView';
