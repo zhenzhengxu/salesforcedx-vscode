@@ -13,7 +13,12 @@ import {
 import { existsSync } from 'fs';
 import { join } from 'path';
 import { channelService } from '../../channels';
-import { ConflictDetectionConfig, conflictDetector } from '../../conflict';
+import {
+  ConflictDetectionConfig,
+  conflictDetector,
+  conflictResolutionService,
+  conflictView
+} from '../../conflict';
 import { nls } from '../../messages';
 import { notificationService } from '../../notifications';
 import { sfdxCoreSettings } from '../../settings';
@@ -220,6 +225,13 @@ export class ConflictDetectionChecker implements PostconditionChecker<string> {
         manifest: inputs.data
       };
       const results = await conflictDetector.checkForConflicts(config);
+      const conflictTitle = `${usernameOrAlias}: Retrieve (${
+        results.different.size
+      }) conflicts`;
+      conflictView.reset(
+        conflictTitle,
+        conflictResolutionService.createConflictEntries(results)
+      );
 
       if (results.different.size > 0) {
         channelService.appendLine(

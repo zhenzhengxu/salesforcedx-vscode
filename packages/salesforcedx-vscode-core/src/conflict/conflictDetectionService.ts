@@ -173,7 +173,7 @@ export class ConflictDetector {
     const diffs = this.differ.diff(localSourcePath, convertedSourcePath);
 
     // 6: cleanup temp directory
-    this.clearDirectory(tempMetadataPath, false);
+    // this.clearDirectory(tempMetadataPath, false);
 
     return diffs;
   }

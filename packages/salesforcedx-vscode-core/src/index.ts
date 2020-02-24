@@ -66,6 +66,8 @@ import {
   SfdxCommandletExecutor,
   SfdxWorkspaceChecker
 } from './commands/util';
+// import { conflictView, forceConflictDiff } from './conflict';
+import { conflictView, registerConflictView } from './conflict';
 import { getDefaultUsernameOrAlias, setupWorkspaceOrgType } from './context';
 import * as decorators from './decorators';
 import { isDemoMode } from './modes/demo-mode';
@@ -311,6 +313,11 @@ function registerCommands(
     forceSourceDiff
   );
 
+  // const forceConflictDiffFile = vscode.commands.registerCommand(
+  //   'sfdx.force.conflict.diff',
+  //   forceConflictDiff
+  // );
+
   return vscode.Disposable.from(
     forceApexExecuteDocumentCmd,
     forceApexExecuteSelectionCmd,
@@ -318,6 +325,7 @@ function registerCommands(
     forceAuthWebLoginCmd,
     forceAuthDevHubCmd,
     forceAuthLogoutAllCmd,
+    // forceConflictDiffFile,
     forceDataSoqlQueryInputCmd,
     forceDataSoqlQuerySelectionCmd,
     forceDiffFile,
@@ -437,6 +445,13 @@ async function setupOrgBrowser(
   );
 }
 
+async function setupConflictView(
+  extensionContext: vscode.ExtensionContext
+): Promise<void> {
+  const view = conflictView;
+  await view.init(extensionContext);
+}
+
 export async function activate(context: vscode.ExtensionContext) {
   const extensionHRStart = process.hrtime();
   // Telemetry
@@ -532,6 +547,7 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(registerOrgPickerCommands(orgList));
 
   await setupOrgBrowser(context);
+  await setupConflictView(context);
   if (isCLIInstalled()) {
     // Set context for defaultusername org
     await setupWorkspaceOrgType(defaultUsernameorAlias);
@@ -549,6 +565,7 @@ export async function activate(context: vscode.ExtensionContext) {
   // Commands
   const commands = registerCommands(context);
   context.subscriptions.push(commands);
+  context.subscriptions.push(await registerConflictView());
 
   // Scratch Org Decorator
   if (hasRootWorkspace()) {

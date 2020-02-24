@@ -90,6 +90,11 @@
           "id": "metadata",
           "title": "Org Browser",
           "icon": "resources/dep.svg"
+        },
+        {
+          "id": "conflicts",
+          "title": "Conflicts Detected",
+          "icon": "resources/conflicts.png"
         }
       ]
     },
@@ -106,6 +111,13 @@
           "name": "Metadata",
           "when": "sfdx:project_opened && sfdx:default_username_has_no_change_tracking"
         }
+      ],
+      "conflicts": [
+        {
+          "id": "conflicts",
+          "name": "Conflicts",
+          "when": "sfdx:project_opened "
+        }
       ]
     },
     "menus": {
@@ -113,6 +125,11 @@
         {
           "command": "sfdx.force.metadata.view.type.refresh",
           "when": "view == metadata",
+          "group": "navigation"
+        },
+        {
+          "command": "sfdx.force.conflict.perform",
+          "when": "view == conflict",
           "group": "navigation"
         }
       ],
@@ -129,6 +146,16 @@
         {
           "command": "sfdx.force.source.retrieve.component",
           "when": "view == metadata && viewItem =~ /(type|component)/",
+          "group": "inline"
+        },
+        {
+          "command": "sfdx.force.conflict.acceptRemote",
+          "when": "view == conflicts && viewItem == conflict-actions",
+          "group": "inline"
+        },
+        {
+          "command": "sfdx.force.conflict.acceptLocal",
+          "when": "view == conflicts && viewItem == conflict-actions",
           "group": "inline"
         }
       ],
@@ -719,6 +746,18 @@
       {
         "command": "sfdx.force.diff",
         "title": "%force_diff_against_org%"
+      },
+      {
+        "command": "sfdx.force.conflict.perform",
+        "title": "Continue Operation"
+      },
+      {
+        "command": "sfdx.force.conflict.acceptRemote",
+        "title": "Accept Remote"
+      },
+      {
+        "command": "sfdx.force.conflict.acceptLocal",
+        "title": "Accept Local"
       }
     ],
     "configuration": {

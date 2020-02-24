@@ -494,6 +494,9 @@ export const messages = {
   conflict_detect_no_default_username: 'No default username for this project',
   conflict_detect_no_default_package_dir:
     'No default package directory for this project',
+  conflict_detect_view_init: 'Conflict detection view has not been initialized',
+  conflict_detect_no_conflicts: 'No Conflicts Detected',
+  conflict_detect_not_accessed: 'Conflicts Not Assessed',
 
   force_source_diff_text: 'SFDX: Diff File Against Org',
   force_source_diff_unsupported_type:
