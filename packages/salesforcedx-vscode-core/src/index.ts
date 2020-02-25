@@ -66,7 +66,6 @@ import {
   SfdxCommandletExecutor,
   SfdxWorkspaceChecker
 } from './commands/util';
-// import { conflictView, forceConflictDiff } from './conflict';
 import { conflictView, registerConflictView } from './conflict';
 import { getDefaultUsernameOrAlias, setupWorkspaceOrgType } from './context';
 import * as decorators from './decorators';
@@ -313,11 +312,6 @@ function registerCommands(
     forceSourceDiff
   );
 
-  // const forceConflictDiffFile = vscode.commands.registerCommand(
-  //   'sfdx.force.conflict.diff',
-  //   forceConflictDiff
-  // );
-
   return vscode.Disposable.from(
     forceApexExecuteDocumentCmd,
     forceApexExecuteSelectionCmd,
@@ -325,7 +319,6 @@ function registerCommands(
     forceAuthWebLoginCmd,
     forceAuthDevHubCmd,
     forceAuthLogoutAllCmd,
-    // forceConflictDiffFile,
     forceDataSoqlQueryInputCmd,
     forceDataSoqlQuerySelectionCmd,
     forceDiffFile,

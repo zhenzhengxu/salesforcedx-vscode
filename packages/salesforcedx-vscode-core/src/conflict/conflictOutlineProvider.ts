@@ -80,6 +80,8 @@ export class ConflictOutlineProvider
       () => this.updateDisposition()
     );
 
+    setAllConflictsResolved(false);
+    setResolutionInProgress(conflicts.length > 0);
     this.root.setComponents(conflicts);
     this.internalOnDidChangeTreeData.fire(this.root);
   }
@@ -105,7 +107,7 @@ export class ConflictOutlineProvider
       this.conflicts
     );
     if (allResolved) {
-      // enable 'Perform Operation' action
+      setAllConflictsResolved(true);
       this.root.updateIcon(true);
     }
     this.internalOnDidChangeTreeData.fire(this.root);
@@ -211,7 +213,7 @@ export class ConflictNode extends vscode.TreeItem {
 
   private attachActions(c: ConflictNode) {
     const actions = new ConflictNode(
-      'Actions',
+      'Unresolved',
       vscode.TreeItemCollapsibleState.None
     );
     c._children = [actions];
@@ -221,16 +223,32 @@ export class ConflictNode extends vscode.TreeItem {
   }
 }
 
-export function performOperation(entry: ConflictEntry) {}
-
 export function acceptLocal(entry: ConflictNode) {
+  entry.label = 'LOCAL';
   if (entry.parent) {
     entry.parent.updateResolution(ConflictDisposition.AcceptLocal);
   }
 }
 
 export function acceptRemote(entry: ConflictNode) {
+  entry.label = 'REMOTE';
   if (entry.parent) {
     entry.parent.updateResolution(ConflictDisposition.AcceptRemote);
   }
+}
+
+function setAllConflictsResolved(val: boolean) {
+  vscode.commands.executeCommand(
+    'setContext',
+    'sfdx:all_conflicts_resolved',
+    val
+  );
+}
+
+function setResolutionInProgress(val: boolean) {
+  vscode.commands.executeCommand(
+    'setContext',
+    'sfdx:conflict_resolution_in_progress',
+    val
+  );
 }

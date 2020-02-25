@@ -228,10 +228,13 @@ export class ConflictDetectionChecker implements PostconditionChecker<string> {
       const conflictTitle = `${usernameOrAlias}: Retrieve (${
         results.different.size
       }) conflicts`;
-      conflictView.reset(
-        conflictTitle,
-        conflictResolutionService.createConflictEntries(results)
+
+      const conflicts = conflictResolutionService.createConflictEntries(
+        results
       );
+      conflictView.reset(conflictTitle, conflicts, () => {
+        conflictResolutionService.performRetrieve(results, conflicts);
+      });
 
       if (results.different.size > 0) {
         channelService.appendLine(
@@ -249,6 +252,7 @@ export class ConflictDetectionChecker implements PostconditionChecker<string> {
 
         const choice = await notificationService.showWarningModal(
           nls.localize(this.messages.warningMessageKey),
+          // nls.localize('conflict_detect_show_conflicts'),
           nls.localize('conflict_detect_override')
         );
 

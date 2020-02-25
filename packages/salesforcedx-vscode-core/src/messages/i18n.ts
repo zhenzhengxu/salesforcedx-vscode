@@ -486,6 +486,8 @@ export const messages = {
     'Conflicts are detected while deploying metadata. The conflicted files are listed in the Output view.',
   conflict_detect_conflicts_during_retrieve:
     'Conflicts are detected while retrieving metadata. The conflicted files are listed in the Output view.',
+  conflict_detect_resolve_deploy_operation: 'Deploy',
+  conflict_detect_resolve_retrieve_operation: 'Retrieve',
   conflict_detect_override: 'Override Conflicts',
   conflict_detect_conflict_header:
     'Conflicts:\n    Found %s file(s) in conflict (scanned %s org files, %s local files):\n',
@@ -496,6 +498,7 @@ export const messages = {
     'No default package directory for this project',
   conflict_detect_view_init: 'Conflict detection view has not been initialized',
   conflict_detect_no_conflicts: 'No Conflicts Detected',
+  conflict_detect_show_conflicts: 'Show Conflicts',
   conflict_detect_not_accessed: 'Conflicts Not Assessed',
 
   force_source_diff_text: 'SFDX: Diff File Against Org',

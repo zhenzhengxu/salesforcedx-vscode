@@ -11,8 +11,7 @@ import { ConflictDetector } from './conflictDetectionService';
 import {
   acceptLocal,
   acceptRemote,
-  ConflictFile,
-  performOperation
+  ConflictFile
 } from './conflictOutlineProvider';
 import { ConflictResolutionService } from './conflictResolutionService';
 import { ConflictView } from './conflictView';
@@ -29,6 +28,13 @@ export const conflictDetector = ConflictDetector.getInstance();
 export const conflictView = ConflictView.getInstance();
 export const conflictResolutionService = ConflictResolutionService.getInstance();
 
+async function setupConflictView(
+  extensionContext: vscode.ExtensionContext
+): Promise<void> {
+  const view = conflictView;
+  await view.init(extensionContext);
+}
+
 export async function registerConflictView(): Promise<vscode.Disposable> {
   const viewItems: vscode.Disposable[] = [];
 
@@ -39,8 +45,14 @@ export async function registerConflictView(): Promise<vscode.Disposable> {
   );
 
   viewItems.push(
-    vscode.commands.registerCommand('sfdx.force.conflict.perform', entry =>
-      performOperation(entry)
+    vscode.commands.registerCommand('sfdx.force.conflict.perform', () =>
+      performOperation(conflictView)
+    )
+  );
+
+  viewItems.push(
+    vscode.commands.registerCommand('sfdx.force.conflict.cancel', () =>
+      cancelOperation(conflictView)
     )
   );
 
@@ -57,6 +69,15 @@ export async function registerConflictView(): Promise<vscode.Disposable> {
   );
 
   return vscode.Disposable.from(...viewItems);
+}
+
+export function performOperation(view: ConflictView) {
+  console.log('Performing Operation');
+  view.performOperation();
+}
+
+export function cancelOperation(view: ConflictView) {
+  console.log('Cancelled Operation');
 }
 
 function conflictDiff(file: ConflictFile) {

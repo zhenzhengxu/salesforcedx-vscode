@@ -93,8 +93,8 @@
         },
         {
           "id": "conflicts",
-          "title": "Conflicts Detected",
-          "icon": "resources/conflicts.png"
+          "title": "%conflict_detect_resolve_view%",
+          "icon": "resources/conflict_view.svg"
         }
       ]
     },
@@ -116,7 +116,7 @@
         {
           "id": "conflicts",
           "name": "Conflicts",
-          "when": "sfdx:project_opened "
+          "when": "sfdx:project_opened && sfdx:default_username_has_no_change_tracking"
         }
       ]
     },
@@ -128,8 +128,13 @@
           "group": "navigation"
         },
         {
+          "command": "sfdx.force.conflict.cancel",
+          "when": "view == conflicts && sfdx:conflict_resolution_in_progress",
+          "group": "navigation"
+        },
+        {
           "command": "sfdx.force.conflict.perform",
-          "when": "view == conflict",
+          "when": "view == conflicts && sfdx:all_conflicts_resolved",
           "group": "navigation"
         }
       ],
@@ -748,16 +753,28 @@
         "title": "%force_diff_against_org%"
       },
       {
+        "command": "sfdx.force.conflict.cancel",
+        "title": "%conflict_detect_resolve_cancel%",
+        "icon": {
+          "light": "resources/light/retrieve.svg",
+          "dark": "resources/dark/retrieve.svg"
+        }
+      },
+      {
         "command": "sfdx.force.conflict.perform",
-        "title": "Continue Operation"
+        "title": "%conflict_detect_resolve_perform%",
+        "icon": {
+          "light": "resources/light/retrieve.svg",
+          "dark": "resources/dark/retrieve.svg"
+        }
       },
       {
         "command": "sfdx.force.conflict.acceptRemote",
-        "title": "Accept Remote"
+        "title": "%conflict_detect_resolve_accept_remote%"
       },
       {
         "command": "sfdx.force.conflict.acceptLocal",
-        "title": "Accept Local"
+        "title": "%conflict_detect_resolve_accept_local%"
       }
     ],
     "configuration": {

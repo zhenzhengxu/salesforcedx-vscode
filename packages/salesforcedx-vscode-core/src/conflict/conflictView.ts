@@ -19,6 +19,7 @@ export class ConflictView {
 
   private _treeView?: TreeView<ConflictNode>;
   private _dataProvider?: ConflictOutlineProvider;
+  private operation?: () => void;
 
   private constructor() {}
 
@@ -58,11 +59,22 @@ export class ConflictView {
     extensionContext.subscriptions.push(this._treeView);
   }
 
-  public reset(orgLabel: string, conflicts: ConflictEntry[]) {
+  public reset(
+    orgLabel: string,
+    conflicts: ConflictEntry[],
+    operation?: () => void
+  ) {
     if (this._dataProvider) {
       this._dataProvider.reset(orgLabel, conflicts);
       const root = this._dataProvider.getChildren(undefined);
       this.treeView.reveal(root[0], { expand: true });
+      this.operation = operation;
+    }
+  }
+
+  public performOperation() {
+    if (this.operation) {
+      this.operation();
     }
   }
 

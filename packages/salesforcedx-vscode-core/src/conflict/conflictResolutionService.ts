@@ -6,6 +6,7 @@
  */
 
 import * as path from 'path';
+import { channelService } from '../channels';
 import { ConflictDisposition, ConflictEntry } from './conflictOutlineProvider';
 import { DirectoryDiffResults } from './directoryDiffer';
 
@@ -48,6 +49,7 @@ export class ConflictResolutionService {
     conflicts: ConflictEntry[]
   ) {
     // copy missing local files from remote cache into the project
+    this.createHistoryFolder();
     results.missingLocal.forEach(p => {
       const source = path.join(results.remoteRoot, p);
       const target = path.join(results.localRoot, p);
@@ -64,6 +66,7 @@ export class ConflictResolutionService {
   ) {
     // update the project to match org state for all selected files
     // this needs to be done prior to a deploy
+    this.createHistoryFolder();
     this.acceptRemote(conflicts);
   }
 
@@ -78,7 +81,16 @@ export class ConflictResolutionService {
   }
 
   private copyFile(source: string, target: string) {
-    const cmd = `cp ${source} ${target}`;
-    console.log(cmd);
+    // const cmd = `cp ${source} ${target}`;
+    channelService.appendLine(`Save: ${target}`);
+    channelService.appendLine(`Copy: ${source}`);
+    channelService.appendLine(`  To: ${target}`);
+    channelService.appendLine('');
+    channelService.showChannelOutput();
+  }
+
+  private createHistoryFolder() {
+    const name = new Date().getTime().toString();
+    channelService.appendLine(`Creating new history folder: ${name}...`);
   }
 }
