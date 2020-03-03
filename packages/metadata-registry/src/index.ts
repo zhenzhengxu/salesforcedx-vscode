@@ -10,18 +10,23 @@ export type MetadataType = {
   directoryName: string;
 
   /**
-   * Whether or not components of the type are stored in folders. E.g. Reports, Dashboards, Documents, EmailTemplates
+   * Whether or not components of the type are stored in folders.
+   * E.g. Reports, Dashboards, Documents, EmailTemplates
    */
   inFolder: boolean;
 
   /**
    * File suffix for the metadata type.
    *
-   * Usually dictates the metadata xml file extension of
-   * the format `.[suffix]-meta.xml`. Some types may not have one, such as bundle types like
-   * LightningComponentBundles, AuraDefinitionBundles, etc.
+   * Some types may not have one, such as bundle types with varying extensions.
+   * E.g. LightningComponentBundles, AuraDefinitionBundles, etc.
    */
   suffix?: string;
+
+  /**
+   * Names of the subtypes, if a type has any.
+   */
+  childXmlNames?: string[];
 };
 
 export type MetadataComponent = {
@@ -43,10 +48,13 @@ export function getTypeFromName(name: string): MetadataType {
 
 /**
  * Get the metadata component(s) from a file path.
- * @param filePath File path for a piece of metadata
+ *
+ * Currently only supports individual files and not a path to a folder,
+ * meaning one component will be returned at a time.
+ * @param fsPath File path for a piece of metadata
  */
-export function getComponentsFromPath(filePath: string): MetadataComponent[] {
-  const pathParts = filePath.split(sep);
+export function getComponentsFromPath(fsPath: string): MetadataComponent[] {
+  const pathParts = fsPath.split(sep);
   const file = pathParts[pathParts.length - 1];
   const extensionIndex = file.indexOf('.');
   const fileName = file.substring(0, extensionIndex);
@@ -81,7 +89,7 @@ export function getComponentsFromPath(filePath: string): MetadataComponent[] {
   }
 
   if (!typeId) {
-    throw new Error(`Unable to determine a type from ${filePath}`);
+    throw new Error(`Unable to determine a type from ${fsPath}`);
   } else if (!registry.types[typeId]) {
     throw new Error(`Missing metadata type definition for ${typeId}`);
   }

@@ -10,6 +10,7 @@
       "name": "CustomLabels",
       "suffix": "labels",
       "directoryName": "labels",
+      "childXmlNames": ["CustomLabel"],
       "inFolder": false
     },
     "navigationmenu": {
@@ -157,6 +158,18 @@
       "name": "CustomObject",
       "suffix": "object",
       "directoryName": "objects",
+      "childXmlNames": [
+        "CustomField",
+        "Index",
+        "BusinessProcess",
+        "CompactLayout",
+        "RecordType",
+        "WebLink",
+        "ValidationRule",
+        "SharingReason",
+        "ListView",
+        "FieldSet"
+      ],
       "inFolder": false
     },
     "reporttype": {
@@ -234,6 +247,7 @@
       "name": "Form",
       "suffix": "form",
       "directoryName": "forms",
+      "childXmlNames": ["FormSection"],
       "inFolder": false
     },
     "flexipage": {
@@ -330,24 +344,36 @@
       "name": "Workflow",
       "suffix": "workflow",
       "directoryName": "workflows",
+      "childXmlNames": [
+        "WorkflowFieldUpdate",
+        "WorkflowKnowledgePublish",
+        "WorkflowTask",
+        "WorkflowAlert",
+        "WorkflowSend",
+        "WorkflowOutboundMessage",
+        "WorkflowRule"
+      ],
       "inFolder": false
     },
     "assignmentrules": {
       "name": "AssignmentRules",
       "suffix": "assignmentRules",
       "directoryName": "assignmentRules",
+      "childXmlNames": ["AssignmentRule"],
       "inFolder": false
     },
     "autoresponserules": {
       "name": "AutoResponseRules",
       "suffix": "autoResponseRules",
       "directoryName": "autoResponseRules",
+      "childXmlNames": ["AutoResponseRule"],
       "inFolder": false
     },
     "escalationrules": {
       "name": "EscalationRules",
       "suffix": "escalationRules",
       "directoryName": "escalationRules",
+      "childXmlNames": ["EscalationRule"],
       "inFolder": false
     },
     "posttemplate": {
@@ -474,6 +500,7 @@
       "name": "MatchingRules",
       "suffix": "matchingRule",
       "directoryName": "matchingRules",
+      "childXmlNames": ["MatchingRule"],
       "inFolder": false
     },
     "duplicaterule": {
@@ -605,6 +632,11 @@
       "name": "SharingRules",
       "suffix": "sharingRules",
       "directoryName": "sharingRules",
+      "childXmlNames": [
+        "SharingOwnerRule",
+        "SharingCriteriaRule",
+        "SharingTerritoryRule"
+      ],
       "inFolder": false
     },
     "sharingset": {
@@ -1007,6 +1039,7 @@
       "name": "Bot",
       "suffix": "bot",
       "directoryName": "bots",
+      "childXmlNames": ["BotVersion"],
       "inFolder": false
     },
     "animationrule": {

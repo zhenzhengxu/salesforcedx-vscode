@@ -14,18 +14,28 @@ const describe = JSON.parse(fs.readFileSync(join(__dirname, 'describe.json')));
 
 for (const object of describe.metadataObjects) {
   const typeId = object.xmlName.toLowerCase();
-  const { xmlName: name, suffix, directoryName, inFolder } = object;
+  const {
+    xmlName: name,
+    suffix,
+    directoryName,
+    inFolder,
+    childXmlNames
+  } = object;
   registry.types[typeId] = {
     name,
     suffix,
     directoryName,
+    childXmlNames:
+      childXmlNames && !(childXmlNames instanceof Array)
+        ? [childXmlNames]
+        : childXmlNames,
     inFolder: inFolder === 'true'
   };
   registry.suffixes[suffix] = typeId;
 
-  // if (!suffix) {
-  //   registry.bundles[directoryName] = typeId;
-  // }
+  if (!suffix) {
+    registry.bundles[directoryName] = typeId;
+  }
 }
 
 fs.writeFileSync(registryPath, JSON.stringify(registry, null, 2));

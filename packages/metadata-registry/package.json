@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "compile": "tsc",
-    "update": "node scripts/update.js",
+    "update": "node src/update.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
