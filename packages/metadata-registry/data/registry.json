@@ -1271,7 +1271,7 @@
     "MobileApplicationDetail": "mobileapplicationdetail",
     "lightningOnboardingConfig": "lightningonboardingconfig"
   },
-  "variableContent": {
+  "mixedContent": {
     "experiences": "experiencebundle",
     "aura": "auradefinitionbundle",
     "lwc": "lightningcomponentbundle",

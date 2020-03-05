@@ -1,101 +1,128 @@
 import { existsSync } from 'fs';
 import { sep } from 'path';
-import * as registryData from '../data/registry.json';
+import * as data from '../data/registry.json';
 import { META_XML_SUFFIX } from './constants';
-import { MetadataComponent, MetadataType, SourcePath } from './types';
+import {
+  MetadataComponent,
+  MetadataRegistry,
+  MetadataType,
+  SourcePath
+} from './types';
 
 /**
- * Get metadata type information.
- *
- * @param name Name of the metadata type
+ * Direct access to the JSON registry data
  */
-export function getTypeFromName(name: string): MetadataType {
-  const lower = name.toLowerCase().replace(/ /g, '');
-  if (!registryData.types[lower]) {
-    throw new Error(`Missing metadata type definition for ${lower}`);
-  }
-  return registryData.types[lower];
-}
+export const registryData = Object.seal(data);
 
 /**
- * Get the metadata component(s) from a file path.
- *
- * __Current limitations:__
- * - `fsPath` must be a single file - no directories.
- * - Only one component can be returned at a time.
- * - Only types with file suffixes, non-decomposed, single SourcePath
- *
- * @param fsPath File path for a piece of metadata
+ * Primary interface for the metadata registry data. Used to infer information about metadata
+ * types and components based on source paths.
  */
-export function getComponentsFromPath(fsPath: string): MetadataComponent[] {
-  const pathParts = fsPath.split(sep);
-  const file = pathParts[pathParts.length - 1];
-  const extensionIndex = file.indexOf('.');
-  const fileName = file.substring(0, extensionIndex);
-  const fileExtension = file.substring(extensionIndex + 1);
+export class RegistryAccess {
+  private data: MetadataRegistry;
 
-  if (!existsSync(fsPath)) {
-    throw new Error(`file not found ${fsPath}`);
+  /**
+   * @param customData Optional custom registry data.
+   */
+  constructor(customData: MetadataRegistry = registryData) {
+    this.data = customData;
   }
 
-  let typeId: string;
-  let componentName = fileName;
-  let xmlPath: SourcePath;
-  const sources = new Set<SourcePath>();
-
-  // attempt 1 - try treating the file extension as a suffix
-  if (registryData.suffixes[fileExtension]) {
-    xmlPath = `${fsPath}${META_XML_SUFFIX}`;
-    if (!existsSync(xmlPath)) {
-      throw new Error(`metadata xml file missing for ${file}`);
+  /**
+   * Get metadata type information.
+   *
+   * @param name Name of the metadata type
+   */
+  public getTypeFromName(name: string): MetadataType {
+    const lower = name.toLowerCase().replace(/ /g, '');
+    if (!this.data.types[lower]) {
+      throw new Error(`missing metadata type definition for ${lower}`);
     }
-    typeId = registryData.suffixes[fileExtension];
-    sources.add(fsPath);
+    return this.data.types[lower];
   }
-  // attempt 2 - check if it's a metadata xml file
-  if (!typeId) {
-    const match = fileExtension.match(/(.+)-meta\.xml/);
-    if (match) {
-      const sourcePath = fsPath.slice(0, fsPath.lastIndexOf(META_XML_SUFFIX));
-      if (existsSync(sourcePath)) {
-        sources.add(sourcePath);
+
+  /**
+   * Get the metadata component(s) from a file path.
+   *
+   * __Current limitations:__
+   * - `fsPath` must be a single file - no directories.
+   * - Only one component can be returned at a time.
+   * - Only types with file suffixes, non-decomposed, single SourcePath
+   *
+   * @param fsPath File path for a piece of metadata
+   */
+  public getComponentsFromPath(fsPath: string): MetadataComponent[] {
+    const pathParts = fsPath.split(sep);
+    const file = pathParts[pathParts.length - 1];
+    const extensionIndex = file.indexOf('.');
+    const fileName = file.substring(0, extensionIndex);
+    const fileExtension = file.substring(extensionIndex + 1);
+
+    if (!existsSync(fsPath)) {
+      throw new Error(`file not found ${fsPath}`);
+    }
+
+    let typeId: string;
+    let fullName = fileName;
+    let xmlPath: SourcePath;
+    const sources = new Set<SourcePath>();
+
+    // attempt 1 - try treating the file extension as a suffix
+    if (this.data.suffixes[fileExtension]) {
+      xmlPath = `${fsPath}${META_XML_SUFFIX}`;
+      if (!existsSync(xmlPath)) {
+        throw new Error(`metadata xml file missing for ${file}`);
       }
-      typeId = registryData.suffixes[match[1]];
-      xmlPath = fsPath;
+      typeId = this.data.suffixes[fileExtension];
+      sources.add(fsPath);
     }
-  }
-  // attempt 3 - check if the file is part of a bundle
-  // if (!typeId) {
-  //   const pathPartsSet = new Set(pathParts);
-  //   for (const directoryName of Object.keys(registry.bundles)) {
-  //     if (pathPartsSet.has(directoryName)) {
-  //       typeId = registry.bundles[directoryName];
-  //       // components of a bundle type are assumed to have their direct parent be the type's directoryName
-  //       componentName =
-  //         pathParts[pathParts.findIndex(part => part === directoryName) + 1];
-  //       break;
-  //     }
-  //   }
-  // }
-
-  if (!typeId) {
-    throw new Error('Types missing a defined suffix are currently unsupported');
-  } else if (!registryData.types[typeId]) {
-    throw new Error(`Missing metadata type definition for ${typeId}`);
-  }
-
-  const type = registryData.types[typeId] as MetadataType;
-  if (type.inFolder) {
-    // component names of types with folders have the format folderName/componentName
-    componentName = `${pathParts[pathParts.length - 2]}/${fileName}`;
-  }
-
-  return [
-    {
-      name: componentName,
-      type,
-      xmlPath,
-      sources: Array.from(sources)
+    // attempt 2 - check if it's a metadata xml file
+    if (!typeId) {
+      const match = fileExtension.match(/(.+)-meta\.xml/);
+      if (match) {
+        const sourcePath = fsPath.slice(0, fsPath.lastIndexOf(META_XML_SUFFIX));
+        if (existsSync(sourcePath)) {
+          sources.add(sourcePath);
+        }
+        typeId = this.data.suffixes[match[1]];
+        xmlPath = fsPath;
+      }
     }
-  ];
+    // attempt 3 - check if the file is part of a mixed content type
+    // if (!typeId) {
+    //   const pathPartsSet = new Set(pathParts);
+    //   for (const directoryName of Object.keys(registry.mixedContent)) {
+    //     if (pathPartsSet.has(directoryName)) {
+    //       typeId = registry.mixedContent[directoryName];
+    //       // components of a bundle type are assumed to have their direct parent be the type's directoryName
+    //       componentName =
+    //         pathParts[pathParts.findIndex(part => part === directoryName) + 1];
+    //       break;
+    //     }
+    //   }
+    // }
+
+    if (!typeId) {
+      throw new Error(
+        'types missing a defined suffix are currently unsupported'
+      );
+    } else if (!this.data.types[typeId]) {
+      throw new Error(`missing metadata type definition for ${typeId}`);
+    }
+
+    const type = this.data.types[typeId] as MetadataType;
+    if (type.inFolder) {
+      // component names of types with folders have the format folderName/componentName
+      fullName = `${pathParts[pathParts.length - 2]}/${fileName}`;
+    }
+
+    return [
+      {
+        fullName,
+        type,
+        xmlPath,
+        sources: Array.from(sources)
+      }
+    ];
+  }
 }

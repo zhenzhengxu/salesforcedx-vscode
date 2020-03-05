@@ -3,7 +3,7 @@ const { join } = require('path');
 
 // Prep the registry
 const REGISTRY_FILE = '../data/registry.json';
-const EMPTY_REGISTRY = { types: {}, suffixes: {}, variableContent: {} };
+const EMPTY_REGISTRY = { types: {}, suffixes: {}, mixedContent: {} };
 const registryPath = join(__dirname, REGISTRY_FILE);
 const registry = fs.existsSync(registryPath)
   ? JSON.parse(fs.readFileSync(registryPath))
@@ -36,7 +36,7 @@ for (const object of describe.metadataObjects) {
   registry.suffixes[suffix] = typeId;
 
   if (!suffix) {
-    registry.variableContent[directoryName] = typeId;
+    registry.mixedContent[directoryName] = typeId;
   }
 }
 

@@ -31,7 +31,7 @@ export type MetadataType = {
  * Source information about a single metadata component.
  */
 export type MetadataComponent = {
-  name: string;
+  fullName: string;
   type: MetadataType;
   /**
    * Path to the -meta.xml file.
@@ -47,3 +47,18 @@ export type MetadataComponent = {
  * File system path to a source file of a metadata component.
  */
 export type SourcePath = string;
+
+/**
+ * Describes the shape of the registry data.
+ */
+export type MetadataRegistry = {
+  types: {
+    [metadataId: string]: MetadataType;
+  };
+  suffixes: {
+    [suffix: string]: string;
+  };
+  mixedContent: {
+    [directoryName: string]: string;
+  };
+};
