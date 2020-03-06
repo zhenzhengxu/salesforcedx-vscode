@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2020, salesforce.com, inc.
+ * All rights reserved.
+ * Licensed under the BSD 3-Clause license.
+ * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+ */
+
 import { existsSync } from 'fs';
 import { sep } from 'path';
 import * as data from '../data/registry.json';
@@ -12,7 +19,7 @@ import {
 /**
  * Direct access to the JSON registry data
  */
-export const registryData = Object.seal(data);
+export const registryData = Object.freeze(data);
 
 /**
  * Primary interface for the metadata registry data. Used to infer information about metadata
@@ -120,7 +127,7 @@ export class RegistryAccess {
       {
         fullName,
         type,
-        xmlPath,
+        metaXml: xmlPath,
         sources: Array.from(sources)
       }
     ];

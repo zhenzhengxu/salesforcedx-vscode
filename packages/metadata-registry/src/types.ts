@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2020, salesforce.com, inc.
+ * All rights reserved.
+ * Licensed under the BSD 3-Clause license.
+ * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+ */
+
 /**
  * Properties of a metadata type.
  */
@@ -36,7 +43,7 @@ export type MetadataComponent = {
   /**
    * Path to the -meta.xml file.
    */
-  xmlPath: SourcePath;
+  metaXml: SourcePath;
   /**
    * Paths to additional source files, if any.
    */

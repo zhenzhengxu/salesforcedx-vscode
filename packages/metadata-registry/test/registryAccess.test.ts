@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2020, salesforce.com, inc.
+ * All rights reserved.
+ * Licensed under the BSD 3-Clause license.
+ * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+ */
+
 import { fail } from 'assert';
 import { expect } from 'chai';
 import * as fs from 'fs';
@@ -97,10 +104,10 @@ describe('RegistryAccess', () => {
     });
 
     it('should throw missing type definition error for types without an entry (rare)', () => {
-      const xmlPath = '/path/to/missing/TypeDef.missing-meta.xml';
-      existsStub.withArgs(xmlPath).returns(true);
+      const metaXml = '/path/to/missing/TypeDef.missing-meta.xml';
+      existsStub.withArgs(metaXml).returns(true);
       try {
-        registry.getComponentsFromPath(xmlPath);
+        registry.getComponentsFromPath(metaXml);
         fail('should have thrown an unsupported type error');
       } catch (e) {
         expect(e.message).to.equal(
@@ -111,44 +118,44 @@ describe('RegistryAccess', () => {
 
     describe('Types with no mixed content', () => {
       const cmpPath = '/path/to/keanus/MyKeanu.keanu';
-      const xmlPath = `${cmpPath}${META_XML_SUFFIX}`;
+      const metaXml = `${cmpPath}${META_XML_SUFFIX}`;
 
       it(`should return a component when given a ${META_XML_SUFFIX} file`, () => {
         existsStub.withArgs(cmpPath).returns(false);
-        existsStub.withArgs(xmlPath).returns(true);
-        expect(registry.getComponentsFromPath(xmlPath)[0]).to.deep.equal({
+        existsStub.withArgs(metaXml).returns(true);
+        expect(registry.getComponentsFromPath(metaXml)[0]).to.deep.equal({
           fullName: 'MyKeanu',
           type: data.types.keanureeves,
-          xmlPath,
+          metaXml,
           sources: []
         });
       });
 
       it(`should return a component w/ source file when given a ${META_XML_SUFFIX} file`, () => {
         existsStub.withArgs(cmpPath).returns(true);
-        existsStub.withArgs(xmlPath).returns(true);
-        expect(registry.getComponentsFromPath(xmlPath)[0]).to.deep.equal({
+        existsStub.withArgs(metaXml).returns(true);
+        expect(registry.getComponentsFromPath(metaXml)[0]).to.deep.equal({
           fullName: 'MyKeanu',
           type: data.types.keanureeves,
-          xmlPath,
+          metaXml,
           sources: [cmpPath]
         });
       });
 
       it(`should return a component w/ ${META_XML_SUFFIX} file when given a source path`, () => {
         existsStub.withArgs(cmpPath).returns(true);
-        existsStub.withArgs(xmlPath).returns(true);
+        existsStub.withArgs(metaXml).returns(true);
         expect(registry.getComponentsFromPath(cmpPath)[0]).to.deep.equal({
           fullName: 'MyKeanu',
           type: data.types.keanureeves,
-          xmlPath,
+          metaXml,
           sources: [cmpPath]
         });
       });
 
       it(`should throw missing ${META_XML_SUFFIX} file error when given a source path and the xml is missing`, () => {
         existsStub.withArgs(cmpPath).returns(true);
-        existsStub.withArgs(xmlPath).returns(false);
+        existsStub.withArgs(metaXml).returns(false);
         try {
           registry.getComponentsFromPath(cmpPath);
           fail(`should have thrown a missing ${META_XML_SUFFIX} file error`);
