@@ -142,8 +142,7 @@ export class LibraryRetrieveSourcePathExecutor extends LibraryCommandletExecutor
         this.sourceClient.tooling.retrieveWithPaths
       );
       const retrieveOpts = {
-        paths: [response.data],
-        output: 'wa'
+        paths: [response.data]
       };
       await this.sourceClient.tooling.retrieveWithPaths(retrieveOpts);
       this.logMetric();
