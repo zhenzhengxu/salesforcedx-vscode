@@ -5,6 +5,7 @@
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import { ContinueResponse } from '@salesforce/salesforcedx-utils-vscode/out/src/types';
+import { channelService } from '../../channels';
 import {
   Measurements,
   Properties,
@@ -25,6 +26,24 @@ export abstract class LibraryCommandletExecutor<T>
     telemetryLogName: string
   ): Promise<void> {}
 
+  public genericBuild(execName: string, telemetryLogName: string): void {
+    this.executionName = execName;
+    this.telemetryName = telemetryLogName;
+  }
+
+  public genericWrapper(fn: (one: string) => string) {
+    const commandName = this.executionName;
+
+    return function(one: string): string {
+      channelService.showCommandWithTimestamp(`Starting ${commandName}`);
+      // @ts-ignore
+      const result = fn.call(this, one) as string;
+
+      channelService.appendLine(result);
+      channelService.showCommandWithTimestamp(`Finished ${commandName}`);
+      return result;
+    };
+  }
   public async execute(response: ContinueResponse<T>): Promise<void> {}
 
   public logMetric(properties?: Properties, measurements?: Measurements) {

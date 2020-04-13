@@ -286,6 +286,10 @@
           "when": "sfdx:project_opened"
         },
         {
+          "command": "sfdx.force.create.project.manifest",
+          "when": "sfdx:project_opened"
+        },
+        {
           "command": "sfdx.force.auth.dev.hub",
           "when": "sfdx:project_opened"
         },
@@ -515,6 +519,10 @@
       {
         "command": "sfdx.force.package.install",
         "title": "%force_package_install_text%"
+      },
+      {
+        "command": "sfdx.force.create.project.manifest",
+        "title": "SFDX: Create Project Manifest"
       },
       {
         "command": "sfdx.force.auth.dev.hub",
