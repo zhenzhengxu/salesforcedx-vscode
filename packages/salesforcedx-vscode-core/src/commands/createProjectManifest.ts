@@ -10,7 +10,7 @@ import {
   DirFileNameSelection,
   LocalComponent
 } from '@salesforce/salesforcedx-utils-vscode/src/types';
-import { Deploy, ManifestGenerator } from '@salesforce/source-deploy-retrieve';
+import { ManifestGenerator } from '@salesforce/source-deploy-retrieve';
 import * as fs from 'fs';
 import * as path from 'path';
 import { workspace } from 'vscode';
@@ -39,21 +39,20 @@ export class ProjectManifestCreateExecutor extends LibraryCommandletExecutor<
       this.genericBuild('Create Project Manifest', 'create_project_manifest');
 
       const wa = new ManifestGenerator();
-      wa.createManifestFromPath = this.genericWrapper(
+      /* wa.createManifestFromPath = this.genericWrapper(
         wa.createManifestFromPath
-      );
+      ); */
       const projectPath = workspace!.workspaceFolders![0].uri.fsPath;
-      const manifestContent = wa.createManifestFromPath(
-        path.join(projectPath, response.data.outputdir)
-      );
+
       const outputFilePath = path.join(
         projectPath,
         'manifest',
         response.data.fileName
       );
-      const writeStream = fs.createWriteStream(outputFilePath);
-      writeStream.write(manifestContent);
-      writeStream.end();
+      wa.createManifestFromPath(
+        path.join(projectPath, response.data.outputdir),
+        outputFilePath
+      );
       this.logMetric();
     } catch (e) {
       telemetryService.sendException(
