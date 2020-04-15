@@ -5,7 +5,7 @@
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
-import { expect } from 'chai';
+/*import { expect } from 'chai';
 import {
   ToolingDeployParser,
   ToolingRetrieveResult
@@ -209,3 +209,4 @@ describe('Tooling Deploy Parser', () => {
     expect(results).to.equal(nls.localize('beta_tapi_queue_status'));
   });
 });
+*/

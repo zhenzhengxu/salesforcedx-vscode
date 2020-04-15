@@ -87,9 +87,9 @@ export abstract class LibraryCommandletExecutor<T>
         }
       );
 
-      // const parser = new ToolingDeployParser(result);
-      // const outputResult = await parser.outputResult();
-      channelService.appendLine(result.toString());
+      const parser = new ToolingDeployParser(result);
+      const outputResult = await parser.outputResult();
+      channelService.appendLine(outputResult);
       channelService.showCommandWithTimestamp(`Finished ${commandName}`);
       await notificationService.showSuccessfulExecution(commandName);
       return result;

@@ -8,40 +8,49 @@ import {
   Row,
   Table
 } from '@salesforce/salesforcedx-utils-vscode/out/src/output';
-import { nls } from '../messages';
 import {
+  DeployDetailsResult,
   DeployResult,
   DeployStatusEnum,
-  ToolingRetrieveResult
-} from './deployUtil';
+  ToolingDeployResult
+} from '@salesforce/source-deploy-retrieve';
+import { nls } from '../messages';
 
+interface SuccessType {
+  state: string;
+  fullName: string;
+  type: string;
+  filePath: string;
+}
 export class ToolingDeployParser {
-  public result: ToolingRetrieveResult;
+  public result: ToolingDeployResult;
 
-  constructor(deployResult: ToolingRetrieveResult) {
+  constructor(deployResult: ToolingDeployResult) {
     this.result = deployResult;
   }
 
-  public buildSuccesses(componentSuccess: DeployResult) {
-    const mdState =
-      componentSuccess.changed && !componentSuccess.created
-        ? 'Updated'
-        : 'Created';
-    const success = [
-      {
+  public buildSuccesses(componentSuccesses: DeployResult[]): SuccessType[] {
+    const formattedSuccesses: SuccessType[] = [];
+    let mdState: string;
+    for (const success of componentSuccesses) {
+      mdState = success.changed && !success.created ? 'Updated' : 'Created';
+      const formattedSuccess = {
         state: mdState,
-        fullName: componentSuccess.fullName,
-        type: componentSuccess.componentType,
-        filePath: componentSuccess.fileName
-      },
-      {
-        state: mdState,
-        fullName: componentSuccess.fullName,
-        type: componentSuccess.componentType,
-        filePath: `${componentSuccess.fileName}-meta.xml`
-      }
-    ];
-    return success;
+        fullName: success.fullName!,
+        type: success.componentType,
+        filePath: success.fileName!
+      };
+      formattedSuccesses.push(formattedSuccess);
+    }
+
+    const metadataSuccess = {
+      state: mdState!,
+      fullName: componentSuccesses[0].fullName!,
+      type: componentSuccesses[0].componentType,
+      filePath: `${componentSuccesses[0].fileName}-meta.xml`
+    };
+    formattedSuccesses.push(metadataSuccess);
+    return formattedSuccesses;
   }
 
   public buildErrors(componentErrors: DeployResult[]) {
@@ -66,7 +75,7 @@ export class ToolingDeployParser {
       case DeployStatusEnum.Completed:
         title = nls.localize(`table_title_deployed_source`);
         const successRows = this.buildSuccesses(
-          this.result.DeployDetails!.componentSuccesses[0]
+          this.result.DeployDetails!.componentSuccesses
         );
         outputResult = table.createTable(
           (successRows as unknown) as Row[],
