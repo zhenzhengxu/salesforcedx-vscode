@@ -5,7 +5,6 @@
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
-import { Connection } from '@salesforce/core';
 import { ContinueResponse } from '@salesforce/salesforcedx-utils-vscode/out/src/types';
 import {
   ApiResult,
@@ -24,7 +23,6 @@ import { CommandletExecutor } from './sfdxCommandlet';
 export abstract class LibraryCommandletExecutor<T>
   implements CommandletExecutor<T> {
   protected showChannelOutput = true;
-  protected orgConnection: Connection | undefined;
   protected sourceClient: SourceClient | undefined;
   protected executionName: string = '';
   protected startTime: [number, number] | undefined;
@@ -43,9 +41,9 @@ export abstract class LibraryCommandletExecutor<T>
     if (!usernameOrAlias) {
       throw new Error(nls.localize('error_no_default_username'));
     }
-    // TODO: orgConnection will soon be replaced
-    this.orgConnection = await OrgAuthInfo.getConnection(usernameOrAlias);
-    this.sourceClient = new SourceClient(this.orgConnection);
+
+    const conn = await OrgAuthInfo.getConnection(usernameOrAlias);
+    this.sourceClient = new SourceClient(conn);
   }
 
   public retrieveWrapper(fn: (...args: any[]) => Promise<ApiResult>) {
@@ -89,9 +87,9 @@ export abstract class LibraryCommandletExecutor<T>
         }
       );
 
-      const parser = new ToolingDeployParser(result);
-      const outputResult = await parser.outputResult();
-      channelService.appendLine(outputResult);
+      // const parser = new ToolingDeployParser(result);
+      // const outputResult = await parser.outputResult();
+      channelService.appendLine(result.toString());
       channelService.showCommandWithTimestamp(`Finished ${commandName}`);
       await notificationService.showSuccessfulExecution(commandName);
       return result;

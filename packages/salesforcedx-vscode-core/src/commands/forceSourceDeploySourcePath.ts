@@ -13,7 +13,6 @@ import {
   ContinueResponse,
   ParametersGatherer
 } from '@salesforce/salesforcedx-utils-vscode/out/src/types';
-import { Deploy } from '@salesforce/source-deploy-retrieve';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { channelService } from '../channels';
@@ -111,7 +110,7 @@ export function useBetaRetrieve(explorerPath: vscode.Uri[]): boolean {
   }
   const filePath = explorerPath[0].fsPath;
   const betaDeployRetrieve = sfdxCoreSettings.getBetaDeployRetrieve();
-  const supportedType =
+  const supportedType = true; /*
     path.extname(filePath) === APEX_CLASS_EXTENSION ||
     filePath.includes(`${APEX_CLASS_EXTENSION}-meta.xml`) ||
     (path.extname(filePath) === APEX_TRIGGER_EXTENSION ||
@@ -119,7 +118,7 @@ export function useBetaRetrieve(explorerPath: vscode.Uri[]): boolean {
     (path.extname(filePath) === VISUALFORCE_COMPONENT_EXTENSION ||
       filePath.includes(`${VISUALFORCE_COMPONENT_EXTENSION}-meta.xml`)) ||
     (path.extname(filePath) === VISUALFORCE_PAGE_EXTENSION ||
-      filePath.includes(`${VISUALFORCE_PAGE_EXTENSION}-meta.xml`));
+      filePath.includes(`${VISUALFORCE_PAGE_EXTENSION}-meta.xml`)); */
   return betaDeployRetrieve && supportedType;
 }
 
@@ -135,13 +134,15 @@ export class LibraryDeploySourcePathExecutor extends LibraryCommandletExecutor<
         'force_source_deploy_with_sourcepath_beta'
       );
 
-      if (this.orgConnection === undefined) {
-        throw new Error('Connection is not established');
+      if (this.sourceClient === undefined) {
+        throw new Error('SourceClient is not established');
       }
 
-      const deployLib = new Deploy(this.orgConnection);
-      deployLib.deploy = this.deployWrapper(deployLib.deploy);
-      await deployLib.deploy(response.data);
+      this.sourceClient.tooling.deploy = this.deployWrapper(
+        this.sourceClient.tooling.deploy
+      );
+
+      await this.sourceClient.tooling.deploy(response.data);
       this.logMetric();
     } catch (e) {
       telemetryService.sendException(
