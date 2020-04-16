@@ -8,8 +8,8 @@
 import { ContinueResponse } from '@salesforce/salesforcedx-utils-vscode/out/src/types';
 import {
   ApiResult,
-  SourceClient,
-  ToolingDeployResult
+  DeployResult,
+  SourceClient
 } from '@salesforce/source-deploy-retrieve';
 import { ProgressLocation, window } from 'vscode';
 import { channelService } from '../../channels';
@@ -70,10 +70,10 @@ export abstract class LibraryCommandletExecutor<T>
     };
   }
 
-  public deployWrapper(fn: (...args: any[]) => Promise<ToolingDeployResult>) {
+  public deployWrapper(fn: (...args: any[]) => Promise<DeployResult>) {
     const commandName = this.executionName;
 
-    return async function(...args: any[]): Promise<ToolingDeployResult> {
+    return async function(...args: any[]): Promise<DeployResult> {
       channelService.showCommandWithTimestamp(`Starting ${commandName}`);
 
       const result = await window.withProgress(
@@ -83,7 +83,7 @@ export abstract class LibraryCommandletExecutor<T>
         },
         async () => {
           // @ts-ignore
-          return (await fn.call(this, ...args)) as ToolingDeployResult;
+          return (await fn.call(this, ...args)) as DeployResult;
         }
       );
 

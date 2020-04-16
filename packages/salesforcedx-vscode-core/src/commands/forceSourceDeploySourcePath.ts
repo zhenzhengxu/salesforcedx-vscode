@@ -142,7 +142,9 @@ export class LibraryDeploySourcePathExecutor extends LibraryCommandletExecutor<
         this.sourceClient.tooling.deploy
       );
 
-      await this.sourceClient.tooling.deploy(response.data);
+      await this.sourceClient.tooling.deployWithPaths({
+        paths: [response.data]
+      });
       this.logMetric();
     } catch (e) {
       telemetryService.sendException(

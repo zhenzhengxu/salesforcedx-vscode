@@ -9,10 +9,9 @@ import {
   Table
 } from '@salesforce/salesforcedx-utils-vscode/out/src/output';
 import {
-  DeployDetailsResult,
   DeployResult,
   DeployStatusEnum,
-  ToolingDeployResult
+  SourceResult
 } from '@salesforce/source-deploy-retrieve';
 import { nls } from '../messages';
 
@@ -23,13 +22,13 @@ interface SuccessType {
   filePath: string;
 }
 export class ToolingDeployParser {
-  public result: ToolingDeployResult;
+  public result: DeployResult;
 
-  constructor(deployResult: ToolingDeployResult) {
+  constructor(deployResult: DeployResult) {
     this.result = deployResult;
   }
 
-  public buildSuccesses(componentSuccesses: DeployResult[]): SuccessType[] {
+  public buildSuccesses(componentSuccesses: SourceResult[]): SuccessType[] {
     const formattedSuccesses: SuccessType[] = [];
     let mdState: string;
     for (const success of componentSuccesses) {
@@ -53,7 +52,7 @@ export class ToolingDeployParser {
     return formattedSuccesses;
   }
 
-  public buildErrors(componentErrors: DeployResult[]) {
+  public buildErrors(componentErrors: SourceResult[]) {
     const failures = [];
     for (const err of componentErrors) {
       if (err.columnNumber && err.lineNumber) {
