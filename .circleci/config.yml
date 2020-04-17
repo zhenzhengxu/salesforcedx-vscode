@@ -124,6 +124,7 @@ jobs:
       - SFDX_DOMAIN_RETRY: 300
     steps:
       - build-artifacts
+      - auth-orgs
 
   run-tests:
     description: 'Run tests on Windows'
@@ -197,7 +198,6 @@ workflows:
   commit-workflow:
     jobs:
       - build-all
-      - auth-orgs
       - run-tests:
           run-unit-tests: true
           context: vscode-test
