@@ -6,11 +6,15 @@
 #     SFDX_CI_DEVHUB_CLIENTID  -- connected app client ID for the dev hub
 #     SFDX_CI_DEVHUB_JWT_KEY   -- private key for the connected app (base64 encoded)
 #     SFDX_CI_DEVHUB_USERNAME  -- username of an authorized user of the dev hub
+#     SFDX_CI_LOCALDEV_CLIENTID -- connected app client ID for localdev org
+#     SFDX_CI_LOCALDEV_JWT_KEY  -- private key for the connected app (base64 encoded)
+#     SFDX_CI_LOCALDEV_USERNAME -- username of an authorized user of the localdev org
 #
 version: 2.1
 
 orbs:
   win: circleci/windows@2.2.0
+  sfdx: circleci/salesforce-sfdx@1.0.0
 
 commands:
   build-artifacts:
@@ -120,13 +124,21 @@ jobs:
       - unless:
           condition: << parameters.run-unit-tests >>
           steps:
+            - sfdx/auth:
+                consumerKey: ${SFDX_CI_DEVHUB_CLIENTID}
+                jwtKey: ${SFDX_CI_DEVHUB_JWTKEY}
+                defaultusername: ${SFDX_CI_DEVHUB_USERNAME}
+            - sfdx/auth:
+                consumerKey: ${SFDX_CI_LOCALDEV_CLIENTID}
+                jwtKey: ${SFDX_CI_LOCALDEV_JWTKEY}
+                defaultusername: ${SFDX_CI_LOCALDEV_USERNAME}
             - run:
-                name: 'Authenticate to the default DevHub'
+                name: 'Verify authentication'
                 shell: bash.exe
                 command: |
-                  echo $SFDX_CI_DEVHUB_JWTKEY | base64 --decode > devhub.key
-                  sfdx force:auth:jwt:grant --clientid ${SFDX_CI_DEVHUB_CLIENTID} --username ${SFDX_CI_DEVHUB_USERNAME} --jwtkeyfile devhub.key --setdefaultdevhubusername --setalias devhub
-                  rm devhub.key
+                  sfdx force:auth:list
+                  sfdx force:data:soql:query -q "select id from account" -u ${SFDX_CI_DEVHUB_USERNAME}
+                  sfdx force:data:soql:query -q "select id from account" -u ${SFDX_CI_LOCALDEV_USERNAME}
             - run:
                 name: 'Running integration tests'
                 shell: cmd.exe
