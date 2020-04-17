@@ -50,7 +50,6 @@ commands:
 
   auth-orgs:
     description: 'Authenticate to SF orgs.'
-    executor: sfdx/default
     steps:
       - sfdx/auth:
           consumerKey: SFDX_CI_DEVHUB_CLIENTID
