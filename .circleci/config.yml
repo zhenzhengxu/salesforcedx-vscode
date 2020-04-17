@@ -125,13 +125,13 @@ jobs:
           condition: << parameters.run-unit-tests >>
           steps:
             - sfdx/auth:
-                consumerKey: ${SFDX_CI_DEVHUB_CLIENTID}
-                jwtKey: ${SFDX_CI_DEVHUB_JWTKEY}
-                defaultusername: ${SFDX_CI_DEVHUB_USERNAME}
+                consumerKey: SFDX_CI_DEVHUB_CLIENTID
+                jwtKey: SFDX_CI_DEVHUB_JWTKEY
+                defaultusername: SFDX_CI_DEVHUB_USERNAME
             - sfdx/auth:
-                consumerKey: ${SFDX_CI_LOCALDEV_CLIENTID}
-                jwtKey: ${SFDX_CI_LOCALDEV_JWTKEY}
-                defaultusername: ${SFDX_CI_LOCALDEV_USERNAME}
+                consumerKey: SFDX_CI_LOCALDEV_CLIENTID
+                jwtKey: SFDX_CI_LOCALDEV_JWTKEY
+                defaultusername: SFDX_CI_LOCALDEV_USERNAME
             - run:
                 name: 'Verify authentication'
                 shell: bash.exe
