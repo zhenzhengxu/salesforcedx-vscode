@@ -48,6 +48,19 @@ commands:
           paths:
             - node_modules
 
+  auth-orgs:
+    description: 'Authenticate to SF orgs.'
+    executor: sfdx/default
+    steps:
+      - sfdx/auth:
+          consumerKey: SFDX_CI_DEVHUB_CLIENTID
+          jwtKey: SFDX_CI_DEVHUB_JWTKEY
+          defaultusername: ${SFDX_CI_DEVHUB_USERNAME}
+      - sfdx/auth:
+          consumerKey: SFDX_CI_LOCALDEV_CLIENTID
+          jwtKey: SFDX_CI_LOCALDEV_JWTKEY
+          defaultusername: ${SFDX_CI_LOCALDEV_USERNAME}
+
   build-win:
     description: 'Build for Windows.'
     steps:
@@ -124,24 +137,17 @@ jobs:
       - unless:
           condition: << parameters.run-unit-tests >>
           steps:
-            # - sfdx/auth:
-            #     consumerKey: SFDX_CI_DEVHUB_CLIENTID
-            #     jwtKey: SFDX_CI_DEVHUB_JWTKEY
-            #     defaultusername: SFDX_CI_DEVHUB_USERNAME
-            # - sfdx/auth:
-            #     consumerKey: SFDX_CI_LOCALDEV_CLIENTID
-            #     jwtKey: SFDX_CI_LOCALDEV_JWTKEY
-            #     defaultusername: SFDX_CI_LOCALDEV_USERNAME
+            - auth-orgs
             - run:
                 name: 'Verify authentication'
                 shell: bash.exe
                 command: |
-                  echo $SFDX_CI_DEVHUB_JWTKEY | base64 --decode > devhub.key
-                  sfdx force:auth:jwt:grant --clientid ${SFDX_CI_DEVHUB_CLIENTID} --username ${SFDX_CI_DEVHUB_USERNAME} --jwtkeyfile devhub.key --setdefaultdevhubusername --setalias devhub
-                  rm devhub.key
-                  echo $SFDX_CI_LOCALDEV_JWTKEY | base64 --decode > localdev.key
-                  sfdx force:auth:jwt:grant --clientid ${SFDX_CI_LOCALDEV_CLIENTID} --username ${SFDX_CI_LOCALDEV_USERNAME} --jwtkeyfile localdev.key --setdefaultusername --setalias localdev
-                  rm localdev.key
+                  # echo $SFDX_CI_DEVHUB_JWTKEY | base64 --decode > devhub.key
+                  # sfdx force:auth:jwt:grant --clientid ${SFDX_CI_DEVHUB_CLIENTID} --username ${SFDX_CI_DEVHUB_USERNAME} --jwtkeyfile devhub.key --setdefaultdevhubusername --setalias devhub
+                  # rm devhub.key
+                  # echo $SFDX_CI_LOCALDEV_JWTKEY | base64 --decode > localdev.key
+                  # sfdx force:auth:jwt:grant --clientid ${SFDX_CI_LOCALDEV_CLIENTID} --username ${SFDX_CI_LOCALDEV_USERNAME} --jwtkeyfile localdev.key --setdefaultusername --setalias localdev
+                  # rm localdev.key
                   sfdx force:auth:list
                   sfdx force:data:soql:query -q "select id from account" -u ${SFDX_CI_DEVHUB_USERNAME}
                   sfdx force:data:soql:query -q "select id from account" -u ${SFDX_CI_LOCALDEV_USERNAME}
