@@ -18,11 +18,13 @@ import { DevServerService, ServerHandler } from '../service/devServerService';
 import { DEV_SERVER_BASE_URL } from './commandConstants';
 import { openBrowser, showError } from './commandUtils';
 
+import { channelService } from '@salesforce/salesforcedx-utils-vscode/out/src/channel';
+
 const sfdxCoreExports = vscode.extensions.getExtension(
   'salesforce.salesforcedx-vscode-core'
 )!.exports;
 const {
-  channelService,
+  // channelService,
   taskViewService,
   notificationService,
   SfdxCommandlet,

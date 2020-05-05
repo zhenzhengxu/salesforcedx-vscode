@@ -9,6 +9,7 @@
     "Other"
   ],
   "dependencies": {
+    "@types/vscode": "^1.44.0",
     "cross-spawn": "6.0.5",
     "path-exists": "3.0.0",
     "rxjs": "^5.4.1",
@@ -37,7 +38,7 @@
     "vscode": "^1.40.0"
   },
   "scripts": {
-    "compile": "webpack",
+    "compile": "tsc -p .",
     "lint": "tslint --project .",
     "watch": "tsc -watch -p .",
     "clean": "shx rm -rf node_modules && shx rm -rf out && shx rm -rf coverage && shx rm -rf .nyc_output",
