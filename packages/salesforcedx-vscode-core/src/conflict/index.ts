@@ -9,8 +9,11 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { nls } from '../messages';
 import { ConflictDetector } from './conflictDetectionService';
-import { ConflictFile, ConflictNode } from './conflictNode';
+import { ConflictNode } from './conflictNode';
 import { ConflictView } from './conflictView';
+import { ConflictFile } from './types';
+import { ConflictResolutionService } from './conflictResolutionService';
+import { acceptLocal, acceptRemote } from './conflictOutlineProvider';
 export {
   ConflictDetectionConfig,
   ConflictDetector
@@ -22,6 +25,7 @@ export {
 } from './directoryDiffer';
 export const conflictView = ConflictView.getInstance();
 export const conflictDetector = ConflictDetector.getInstance();
+export const conflictResolutionService = ConflictResolutionService.getInstance();
 
 export async function setupConflictView(
   extensionContext: vscode.ExtensionContext
@@ -42,6 +46,30 @@ export function registerConflictView(): vscode.Disposable {
   viewItems.push(
     vscode.commands.registerCommand('sfdx.force.conflict.open', entry =>
       openResource(entry)
+    )
+  );
+
+  viewItems.push(
+    vscode.commands.registerCommand('sfdx.force.conflict.perform', () =>
+      conflictView.performOperation()
+    )
+  );
+
+  viewItems.push(
+    vscode.commands.registerCommand('sfdx.force.conflict.cancel', () =>
+      conflictView.cancel()
+    )
+  );
+
+  viewItems.push(
+    vscode.commands.registerCommand('sfdx.force.conflict.acceptRemote', entry =>
+      acceptRemote(entry)
+    )
+  );
+
+  viewItems.push(
+    vscode.commands.registerCommand('sfdx.force.conflict.acceptLocal', entry =>
+      acceptLocal(entry)
     )
   );
 

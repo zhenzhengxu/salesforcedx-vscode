@@ -129,6 +129,16 @@
           "command": "sfdx.force.metadata.view.type.refresh",
           "when": "view == metadata",
           "group": "navigation"
+        },
+        {
+          "command": "sfdx.force.conflict.cancel",
+          "when": "view == conflicts && sfdx:conflict_resolution_in_progress",
+          "group": "navigation"
+        },
+        {
+          "command": "sfdx.force.conflict.perform",
+          "when": "view == conflicts && sfdx:all_conflicts_resolved",
+          "group": "navigation"
         }
       ],
       "view/item/context": [
@@ -149,6 +159,16 @@
         {
           "command": "sfdx.force.conflict.open",
           "when": "view == conflicts && viewItem == conflict-actions",
+          "group": "inline"
+        },
+        {
+          "command": "sfdx.force.conflict.acceptRemote",
+          "when": "view == conflicts && viewItem == conflict-resolve-actions",
+          "group": "inline"
+        },
+        {
+          "command": "sfdx.force.conflict.acceptLocal",
+          "when": "view == conflicts && viewItem == conflict-resolve-actions",
           "group": "inline"
         }
       ],
@@ -750,6 +770,38 @@
         "icon": {
           "light": "resources/light/go-to-file.svg",
           "dark": "resources/dark/go-to-file.svg"
+        }
+      },
+      {
+        "command": "sfdx.force.conflict.cancel",
+        "title": "%conflict_detect_resolve_cancel%",
+        "icon": {
+          "light": "resources/light/clear-all.svg",
+          "dark": "resources/dark/clear-all.svg"
+        }
+      },
+      {
+        "command": "sfdx.force.conflict.perform",
+        "title": "%conflict_detect_resolve_perform%",
+        "icon": {
+          "light": "resources/light/cloud-download.svg",
+          "dark": "resources/dark/cloud-download.svg"
+        }
+      },
+      {
+        "command": "sfdx.force.conflict.acceptRemote",
+        "title": "%conflict_detect_resolve_accept_remote%",
+        "icon": {
+          "light": "resources/light/triangle-left.svg",
+          "dark": "resources/dark/triangle-left.svg"
+        }
+      },
+      {
+        "command": "sfdx.force.conflict.acceptLocal",
+        "title": "%conflict_detect_resolve_accept_local%",
+        "icon": {
+          "light": "resources/light/triangle-left.svg",
+          "dark": "resources/dark/triangle-left.svg"
         }
       }
     ],

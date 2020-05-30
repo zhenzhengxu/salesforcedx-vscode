@@ -5,11 +5,14 @@
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import * as vscode from 'vscode';
-import { ConflictFile, ConflictGroupNode, ConflictNode } from './conflictNode';
+import { ConflictGroupNode, ConflictNode } from './conflictNode';
+import { ConflictDisposition, ConflictEntry, ConflictFile } from './types';
+import { conflictResolutionService } from '.';
 
 export class ConflictOutlineProvider
   implements vscode.TreeDataProvider<ConflictNode> {
   private root: ConflictGroupNode | null;
+  private conflicts: ConflictEntry[];
 
   private internalOnDidChangeTreeData: vscode.EventEmitter<
     ConflictNode | undefined
@@ -20,6 +23,7 @@ export class ConflictOutlineProvider
 
   public constructor() {
     this.root = null;
+    this.conflicts = [];
   }
 
   public onViewChange() {
@@ -30,8 +34,12 @@ export class ConflictOutlineProvider
     this.internalOnDidChangeTreeData.fire(node);
   }
 
-  public reset(rootLabel: string, conflicts: ConflictFile[]) {
+  public reset(rootLabel: string, conflicts: ConflictEntry[]) {
+    this.conflicts = conflicts;
     this.root = this.createConflictRoot(rootLabel, conflicts);
+
+    setAllConflictsResolved(false);
+    setResolutionInProgress(conflicts.length > 0);
   }
 
   public getRevealNode(): ConflictNode | null {
@@ -62,13 +70,59 @@ export class ConflictOutlineProvider
     return element.parent;
   }
 
+  private updateDisposition() {
+    const allResolved = conflictResolutionService.areAllConflictsResolved(
+      this.conflicts
+    );
+    if (allResolved) {
+      setAllConflictsResolved(true);
+      if (this.root) {
+        this.root.updateIcon(true);
+      }
+    }
+    // this.internalOnDidChangeTreeData.fire(this.root);
+    this.internalOnDidChangeTreeData.fire();
+  }
+
   private createConflictRoot(
     rootLabel: string,
-    conflicts: ConflictFile[]
+    conflicts: ConflictEntry[]
   ): ConflictGroupNode {
-    const orgRoot = new ConflictGroupNode(rootLabel);
+    const orgRoot = new ConflictGroupNode(rootLabel, () =>
+      this.updateDisposition()
+    );
     orgRoot.id = 'ROOT-NODE';
     orgRoot.addChildren(conflicts);
     return orgRoot;
   }
+}
+
+export function acceptLocal(entry: ConflictNode) {
+  entry.label = 'Local';
+  if (entry.parent) {
+    entry.parent.updateResolution(ConflictDisposition.AcceptLocal);
+  }
+}
+
+export function acceptRemote(entry: ConflictNode) {
+  entry.label = 'Remote';
+  if (entry.parent) {
+    entry.parent.updateResolution(ConflictDisposition.AcceptRemote);
+  }
+}
+
+function setAllConflictsResolved(val: boolean) {
+  vscode.commands.executeCommand(
+    'setContext',
+    'sfdx:all_conflicts_resolved',
+    val
+  );
+}
+
+function setResolutionInProgress(val: boolean) {
+  vscode.commands.executeCommand(
+    'setContext',
+    'sfdx:conflict_resolution_in_progress',
+    val
+  );
 }

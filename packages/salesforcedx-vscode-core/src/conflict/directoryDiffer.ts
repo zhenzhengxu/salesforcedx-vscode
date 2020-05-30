@@ -10,6 +10,7 @@ import * as path from 'path';
 
 export interface DirectoryDiffResults {
   different: Set<string>;
+  missingLocal: Set<string>;
   localRoot: string;
   remoteRoot: string;
   scannedLocal: number;
@@ -35,6 +36,7 @@ export class CommonDirDirectoryDiffer implements DirectoryDiffer {
   ): DirectoryDiffResults {
     const localSet = this.listFiles(localSourcePath);
     const different = new Set<string>();
+    const missingLocal = new Set<string>();
 
     // process remote files to generate differences
     let scannedRemote = 0;
@@ -46,6 +48,8 @@ export class CommonDirDirectoryDiffer implements DirectoryDiffer {
         if (this.filesDiffer(file1, file2)) {
           different.add(stats.relPath);
         }
+      } else {
+        missingLocal.add(stats.relPath);
       }
     });
 
@@ -53,6 +57,7 @@ export class CommonDirDirectoryDiffer implements DirectoryDiffer {
       localRoot: localSourcePath,
       remoteRoot: remoteSourcePath,
       different,
+      missingLocal,
       scannedLocal: localSet.size,
       scannedRemote
     } as DirectoryDiffResults;

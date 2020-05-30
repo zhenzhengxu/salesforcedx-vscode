@@ -10,8 +10,10 @@ import { channelService } from '../channels';
 import { nls } from '../messages';
 import { sfdxCoreSettings } from '../settings';
 import { telemetryService } from '../telemetry';
-import { ConflictFile, ConflictNode } from './conflictNode';
+import { ConflictNode } from './conflictNode';
+import { ConflictFile, ConflictEntry } from './types';
 import { ConflictOutlineProvider } from './conflictOutlineProvider';
+import { ConflictResolutionService } from './conflictResolutionService';
 import { DirectoryDiffResults } from './directoryDiffer';
 
 export class ConflictView {
@@ -20,12 +22,18 @@ export class ConflictView {
 
   private _treeView?: TreeView<ConflictNode>;
   private _dataProvider?: ConflictOutlineProvider;
+  private resolutionService: ConflictResolutionService;
+  private diffResults?: DirectoryDiffResults;
+  private conflicts: ConflictEntry[];
 
-  private constructor() {}
+  private constructor(resolutionService: ConflictResolutionService) {
+    this.resolutionService = resolutionService;
+    this.conflicts = [];
+  }
 
   public static getInstance(): ConflictView {
     if (!this.instance) {
-      this.instance = new ConflictView();
+      this.instance = new ConflictView(ConflictResolutionService.getInstance());
     }
     return this.instance;
   }
@@ -44,41 +52,33 @@ export class ConflictView {
     throw this.initError();
   }
 
+  public cancel() {
+    this.visualizeDifferences('', '', true);
+  }
+
+  public performOperation() {
+    if (this.diffResults) {
+      this.resolutionService.performRetrieve(this.diffResults, this.conflicts);
+    }
+  }
+
   public visualizeDifferences(
     title: string,
     remoteLabel: string,
     reveal: boolean,
     diffResults?: DirectoryDiffResults
   ) {
-    const conflicts = diffResults
-      ? this.createConflictEntries(diffResults, remoteLabel)
+    this.diffResults = diffResults;
+    this.conflicts = diffResults
+      ? this.resolutionService.createConflictEntries(diffResults, remoteLabel)
       : [];
-    this.dataProvider.reset(title, conflicts);
+    this.dataProvider.reset(title, this.conflicts);
     this.updateEnablementMessage();
 
     if (reveal) {
       this.revealConflictNode();
     }
     this.dataProvider.onViewChange();
-  }
-
-  public createConflictEntries(
-    diffResults: DirectoryDiffResults,
-    remoteLabel: string
-  ): ConflictFile[] {
-    const conflicts: ConflictFile[] = [];
-
-    diffResults.different.forEach(p => {
-      conflicts.push({
-        remoteLabel,
-        relPath: p,
-        fileName: path.basename(p),
-        localPath: diffResults.localRoot,
-        remotePath: diffResults.remoteRoot
-      } as ConflictFile);
-    });
-
-    return conflicts;
   }
 
   public async init(extensionContext: ExtensionContext) {
