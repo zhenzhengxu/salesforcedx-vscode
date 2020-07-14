@@ -126,13 +126,16 @@ export class LibraryDeploySourcePathExecutor extends LibraryCommandletExecutor<
       )) as string;
       const registryAccess = new RegistryAccess();
       const components = registryAccess.getComponentsFromPath(response.data);
-      const deployPromise = this.sourceClient.tooling.deploy({
-        components,
-        namespace: projectNamespace
-      });
+      if (projectNamespace === '') {
+        const deployPromise = this.sourceClient.metadata.deploy(components);
+        await deployPromise;
+      } else {
+        const deployPromise = this.sourceClient.tooling.deploy(components, {
+          namespace: projectNamespace
+        });
+        await deployPromise;
+      }
       const metadataCount = JSON.stringify(createComponentCount(components));
-      await deployPromise;
-
       this.logMetric({ metadataCount });
     } catch (e) {
       telemetryService.sendException(
