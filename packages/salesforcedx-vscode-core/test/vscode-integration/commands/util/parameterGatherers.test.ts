@@ -315,6 +315,7 @@ describe('Parameter Gatherers', () => {
       }
     });
   });
+  /*
   describe('SelectLwcComponentDir', async () => {
     it('Should gather filepath and Lightning web component options', async () => {
       const selector = new SelectLwcComponentDir();
@@ -366,7 +367,7 @@ describe('Parameter Gatherers', () => {
       }
     });
   });
-
+*/
   describe('SimpleGatherer', () => {
     it('Should gather input that was given into a ContinueResponse', async () => {
       const input = { a: 'a', b: true, c: 2 };

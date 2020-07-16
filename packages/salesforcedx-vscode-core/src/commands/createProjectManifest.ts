@@ -32,7 +32,9 @@ const outputDirGatherer = new SelectOutputDir('.');
 export class ProjectManifestCreateExecutor extends LibraryCommandletExecutor<
   DirFileNameSelection
 > {
-  public execute(response: ContinueResponse<DirFileNameSelection>): void {
+  public async execute(
+    response: ContinueResponse<DirFileNameSelection>
+  ): Promise<void> {
     this.setStartTime();
 
     try {

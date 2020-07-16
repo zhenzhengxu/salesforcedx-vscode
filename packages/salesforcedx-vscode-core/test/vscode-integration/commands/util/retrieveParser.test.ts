@@ -48,8 +48,8 @@ describe('retrieveParser', () => {
             name: 'ApexClass',
             directoryName: 'classes',
             inFolder: false
-          },
-          sources: ['some/path/MyTestClass.cls']
+          }
+          // sources: ['some/path/MyTestClass.cls']
         }
       ],
       message: 'Message from library'
@@ -76,8 +76,8 @@ describe('retrieveParser', () => {
       components: [
         {
           fullName: 'MyTestClass',
-          xml: 'some/path/MyTestClass.cls-meta.xml',
-          sources: ['some/path/MyTestClass.cls']
+          xml: 'some/path/MyTestClass.cls-meta.xml'
+          // sources: ['some/path/MyTestClass.cls']
         }
       ],
       message: 'Message from library'
