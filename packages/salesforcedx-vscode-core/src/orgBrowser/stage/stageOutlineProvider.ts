@@ -5,6 +5,7 @@ import {
 import { MetadataComponent } from '@salesforce/source-deploy-retrieve/lib/types';
 import * as vscode from 'vscode';
 import { nls } from '../../messages';
+import { promises } from 'dns';
 
 export class StageNode extends vscode.TreeItem {
   public parent?: StageNode;
@@ -84,14 +85,19 @@ export class ComponentStageOutlineProvider
       );
       node.parent.children.splice(index, 1);
       if (node.parent.children.length === 0) {
-        this.typeNameToNode.delete(node.parent.label!);
+        this.typeNameToNode.delete(node.parent.typeName!);
       }
       node.parent = undefined;
       this._onDidChangeTreeData.fire();
     }
+    if (node.children.length > 0) {
+      node.parent = undefined;
+      this.typeNameToNode.delete(node.typeName!);
+      this._onDidChangeTreeData.fire();
+    }
   }
 
-  public createManifest(output: vscode.Uri): void {
+  public async createManifest(output: vscode.Uri): Promise<void> {
     if (this.typeNameToNode.size > 0) {
       const registryAccess = new RegistryAccess();
       const manifestGenerator = new ManifestGenerator();
@@ -110,7 +116,7 @@ export class ComponentStageOutlineProvider
       const contents = encoder.encode(
         manifestGenerator.createManifest(components)
       );
-      vscode.workspace.fs.writeFile(output, contents);
+      await vscode.workspace.fs.writeFile(output, contents);
     }
   }
 

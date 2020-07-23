@@ -85,7 +85,10 @@ import * as decorators from './decorators';
 import { isDemoMode } from './modes/demo-mode';
 import { notificationService, ProgressNotification } from './notifications';
 import { BrowserNode, orgBrowser } from './orgBrowser';
-import { StageNode } from './orgBrowser/stage/stageOutlineProvider';
+import {
+  ComponentStageOutlineProvider,
+  StageNode
+} from './orgBrowser/stage/stageOutlineProvider';
 import { OrgList } from './orgPicker';
 import { registerPushOrDeployOnSave, sfdxCoreSettings } from './settings';
 import { taskViewService } from './statuses';
@@ -508,21 +511,34 @@ async function setupOrgBrowser(
   } else {
     defaultFolder = vscode.Uri.file(rootWorkspace);
   }
-  vscode.commands.registerCommand('sfdx.force.metadata.stage.view.save', () => {
-    vscode.window.showSaveDialog({
-      saveLabel: 'save',
-      defaultUri: defaultFolder
-    });
-  });
+  vscode.commands.registerCommand(
+    'sfdx.force.metadata.stage.view.save',
+    async () => {
+      const output = await vscode.window.showSaveDialog({
+        saveLabel: 'Save',
+        defaultUri: defaultFolder
+      });
+      if (output) {
+        await orgBrowser.stageProvider.createManifest(output);
+        vscode.window.showTextDocument(output);
+      }
+    }
+  );
 
   vscode.commands.registerCommand(
     'sfdx.force.metadata.stage.view.cancel',
     () => {
-      vscode.window.showWarningMessage(
-        'Are you sure you want to clear your staged metdata?',
-        'cancel',
-        'yes'
-      );
+      vscode.window
+        .showWarningMessage(
+          'Are you sure you want to clear your staged metdata?',
+          'Cancel',
+          'Yes'
+        )
+        .then(selection => {
+          if (selection === 'Yes') {
+            orgBrowser.stageProvider.clearAll();
+          }
+        });
     }
   );
 
