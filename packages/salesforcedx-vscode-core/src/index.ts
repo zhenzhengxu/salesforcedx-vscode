@@ -5,6 +5,7 @@
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
+import { RegistryAccess } from '@salesforce/source-deploy-retrieve';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
@@ -93,12 +94,7 @@ import { OrgList } from './orgPicker';
 import { registerPushOrDeployOnSave, sfdxCoreSettings } from './settings';
 import { taskViewService } from './statuses';
 import { telemetryService } from './telemetry';
-import {
-  getRootWorkspace,
-  getRootWorkspacePath,
-  hasRootWorkspace,
-  isCLIInstalled
-} from './util';
+import { getRootWorkspacePath, hasRootWorkspace, isCLIInstalled } from './util';
 import { OrgAuthInfo } from './util/authInfo';
 
 function registerCommands(
@@ -549,6 +545,28 @@ async function setupOrgBrowser(
         fullName: node.fullName,
         type: node.getAssociatedTypeNode().metadataObject!.xmlName
       });
+    }
+  );
+
+  vscode.commands.registerCommand(
+    'sfdx.force.metadata.stage.view.add.file',
+    (uri: vscode.Uri) => {
+      const registry = new RegistryAccess();
+      try {
+        for (const component of registry.getComponentsFromPath(uri.fsPath)) {
+          orgBrowser.stageProvider.addComponent({
+            fullName: component.fullName,
+            type: component.type.name
+          });
+        }
+      } catch (e) {
+        if (e.name === 'TypeInferenceError') {
+          const filename = path.basename(uri.fsPath);
+          notificationService.showErrorMessage(
+            `${filename} is not a valid component`
+          );
+        }
+      }
     }
   );
 

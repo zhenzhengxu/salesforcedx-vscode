@@ -71,6 +71,9 @@ export class ComponentStageOutlineProvider
     if (!componentNode) {
       componentNode = new StageNode(fullName);
       typeNode.addChild(componentNode);
+      typeNode.children.sort((a: StageNode, b: StageNode) =>
+        a.label!.localeCompare(b.label!)
+      );
     }
 
     this._onDidChangeTreeData.fire();
