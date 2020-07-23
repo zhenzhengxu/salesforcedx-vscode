@@ -1,19 +1,25 @@
+import {
+  ManifestGenerator,
+  RegistryAccess
+} from '@salesforce/source-deploy-retrieve';
+import { MetadataComponent } from '@salesforce/source-deploy-retrieve/lib/types';
 import * as vscode from 'vscode';
-
-interface MetadataComponent {
-  fullName: string;
-  type: string;
-}
+import { nls } from '../../messages';
 
 export class StageNode extends vscode.TreeItem {
   public parent?: StageNode;
   public readonly children: StageNode[] = [];
 
+  public readonly typeName?: string;
+
   constructor(
     label: string,
-    collapsableState?: vscode.TreeItemCollapsibleState
+    collapsableState?: vscode.TreeItemCollapsibleState,
+    typeName?: string
   ) {
     super(label, collapsableState);
+    this.typeName = typeName;
+    this.iconPath = typeName ? '$(symbol-class)' : '$(symbol-object)';
   }
 
   public addChild(node: StageNode): void {
@@ -44,13 +50,18 @@ export class ComponentStageOutlineProvider
     return Promise.resolve(Array.from(this.typeNameToNode.values()));
   }
 
-  public addComponent(component: MetadataComponent) {
+  public addComponent(component: { fullName: string; type: string }) {
     const { fullName, type: mdType } = component;
 
     if (!this.typeNameToNode.has(mdType)) {
+      const typeLabel = nls.localize(mdType);
       this.typeNameToNode.set(
         mdType,
-        new StageNode(mdType, vscode.TreeItemCollapsibleState.Expanded)
+        new StageNode(
+          typeLabel,
+          vscode.TreeItemCollapsibleState.Expanded,
+          mdType
+        )
       );
     }
     const typeNode = this.typeNameToNode.get(mdType)!;
@@ -77,6 +88,29 @@ export class ComponentStageOutlineProvider
       }
       node.parent = undefined;
       this._onDidChangeTreeData.fire();
+    }
+  }
+
+  public createManifest(output: vscode.Uri): void {
+    if (this.typeNameToNode.size > 0) {
+      const registryAccess = new RegistryAccess();
+      const manifestGenerator = new ManifestGenerator();
+      const components: MetadataComponent[] = [];
+      for (const typeNode of this.typeNameToNode.values()) {
+        const type = registryAccess.getTypeFromName(typeNode.typeName!);
+        for (const componentNode of typeNode.children) {
+          components.push({
+            fullName: componentNode.label!,
+            type,
+            xml: ''
+          });
+        }
+      }
+      const encoder = new TextEncoder();
+      const contents = encoder.encode(
+        manifestGenerator.createManifest(components)
+      );
+      vscode.workspace.fs.writeFile(output, contents);
     }
   }
 
