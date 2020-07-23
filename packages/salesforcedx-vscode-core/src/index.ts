@@ -86,17 +86,14 @@ import * as decorators from './decorators';
 import { isDemoMode } from './modes/demo-mode';
 import { notificationService, ProgressNotification } from './notifications';
 import { BrowserNode, orgBrowser } from './orgBrowser';
-import {
-  ComponentStageOutlineProvider,
-  StageNode
-} from './orgBrowser/stageOutlineProvider';
+import { StageNode } from './orgBrowser/stageOutlineProvider';
 import { OrgList } from './orgPicker';
 import { registerPushOrDeployOnSave, sfdxCoreSettings } from './settings';
+import { SfdxPackageDirectories } from './sfdxProject';
 import { taskViewService } from './statuses';
 import { telemetryService } from './telemetry';
 import { getRootWorkspacePath, hasRootWorkspace, isCLIInstalled } from './util';
 import { OrgAuthInfo } from './util/authInfo';
-import { SfdxPackageDirectories } from './sfdxProject';
 
 function registerCommands(
   extensionContext: vscode.ExtensionContext
