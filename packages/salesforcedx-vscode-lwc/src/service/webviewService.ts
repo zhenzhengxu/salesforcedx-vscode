@@ -63,7 +63,7 @@ class WebviewService {
                 Use a content security policy to only allow loading images from https or from our extension directory,
                 and only allow scripts that have a specific nonce.
                 -->
-                <meta http-equiv="Content-Security-Policy" content="default-src 'none'; frame-src ${fullWebServerUri}; img-src ${
+                <meta http-equiv="Content-Security-Policy" content="default-src 'none'; frame-src https://online.visualstudio.com ${fullWebServerUri}; img-src ${
       webview.cspSource
     } https:; script-src 'nonce-${nonce}'; style-src 'unsafe-inline';">
 
