@@ -16,6 +16,7 @@ import * as vscode from 'vscode';
 import { nls } from '../messages';
 import { DevServerService } from '../service/devServerService';
 import { PreviewService } from '../service/previewService';
+import { webviewService } from '../service/webviewService';
 import { openBrowser, showError } from './commandUtils';
 import { ForceLightningLwcStartExecutor } from './forceLightningLwcStart';
 
@@ -171,6 +172,8 @@ async function startServer(
   startTime: [number, number]
 ) {
   if (!DevServerService.instance.isServerHandlerRegistered()) {
+    await webviewService.createWebview();
+    /*
     console.log(`${logName}: server was not running, starting...`);
     const preconditionChecker = new SfdxWorkspaceChecker();
     const parameterGatherer = new EmptyParametersGatherer();
@@ -187,13 +190,15 @@ async function startServer(
 
     await commandlet.run();
     telemetryService.sendCommandEvent(logName, startTime);
+    */
   } else if (isDesktop) {
     try {
-      const fullUrl = DevServerService.instance.getComponentPreviewUrl(
-        componentName
-      );
-      await openBrowser(fullUrl);
-      telemetryService.sendCommandEvent(logName, startTime);
+      await webviewService.createWebview();
+      // const fullUrl = DevServerService.instance.getComponentPreviewUrl(
+      //   componentName
+      // );
+      // await openBrowser(fullUrl);
+      // telemetryService.sendCommandEvent(logName, startTime);
     } catch (e) {
       showError(e, logName, commandName);
     }

@@ -29,6 +29,7 @@ import {
 } from './commands';
 import { ESLINT_NODEPATH_CONFIG, LWC_EXTENSION_NAME } from './constants';
 import { DevServerService } from './service/devServerService';
+import { webviewService } from './service/webviewService';
 import { telemetryService } from './telemetry';
 import {
   activateLwcTestSupport,
@@ -129,6 +130,8 @@ export async function activate(context: ExtensionContext) {
 
   // Initialize utils for user settings
   WorkspaceUtils.instance.init(context);
+
+  webviewService.register(context);
 
   // Notify telemetry that our extension is now active
   telemetryService.sendExtensionActivationEvent(extensionHRStart).catch();
