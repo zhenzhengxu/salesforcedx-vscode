@@ -540,6 +540,38 @@ async function setupOrgBrowser(
     }
   );
 
+  const gifLinks = [
+    'media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif',
+    'media.giphy.com/media/1msB48QnkiflNjM3At/giphy-downsized-large.gif',
+    'media.giphy.com/media/eCqFYAVjjDksg/giphy.gif',
+    'media.giphy.com/media/wpoLqr5FT1sY0/giphy.gif',
+    'media.giphy.com/media/DUtVdGeIU8lmo/giphy.gif'
+  ];
+  vscode.commands.registerCommand('sfdx.force.metdadata.stage.view.gif', () => {
+    const randIndex = Math.round(Math.random() * 4);
+    const gifLink = gifLinks[randIndex];
+    const panel = vscode.window.createWebviewPanel(
+      'randomGif',
+      'Random Gif Generator',
+      vscode.ViewColumn.One,
+      {}
+    );
+    panel.webview.html = getWebviewContent(gifLink);
+  });
+  function getWebviewContent(gifLink: string) {
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Gif</title>
+</head>
+<body>
+    <img src="https://${gifLink}" width="300" />
+</body>
+</html>`;
+  }
+
   vscode.commands.registerCommand(
     'sfdx.force.metadata.stage.view.add',
     async (node: BrowserNode) => {

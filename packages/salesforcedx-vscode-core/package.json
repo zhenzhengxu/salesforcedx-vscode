@@ -150,7 +150,7 @@
           "group": "navigation"
         },
         {
-          "command": "sfdx.force.metdadata.stage.view.deploy",
+          "command": "sfdx.force.metdadata.stage.view.gif",
           "when": "view == sfdx.force.metadata.stage.view",
           "group": "navigation"
         },
@@ -859,8 +859,8 @@
         "icon": "$(notifications-clear-all)"
       },
       {
-        "command": "sfdx.force.metdadata.stage.view.deploy",
-        "title": "%force_source_deploy_all_staged_metadata%",
+        "command": "sfdx.force.metdadata.stage.view.gif",
+        "title": "%force_source_random_gif%",
         "icon": {
           "light": "resources/light/flame.svg",
           "dark": "resources/dark/flame.svg"
