@@ -65,15 +65,15 @@ class WebviewService {
                 -->
                 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; frame-src ${fullWebServerUri}; img-src ${
       webview.cspSource
-    } https:; script-src 'nonce-${nonce}';">
+    } https:; script-src 'nonce-${nonce}'; style-src 'unsafe-inline';">
 
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>Cat Coding</title>
             </head>
-            <body>
-				<h1 id="lines-of-code-counter">0</h1>
+            <body style="height: 100vh; background: white">
+                <!--<h1 id="lines-of-code-counter">0</h1>-->
 
-				<iframe src="${fullWebServerUri}">
+                <iframe src="${fullWebServerUri}" style="border: none; width: 100%; height: 100%;">
 
                 <script nonce="${nonce}" type="module" src="${scriptUri}"></script>
             </body>
