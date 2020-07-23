@@ -134,7 +134,7 @@
     "viewsWelcome": [
       {
         "view": "sfdx.force.metadata.stage.view",
-        "contents": "Add components from the Org Browser to export a manifest (package.xml) [learn more](https://developer.salesforce.com/tools/vscode/)."
+        "contents": "%force_metadata_stage_welcome%"
       }
     ],
     "menus": {

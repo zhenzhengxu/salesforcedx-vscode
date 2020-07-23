@@ -18,7 +18,7 @@ export class StageNode extends vscode.TreeItem {
   ) {
     super(label, collapsableState);
     this.typeName = typeName;
-    this.iconPath = typeName ? '$(symbol-class)' : '$(symbol-object)';
+    this.iconPath = !typeName ? vscode.ThemeIcon.File : '';
   }
 
   public addChild(node: StageNode): void {
@@ -42,6 +42,10 @@ export class ComponentStageOutlineProvider
     return element;
   }
 
+  public getParent(element: StageNode): StageNode | undefined {
+    return element.parent;
+  }
+
   public getChildren(element?: StageNode | undefined): Promise<StageNode[]> {
     if (element) {
       return Promise.resolve(element.children);
@@ -49,7 +53,10 @@ export class ComponentStageOutlineProvider
     return Promise.resolve(Array.from(this.typeNameToNode.values()));
   }
 
-  public addComponent(component: { fullName: string; type: string }) {
+  public addComponent(component: {
+    fullName: string;
+    type: string;
+  }): StageNode {
     const { fullName, type: mdType } = component;
 
     if (!this.typeNameToNode.has(mdType)) {
@@ -77,6 +84,8 @@ export class ComponentStageOutlineProvider
     }
 
     this._onDidChangeTreeData.fire();
+
+    return componentNode;
   }
 
   public removeComponent(node: StageNode): void {

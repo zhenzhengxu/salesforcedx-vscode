@@ -67,6 +67,7 @@
   "force_source_save_all_staged_metadata": "Save All Staged Metadata",
   "force_source_cancel_all_staged_metadata": "Cancel All Staged Metadata",
   "force_metadata_stage_title": "Component Stage",
+  "force_metadata_stage_welcome": "The Component Stage allows you to work with a temporary set of metadata components. Add components from the [Org Browser](https://developer.salesforce.com/tools/vscode/en/user-guide/org-browser) view, or by right clicking on a file or folder in the File Explorer.\nYou can then export a manifest (package.xml) of your staged components.\n[learn more](https://developer.salesforce.com/tools/vscode/)",
   "force_metadata_stage_add": "SFDX: Stage Component(s)",
   "force_metadata_stage_remove": "SFDX: Unstage Component(s)",
   "force_diff_against_org": "SFDX: Diff File Against Org",

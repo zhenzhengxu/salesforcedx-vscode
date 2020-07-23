@@ -550,20 +550,30 @@ async function setupOrgBrowser(
 
   vscode.commands.registerCommand(
     'sfdx.force.metadata.stage.view.add.file',
-    (uri: vscode.Uri) => {
+    async (uri: vscode.Uri) => {
       const registry = new RegistryAccess();
       try {
-        for (const component of registry.getComponentsFromPath(uri.fsPath)) {
-          orgBrowser.stageProvider.addComponent({
+        let revealNode: StageNode | null = null;
+        const components = registry.getComponentsFromPath(uri.fsPath);
+        for (const component of components) {
+          const node = orgBrowser.stageProvider.addComponent({
             fullName: component.fullName,
             type: component.type.name
           });
+          revealNode = revealNode || node;
+        }
+        const choice = await notificationService.showInformationMessage(
+          `${components.length} components staged.`,
+          'View Stage'
+        );
+        if (choice === 'View Stage' && revealNode) {
+          orgBrowser.stageView.reveal(revealNode);
         }
       } catch (e) {
         if (e.name === 'TypeInferenceError') {
           const filename = path.basename(uri.fsPath);
           notificationService.showErrorMessage(
-            `${filename} is not a valid component`
+            `${filename} is not a valid component.`
           );
         }
       }
