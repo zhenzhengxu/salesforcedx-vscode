@@ -1,32 +1,25 @@
-import {
-  MetadataComponent,
-  MetadataType
-} from '@salesforce/source-deploy-retrieve/lib/types';
 import * as vscode from 'vscode';
-import { BrowserNode, NodeType } from '../nodeTypes';
 
-enum NodeTypes {
-  Component,
-  Type
+interface MetadataComponent {
+  fullName: string;
+  type: string;
 }
 
-class StageNode extends vscode.TreeItem {
-  // private component: MetadataComponent;
-  private nodeType: NodeType;
+export class StageNode extends vscode.TreeItem {
+  public parent?: StageNode;
+  public readonly children: StageNode[] = [];
 
   constructor(
-    nodeType: NodeType,
     label: string,
     collapsableState?: vscode.TreeItemCollapsibleState
   ) {
     super(label, collapsableState);
-    this.nodeType = nodeType;
   }
 
-  // get tooltip() {
-  //   const { fullName, type } = this.component;
-  //   return `${type.name} - ${fullName}`;
-  // }
+  public addChild(node: StageNode): void {
+    node.parent = this;
+    this.children.push(node);
+  }
 }
 
 export class ComponentStageOutlineProvider
@@ -38,13 +31,57 @@ export class ComponentStageOutlineProvider
     StageNode | undefined
   > = this._onDidChangeTreeData.event;
 
-  public getTreeItem(element: StageNode): TreeItem {
+  private typeNameToNode = new Map<string, StageNode>();
+
+  public getTreeItem(element: StageNode): StageNode {
     return element;
   }
 
   public getChildren(element?: StageNode | undefined): Promise<StageNode[]> {
-    if (!element) {
+    if (element) {
+      return Promise.resolve(element.children);
     }
-    return Promise.resolve([new StageNode()]);
+    return Promise.resolve(Array.from(this.typeNameToNode.values()));
+  }
+
+  public addComponent(component: MetadataComponent) {
+    const { fullName, type: mdType } = component;
+
+    if (!this.typeNameToNode.has(mdType)) {
+      this.typeNameToNode.set(
+        mdType,
+        new StageNode(mdType, vscode.TreeItemCollapsibleState.Expanded)
+      );
+    }
+    const typeNode = this.typeNameToNode.get(mdType)!;
+
+    let componentNode = typeNode.children.find(
+      child => child.label === fullName
+    );
+    if (!componentNode) {
+      componentNode = new StageNode(fullName);
+      typeNode.addChild(componentNode);
+    }
+
+    this._onDidChangeTreeData.fire();
+  }
+
+  public removeComponent(node: StageNode): void {
+    if (node.parent) {
+      const index = node.parent.children.findIndex(
+        child => child.label === node.label
+      );
+      node.parent.children.splice(index, 1);
+      if (node.parent.children.length === 0) {
+        this.typeNameToNode.delete(node.parent.label!);
+      }
+      node.parent = undefined;
+      this._onDidChangeTreeData.fire();
+    }
+  }
+
+  public clearAll(): void {
+    this.typeNameToNode.clear();
+    this._onDidChangeTreeData.fire();
   }
 }

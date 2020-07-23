@@ -81,7 +81,8 @@ import { workspaceContext } from './context';
 import * as decorators from './decorators';
 import { isDemoMode } from './modes/demo-mode';
 import { notificationService, ProgressNotification } from './notifications';
-import { orgBrowser } from './orgBrowser';
+import { BrowserNode, orgBrowser } from './orgBrowser';
+import { StageNode } from './orgBrowser/stage/stageOutlineProvider';
 import { OrgList } from './orgPicker';
 import { registerPushOrDeployOnSave, sfdxCoreSettings } from './settings';
 import { taskViewService } from './statuses';
@@ -503,6 +504,23 @@ async function setupOrgBrowser(
     'sfdx.force.metadata.stage.view.cancel',
     async node => {
       console.log('cancel button');
+    }
+  );
+
+  vscode.commands.registerCommand(
+    'sfdx.force.metadata.stage.view.add',
+    (node: BrowserNode) => {
+      orgBrowser.stageProvider.addComponent({
+        fullName: node.fullName,
+        type: node.getAssociatedTypeNode().metadataObject!.xmlName
+      });
+    }
+  );
+
+  vscode.commands.registerCommand(
+    'sfdx.force.metadata.stage.view.remove',
+    (node: StageNode) => {
+      orgBrowser.stageProvider.removeComponent(node);
     }
   );
 }

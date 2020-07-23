@@ -131,6 +131,12 @@
         }
       ]
     },
+    "viewsWelcome": [
+      {
+        "view": "sfdx.force.metadata.stage.view",
+        "contents": "Add components from the Org Browser to export a manifest (package.xml) [learn more](https://developer.salesforce.com/tools/vscode/)."
+      }
+    ],
     "menus": {
       "view/title": [
         {
@@ -162,6 +168,16 @@
         {
           "command": "sfdx.force.source.retrieve.component",
           "when": "view == metadata && viewItem =~ /(type|component)/",
+          "group": "inline"
+        },
+        {
+          "command": "sfdx.force.metadata.stage.view.add",
+          "when": "view == metadata && viewItem =~ /(component)/",
+          "group": "inline"
+        },
+        {
+          "command": "sfdx.force.metadata.stage.view.remove",
+          "when": "view == sfdx.force.metadata.stage.view",
           "group": "inline"
         },
         {
@@ -831,6 +847,16 @@
         "command": "sfdx.force.metadata.stage.view.cancel",
         "title": "%force_source_cancel_all_staged_metadata%",
         "icon": "$(notifications-clear-all)"
+      },
+      {
+        "command": "sfdx.force.metadata.stage.view.add",
+        "title": "%force_metadata_stage_add",
+        "icon": "$(add)"
+      },
+      {
+        "command": "sfdx.force.metadata.stage.view.remove",
+        "title": "%force_metadata_stage_remove",
+        "icon": "$(remove)"
       },
       {
         "command": "sfdx.force.diff",

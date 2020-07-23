@@ -42,6 +42,13 @@ export class OrgBrowser {
     throw this.initError();
   }
 
+  get stageProvider() {
+    if (this._stageProvider) {
+      return this._stageProvider;
+    }
+    throw this.initError();
+  }
+
   public async init(extensionContext: ExtensionContext) {
     const username = await OrgAuthInfo.getDefaultUsernameOrAlias(false);
     this._dataProvider = new MetadataOutlineProvider(username);
