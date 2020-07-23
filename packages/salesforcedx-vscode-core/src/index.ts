@@ -4,6 +4,9 @@
  * Licensed under the BSD 3-Clause license.
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
+
+import * as fs from 'fs';
+import * as path from 'path';
 import * as vscode from 'vscode';
 import { channelService } from './channels';
 import {
@@ -87,7 +90,12 @@ import { OrgList } from './orgPicker';
 import { registerPushOrDeployOnSave, sfdxCoreSettings } from './settings';
 import { taskViewService } from './statuses';
 import { telemetryService } from './telemetry';
-import { hasRootWorkspace, isCLIInstalled } from './util';
+import {
+  getRootWorkspace,
+  getRootWorkspacePath,
+  hasRootWorkspace,
+  isCLIInstalled
+} from './util';
 import { OrgAuthInfo } from './util/authInfo';
 
 function registerCommands(
@@ -493,17 +501,28 @@ async function setupOrgBrowser(
     }
   );
 
-  vscode.commands.registerCommand(
-    'sfdx.force.metadata.stage.view.save',
-    async node => {
-      console.log('save button');
-    }
-  );
+  const rootWorkspace = getRootWorkspacePath();
+  let defaultFolder: vscode.Uri;
+  if (fs.existsSync(path.join(rootWorkspace, 'manifest'))) {
+    defaultFolder = vscode.Uri.file(path.join(rootWorkspace, 'manifest'));
+  } else {
+    defaultFolder = vscode.Uri.file(rootWorkspace);
+  }
+  vscode.commands.registerCommand('sfdx.force.metadata.stage.view.save', () => {
+    vscode.window.showSaveDialog({
+      saveLabel: 'save',
+      defaultUri: defaultFolder
+    });
+  });
 
   vscode.commands.registerCommand(
     'sfdx.force.metadata.stage.view.cancel',
-    async node => {
-      console.log('cancel button');
+    () => {
+      vscode.window.showWarningMessage(
+        'Are you sure you want to clear your staged metdata?',
+        'cancel',
+        'yes'
+      );
     }
   );
 
