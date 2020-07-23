@@ -116,6 +116,11 @@
           "id": "metadata",
           "name": "Metadata",
           "when": "sfdx:project_opened && sfdx:default_username_has_no_change_tracking"
+        },
+        {
+          "id": "sfdx.force.metadata.stage.view",
+          "name": "Component Stage",
+          "when": "sfdx:project_opened && sfdx:default_username_has_no_change_tracking"
         }
       ],
       "conflicts": [

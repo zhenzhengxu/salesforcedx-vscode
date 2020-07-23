@@ -9,12 +9,14 @@ import { nls } from '../messages';
 import { BrowserNode, MetadataOutlineProvider } from '../orgBrowser';
 import { telemetryService } from '../telemetry';
 import { OrgAuthInfo } from '../util';
+import { ComponentStageOutlineProvider } from './stage/stageOutlineProvider';
 
 export class OrgBrowser {
   private static VIEW_ID = 'metadata';
   private static instance: OrgBrowser;
 
   private _treeView?: TreeView<BrowserNode>;
+  private _stageProvider?: ComponentStageOutlineProvider;
   private _dataProvider?: MetadataOutlineProvider;
 
   private constructor() {}
@@ -46,6 +48,11 @@ export class OrgBrowser {
     this._treeView = window.createTreeView(OrgBrowser.VIEW_ID, {
       treeDataProvider: this._dataProvider
     });
+    this._stageProvider = new ComponentStageOutlineProvider();
+    window.registerTreeDataProvider(
+      'sfdx.force.metadata.stage.view',
+      this._stageProvider
+    );
     this._treeView.onDidChangeVisibility(async () => {
       if (this.treeView.visible) {
         await this.dataProvider.onViewChange();
