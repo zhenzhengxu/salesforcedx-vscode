@@ -491,6 +491,20 @@ async function setupOrgBrowser(
       await forceSourceRetrieveCmp(trigger);
     }
   );
+
+  vscode.commands.registerCommand(
+    'sfdx.force.metadata.stage.view.save',
+    async node => {
+      console.log('save button');
+    }
+  );
+
+  vscode.commands.registerCommand(
+    'sfdx.force.metadata.stage.view.cancel',
+    async node => {
+      console.log('cancel button');
+    }
+  );
 }
 
 export async function activate(context: vscode.ExtensionContext) {

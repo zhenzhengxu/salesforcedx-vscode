@@ -137,6 +137,16 @@
           "command": "sfdx.force.metadata.view.type.refresh",
           "when": "view == metadata",
           "group": "navigation"
+        },
+        {
+          "command": "sfdx.force.metadata.stage.view.save",
+          "when": "view == sfdx.force.metadata.stage.view",
+          "group": "navigation"
+        },
+        {
+          "command": "sfdx.force.metadata.stage.view.cancel",
+          "when": "view == sfdx.force.metadata.stage.view",
+          "group": "navigation"
         }
       ],
       "view/item/context": [
@@ -811,6 +821,16 @@
           "light": "resources/light/retrieve.svg",
           "dark": "resources/dark/retrieve.svg"
         }
+      },
+      {
+        "command": "sfdx.force.metadata.stage.view.save",
+        "title": "%force_source_save_all_staged_metadata%",
+        "icon": "$(save-as)"
+      },
+      {
+        "command": "sfdx.force.metadata.stage.view.cancel",
+        "title": "%force_source_cancel_all_staged_metadata%",
+        "icon": "$(notifications-clear-all)"
       },
       {
         "command": "sfdx.force.diff",
