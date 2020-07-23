@@ -3,22 +3,79 @@ import {
   RegistryAccess
 } from '@salesforce/source-deploy-retrieve';
 import { MetadataComponent } from '@salesforce/source-deploy-retrieve/lib/types';
+import { join } from 'path';
 import * as vscode from 'vscode';
-import { nls } from '../../messages';
+import { nls } from '../messages';
+
 export class StageNode extends vscode.TreeItem {
   public parent?: StageNode;
   public readonly children: StageNode[] = [];
-
   public readonly typeName?: string;
 
   constructor(
     label: string,
     collapsableState?: vscode.TreeItemCollapsibleState,
-    typeName?: string
+    typeName?: string,
+    fileUri?: vscode.Uri
   ) {
     super(label, collapsableState);
     this.typeName = typeName;
-    this.iconPath = !typeName ? vscode.ThemeIcon.File : '';
+    if (fileUri) {
+      this.command = {
+        command: 'sfdx.force.metadata.stage.view.open',
+        title: 'Open metadata',
+        arguments: [fileUri]
+      };
+      if (!typeName) {
+        this.iconPath = {
+          dark: join(
+            __filename,
+            '..',
+            '..',
+            '..',
+            '..',
+            'resources',
+            'dark',
+            'circle-filled.svg'
+          ),
+          light: join(
+            __filename,
+            '..',
+            '..',
+            '..',
+            '..',
+            'resources',
+            'light',
+            'circle-filled.svg'
+          )
+        };
+      }
+    } else {
+      if (!this.typeName) {
+        this.iconPath = {
+          dark: join(
+            __filename,
+            '..',
+            '..',
+            '..',
+            '..',
+            'resources',
+            'dark',
+            'circle-outline.svg'
+          ),
+          light: join(
+            __filename,
+            '..',
+            '..',
+            '..',
+            '..',
+            'resources',
+            'light',
+            'circle-outline.svg'
+          )
+        };
+      }
+    }
   }
 
   public addChild(node: StageNode): void {
@@ -47,16 +104,27 @@ export class ComponentStageOutlineProvider
   }
 
   public getChildren(element?: StageNode | undefined): Promise<StageNode[]> {
+    let nodes: StageNode[];
     if (element) {
-      return Promise.resolve(element.children);
+      nodes = element.children;
+      // return Promise.resolve(element.children);
+    } else {
+      nodes = Array.from(this.typeNameToNode.values());
     }
-    return Promise.resolve(Array.from(this.typeNameToNode.values()));
+    nodes.sort((a: StageNode, b: StageNode) =>
+      a.label!.localeCompare(b.label!)
+    );
+    return Promise.resolve(nodes);
+    // return Promise.resolve(Array.from(this.typeNameToNode.values()).sort());
   }
 
-  public addComponent(component: {
-    fullName: string;
-    type: string;
-  }): StageNode {
+  public addComponent(
+    component: {
+      fullName: string;
+      type: string;
+    },
+    fileUri?: vscode.Uri
+  ): StageNode {
     const { fullName, type: mdType } = component;
 
     if (!this.typeNameToNode.has(mdType)) {
@@ -76,11 +144,11 @@ export class ComponentStageOutlineProvider
       child => child.label === fullName
     );
     if (!componentNode) {
-      componentNode = new StageNode(fullName);
+      componentNode = new StageNode(fullName, undefined, undefined, fileUri);
       typeNode.addChild(componentNode);
-      typeNode.children.sort((a: StageNode, b: StageNode) =>
-        a.label!.localeCompare(b.label!)
-      );
+      // typeNode.children.sort((a: StageNode, b: StageNode) =>
+      //   a.label!.localeCompare(b.label!)
+      // );
     }
 
     this._onDidChangeTreeData.fire();

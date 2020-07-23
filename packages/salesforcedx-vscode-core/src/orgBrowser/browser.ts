@@ -12,7 +12,7 @@ import { OrgAuthInfo } from '../util';
 import {
   ComponentStageOutlineProvider,
   StageNode
-} from './stage/stageOutlineProvider';
+} from './stageOutlineProvider';
 
 export class OrgBrowser {
   private static VIEW_ID = 'metadata';

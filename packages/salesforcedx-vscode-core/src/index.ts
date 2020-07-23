@@ -89,13 +89,14 @@ import { BrowserNode, orgBrowser } from './orgBrowser';
 import {
   ComponentStageOutlineProvider,
   StageNode
-} from './orgBrowser/stage/stageOutlineProvider';
+} from './orgBrowser/stageOutlineProvider';
 import { OrgList } from './orgPicker';
 import { registerPushOrDeployOnSave, sfdxCoreSettings } from './settings';
 import { taskViewService } from './statuses';
 import { telemetryService } from './telemetry';
 import { getRootWorkspacePath, hasRootWorkspace, isCLIInstalled } from './util';
 import { OrgAuthInfo } from './util/authInfo';
+import { SfdxPackageDirectories } from './sfdxProject';
 
 function registerCommands(
   extensionContext: vscode.ExtensionContext
@@ -541,11 +542,36 @@ async function setupOrgBrowser(
 
   vscode.commands.registerCommand(
     'sfdx.force.metadata.stage.view.add',
-    (node: BrowserNode) => {
-      orgBrowser.stageProvider.addComponent({
-        fullName: node.fullName,
-        type: node.getAssociatedTypeNode().metadataObject!.xmlName
-      });
+    async (node: BrowserNode) => {
+      const fullName = node.fullName;
+      const type = node.getAssociatedTypeNode().metadataObject!.xmlName;
+      const packagePaths = await SfdxPackageDirectories.getPackageDirectoryFullPaths();
+      const registryAccess = new RegistryAccess();
+      let uriToOpen;
+      for (const packagePath of packagePaths) {
+        const packageComponents = registryAccess.getComponentsFromPath(
+          packagePath
+        );
+        const localComponent = packageComponents.find(
+          c => c.fullName === fullName && c.type.name === type
+        );
+        if (localComponent) {
+          if (localComponent.sources) {
+            uriToOpen = vscode.Uri.file(localComponent.sources[0]);
+          } else {
+            uriToOpen = vscode.Uri.file(localComponent.xml);
+          }
+          break;
+        }
+      }
+
+      orgBrowser.stageProvider.addComponent(
+        {
+          fullName,
+          type
+        },
+        uriToOpen
+      );
     }
   );
 
@@ -557,10 +583,16 @@ async function setupOrgBrowser(
         let revealNode: StageNode | null = null;
         const components = registry.getComponentsFromPath(uri.fsPath);
         for (const component of components) {
-          const node = orgBrowser.stageProvider.addComponent({
-            fullName: component.fullName,
-            type: component.type.name
-          });
+          const uriToOpen = component.sources
+            ? component.sources[0]
+            : component.xml;
+          const node = orgBrowser.stageProvider.addComponent(
+            {
+              fullName: component.fullName,
+              type: component.type.name
+            },
+            vscode.Uri.file(uriToOpen)
+          );
           revealNode = revealNode || node;
         }
         const choice = await notificationService.showInformationMessage(
@@ -585,6 +617,13 @@ async function setupOrgBrowser(
     'sfdx.force.metadata.stage.view.remove',
     (node: StageNode) => {
       orgBrowser.stageProvider.removeComponent(node);
+    }
+  );
+
+  vscode.commands.registerCommand(
+    'sfdx.force.metadata.stage.view.open',
+    (uri: vscode.Uri) => {
+      vscode.window.showTextDocument(uri);
     }
   );
 }
