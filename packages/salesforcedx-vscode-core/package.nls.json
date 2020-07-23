@@ -66,6 +66,7 @@
   "force_source_retrieve_display_text": "Retrieve Source from Org",
   "force_source_save_all_staged_metadata": "Save All Staged Metadata",
   "force_source_cancel_all_staged_metadata": "Cancel All Staged Metadata",
+  "force_metadata_stage_title": "Component Stage",
   "force_metadata_stage_add": "SFDX: Stage Component(s)",
   "force_metadata_stage_remove": "SFDX: Unstage Component(s)",
   "force_diff_against_org": "SFDX: Diff File Against Org",

@@ -119,7 +119,7 @@
         },
         {
           "id": "sfdx.force.metadata.stage.view",
-          "name": "Component Stage",
+          "name": "%force_metadata_stage_title%",
           "when": "sfdx:project_opened && sfdx:default_username_has_no_change_tracking"
         }
       ],
