@@ -5,8 +5,6 @@ import {
 import { MetadataComponent } from '@salesforce/source-deploy-retrieve/lib/types';
 import * as vscode from 'vscode';
 import { nls } from '../../messages';
-import { promises } from 'dns';
-
 export class StageNode extends vscode.TreeItem {
   public parent?: StageNode;
   public readonly children: StageNode[] = [];
