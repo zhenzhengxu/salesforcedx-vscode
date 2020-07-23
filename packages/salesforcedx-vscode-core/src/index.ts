@@ -512,7 +512,8 @@ async function setupOrgBrowser(
     async () => {
       const output = await vscode.window.showSaveDialog({
         saveLabel: 'Save',
-        defaultUri: defaultFolder
+        defaultUri: defaultFolder,
+        filters: { Manifest: ['.xml'] }
       });
       if (output) {
         await orgBrowser.stageProvider.createManifest(output);

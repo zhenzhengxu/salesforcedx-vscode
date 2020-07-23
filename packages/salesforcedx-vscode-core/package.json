@@ -150,6 +150,11 @@
           "group": "navigation"
         },
         {
+          "command": "sfdx.force.metdadata.stage.view.deploy",
+          "when": "view == sfdx.force.metadata.stage.view",
+          "group": "navigation"
+        },
+        {
           "command": "sfdx.force.metadata.stage.view.cancel",
           "when": "view == sfdx.force.metadata.stage.view",
           "group": "navigation"
@@ -852,6 +857,14 @@
         "command": "sfdx.force.metadata.stage.view.cancel",
         "title": "%force_source_cancel_all_staged_metadata%",
         "icon": "$(notifications-clear-all)"
+      },
+      {
+        "command": "sfdx.force.metdadata.stage.view.deploy",
+        "title": "%force_source_deploy_all_staged_metadata%",
+        "icon": {
+          "light": "resources/light/flame.svg",
+          "dark": "resources/dark/flame.svg"
+        }
       },
       {
         "command": "sfdx.force.metadata.stage.view.add",
