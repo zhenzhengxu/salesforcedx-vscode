@@ -655,8 +655,32 @@ async function setupOrgBrowser(
 
   vscode.commands.registerCommand(
     'sfdx.force.metadata.stage.view.open',
-    (uri: vscode.Uri) => {
-      vscode.window.showTextDocument(uri, { preserveFocus: true });
+    async (node: StageNode) => {
+      if (!node.fileUri && !node.typeName) {
+        const packagePaths = await SfdxPackageDirectories.getPackageDirectoryFullPaths();
+        const registryAccess = new RegistryAccess();
+        for (const packagePath of packagePaths) {
+          const packageComponents = registryAccess.getComponentsFromPath(
+            packagePath
+          );
+          const localComponent = packageComponents.find(
+            c =>
+              c.fullName === node.label && c.type.name === node.parent!.typeName
+          );
+          if (localComponent) {
+            if (localComponent.sources) {
+              node.fileUri = vscode.Uri.file(localComponent.sources[0]);
+            } else {
+              node.fileUri = vscode.Uri.file(localComponent.xml);
+            }
+            orgBrowser.stageProvider.refresh(node);
+            break;
+          }
+        }
+      }
+      if (node.fileUri) {
+        vscode.window.showTextDocument(node.fileUri, { preserveFocus: true });
+      }
     }
   );
 }

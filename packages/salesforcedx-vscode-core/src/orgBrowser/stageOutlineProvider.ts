@@ -3,14 +3,20 @@ import {
   RegistryAccess
 } from '@salesforce/source-deploy-retrieve';
 import { MetadataComponent } from '@salesforce/source-deploy-retrieve/lib/types';
+import { existsSync } from 'fs';
 import { join } from 'path';
 import * as vscode from 'vscode';
 import { nls } from '../messages';
+
+const RESOURCES_PATH = join(__filename, '..', '..', '..', '..', 'resources');
+const LOCAL_ICON = join(RESOURCES_PATH, 'dark', 'circle-filled.svg');
+const REMOTE_ICON = join(RESOURCES_PATH, 'dark', 'circle-outline.svg');
 
 export class StageNode extends vscode.TreeItem {
   public parent?: StageNode;
   public readonly children: StageNode[] = [];
   public readonly typeName?: string;
+  private _fileUri?: vscode.Uri;
 
   constructor(
     label: string,
@@ -20,67 +26,38 @@ export class StageNode extends vscode.TreeItem {
   ) {
     super(label, collapsableState);
     this.typeName = typeName;
-    if (fileUri) {
-      this.command = {
-        command: 'sfdx.force.metadata.stage.view.open',
-        title: 'Open metadata',
-        arguments: [fileUri]
-      };
-      if (!typeName) {
-        this.iconPath = {
-          dark: join(
-            __filename,
-            '..',
-            '..',
-            '..',
-            '..',
-            'resources',
-            'dark',
-            'circle-filled.svg'
-          ),
-          light: join(
-            __filename,
-            '..',
-            '..',
-            '..',
-            '..',
-            'resources',
-            'dark',
-            'circle-filled.svg'
-          )
-        };
-      }
-    } else {
-      if (!this.typeName) {
-        this.iconPath = {
-          dark: join(
-            __filename,
-            '..',
-            '..',
-            '..',
-            '..',
-            'resources',
-            'dark',
-            'circle-outline.svg'
-          ),
-          light: join(
-            __filename,
-            '..',
-            '..',
-            '..',
-            '..',
-            'resources',
-            'dark',
-            'circle-outline.svg'
-          )
-        };
-      }
-    }
+    this.fileUri = fileUri;
+    this.command = !typeName
+      ? {
+          command: 'sfdx.force.metadata.stage.view.open',
+          title: 'Open metadata',
+          arguments: [this]
+        }
+      : undefined;
   }
 
   public addChild(node: StageNode): void {
     node.parent = this;
     this.children.push(node);
+  }
+
+  set fileUri(uri: vscode.Uri | undefined) {
+    this._fileUri = uri;
+    this.updateStatus();
+  }
+
+  get fileUri() {
+    if (this._fileUri && !existsSync(this._fileUri.fsPath)) {
+      this._fileUri = undefined;
+      this.updateStatus();
+    }
+    return this._fileUri;
+  }
+
+  private updateStatus() {
+    if (!this.typeName) {
+      this.iconPath = this._fileUri ? LOCAL_ICON : REMOTE_ICON;
+    }
   }
 }
 
@@ -107,7 +84,6 @@ export class ComponentStageOutlineProvider
     let nodes: StageNode[];
     if (element) {
       nodes = element.children;
-      // return Promise.resolve(element.children);
     } else {
       nodes = Array.from(this.typeNameToNode.values());
     }
@@ -115,7 +91,6 @@ export class ComponentStageOutlineProvider
       a.label!.localeCompare(b.label!)
     );
     return Promise.resolve(nodes);
-    // return Promise.resolve(Array.from(this.typeNameToNode.values()).sort());
   }
 
   public addComponent(
@@ -146,9 +121,6 @@ export class ComponentStageOutlineProvider
     if (!componentNode) {
       componentNode = new StageNode(fullName, undefined, undefined, fileUri);
       typeNode.addChild(componentNode);
-      // typeNode.children.sort((a: StageNode, b: StageNode) =>
-      //   a.label!.localeCompare(b.label!)
-      // );
     }
 
     this._onDidChangeTreeData.fire();
@@ -201,5 +173,9 @@ export class ComponentStageOutlineProvider
   public clearAll(): void {
     this.typeNameToNode.clear();
     this._onDidChangeTreeData.fire();
+  }
+
+  public refresh(node?: StageNode) {
+    this._onDidChangeTreeData.fire(node);
   }
 }
