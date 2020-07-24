@@ -652,7 +652,7 @@ async function setupOrgBrowser(
   vscode.commands.registerCommand(
     'sfdx.force.metadata.stage.view.open',
     (uri: vscode.Uri) => {
-      vscode.window.showTextDocument(uri);
+      vscode.window.showTextDocument(uri, { preserveFocus: true });
     }
   );
 }

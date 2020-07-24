@@ -227,6 +227,10 @@
         {
           "command": "sfdx.force.diff",
           "when": "sfdx:project_opened && resourceLangId == visualforce"
+        },
+        {
+          "command": "sfdx.force.metadata.stage.view.add.file",
+          "when": "sfdx:project_opened"
         }
       ],
       "explorer/context": [
@@ -877,7 +881,7 @@
       },
       {
         "command": "sfdx.force.metadata.stage.view.remove",
-        "title": "%force_metadata_stage_remove",
+        "title": "%force_metadata_stage_remove%",
         "icon": "$(remove)"
       },
       {

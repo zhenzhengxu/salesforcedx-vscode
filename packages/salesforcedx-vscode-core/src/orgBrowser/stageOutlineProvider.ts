@@ -45,7 +45,7 @@ export class StageNode extends vscode.TreeItem {
             '..',
             '..',
             'resources',
-            'light',
+            'dark',
             'circle-filled.svg'
           )
         };
@@ -70,7 +70,7 @@ export class StageNode extends vscode.TreeItem {
             '..',
             '..',
             'resources',
-            'light',
+            'dark',
             'circle-outline.svg'
           )
         };

@@ -70,7 +70,8 @@ export class OrgBrowser {
 
     this._stageProvider = new ComponentStageOutlineProvider();
     this._stageView = window.createTreeView('sfdx.force.metadata.stage.view', {
-      treeDataProvider: this._stageProvider
+      treeDataProvider: this._stageProvider,
+      showCollapseAll: true
     });
 
     this._treeView.onDidChangeVisibility(async () => {
