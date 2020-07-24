@@ -624,8 +624,12 @@ async function setupOrgBrowser(
           );
           revealNode = revealNode || node;
         }
+        const message =
+          components.length === 1
+            ? `Added ${components[0].fullName} to component stage.`
+            : `Added ${components.length} components to component stage.`;
         const choice = await notificationService.showInformationMessage(
-          `${components.length} components staged.`,
+          message,
           'View Stage'
         );
         if (choice === 'View Stage' && revealNode) {
