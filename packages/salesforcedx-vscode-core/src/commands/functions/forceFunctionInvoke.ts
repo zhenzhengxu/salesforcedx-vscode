@@ -5,8 +5,8 @@
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import { taskService } from '@salesforce/salesforcedx-utils-vscode/out/src/tasks';
-import { getRootWorkspace } from '../../util';
 import * as path from 'path';
+import { getRootWorkspace } from '../../util';
 
 import {
   CancellationToken,
@@ -42,6 +42,10 @@ class FunctionsLensProvider implements CodeLensProvider {
     document: TextDocument,
     token: CancellationToken
   ): Promise<CodeLens[]> {
+    if (path.basename(document.uri.fsPath) === 'package.json') {
+      return [];
+    }
+
     const functionInvokeCommand: Command = {
       command: 'sfdx.force.function.invoke',
       title: 'Send Request',
@@ -72,7 +76,10 @@ export function registerFunctionsCodeLensProvider(context: ExtensionContext) {
  */
 export async function forceFunctionInvoke(sourceUri: Uri) {
   const segments = sourceUri.fsPath.split(path.sep);
-  const payload = ['@functions', ...segments.slice(segments.findIndex(x => x === 'functions') + 1)].join(path.sep);
+  const payload = [
+    '@functions',
+    ...segments.slice(segments.findIndex(x => x === 'functions') + 1)
+  ].join(path.sep);
   // const payload = sourceUri.fsPath;
 
   const sfdxTask = taskService.createTask({
@@ -90,7 +97,7 @@ export async function forceFunctionInvoke(sourceUri: Uri) {
     }
   });
 
-  sfdxTask.onDidEnd(() => { });
+  sfdxTask.onDidEnd(() => {});
 
   await sfdxTask.execute();
 }
