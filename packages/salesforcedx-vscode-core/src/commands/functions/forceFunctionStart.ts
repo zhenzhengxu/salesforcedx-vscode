@@ -8,8 +8,10 @@ import {
   Command,
   SfdxCommandBuilder
 } from '@salesforce/salesforcedx-utils-vscode/out/src/cli';
+import { taskService } from '@salesforce/salesforcedx-utils-vscode/out/src/tasks';
 import { Uri } from 'vscode';
 import { nls } from '../../messages';
+import { getRootWorkspace } from '../../util';
 import {
   CommandletExecutor,
   FilePathGatherer,
@@ -24,7 +26,7 @@ export class ForceFunctionStart extends SfdxCommandletExecutor<string> {
     return new SfdxCommandBuilder()
       .withDescription(nls.localize('force_function_start_text'))
       .withArg('evergreen:function:start')
-      .withArg('--json')
+      .withArg('--verbose')
       .withLogName('force_function_start')
       .build();
   }
@@ -35,10 +37,26 @@ export class ForceFunctionStart extends SfdxCommandletExecutor<string> {
  * @param sourceUri
  */
 export async function forceFunctionStart(sourceUri: Uri) {
-  const commandlet = new SfdxCommandlet(
-    new SfdxWorkspaceChecker(),
-    new FilePathGatherer(sourceUri),
-    new ForceFunctionStart()
-  );
-  await commandlet.run();
+  const sfdxTask = taskService.createTask({
+    taskId: sourceUri.fsPath,
+    taskName: 'SFDX: Start Function',
+    taskGroup: 'functions',
+    taskScope: getRootWorkspace(),
+    cmd: 'sfdx',
+    args: ['evergreen:function:start', '--verbose'],
+    shellExecutionOptions: {
+      cwd: sourceUri.fsPath
+    }
+  });
+
+  sfdxTask.onDidEnd(() => {});
+
+  await sfdxTask.execute();
+
+  // const commandlet = new SfdxCommandlet(
+  //   new SfdxWorkspaceChecker(),
+  //   new FilePathGatherer(sourceUri),
+  //   new ForceFunctionStart()
+  // );
+  // await commandlet.run();
 }

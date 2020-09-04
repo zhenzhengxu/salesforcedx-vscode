@@ -62,6 +62,7 @@ import {
 } from './commands';
 import { RetrieveMetadataTrigger } from './commands/forceSourceRetrieveMetadata';
 import { getUserId } from './commands/forceStartApexDebugLogging';
+import { registerFunctionsCodeLensProvider } from './commands/functions/forceFunctionInvoke';
 import { isvDebugBootstrap } from './commands/isvdebugging';
 import {
   CompositeParametersGatherer,
@@ -489,6 +490,8 @@ export async function activate(context: vscode.ExtensionContext) {
     taskViewService
   );
   context.subscriptions.push(treeDataProvider);
+
+  registerFunctionsCodeLensProvider(context);
 
   // Set internal dev context
   const internalDev = sfdxCoreSettings.getInternalDev();

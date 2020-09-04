@@ -13,7 +13,8 @@
     "path-exists": "3.0.0",
     "rxjs": "^5.4.1",
     "shelljs": "0.8.3",
-    "tree-kill": "^1.1.0"
+    "tree-kill": "^1.1.0",
+    "uuid": "^3.3.3"
   },
   "devDependencies": {
     "@types/chai": "^4.0.0",
@@ -23,6 +24,8 @@
     "@types/path-exists": "^1.0.29",
     "@types/shelljs": "0.7.9",
     "@types/sinon": "^2.3.2",
+    "@types/uuid": "^3.4.8",
+    "@types/vscode": "1.40.0",
     "chai": "^4.0.2",
     "mocha": "^5",
     "mocha-junit-reporter": "^1.23.3",
