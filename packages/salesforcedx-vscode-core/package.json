@@ -327,13 +327,12 @@
           "when": "sfdx:project_opened && sfdx:default_username_has_no_change_tracking && resourceLangId != 'forcesourcemanifest'"
         },
         {
-<<<<<<< HEAD
           "command": "sfdx.force.function.start",
           "when": "sfdx:functions_enabled && sfdx:project_opened && resource =~ /.*/functions/[^/]+(/[^/]+\\.(ts|js|json|toml))?$/ && resourceFilename != package.json && resourceFilename != package-lock.json && resourceFilename != tsconfig.json"
-=======
+        },
+        {
           "command": "sfdx.force.metadata.stage.view.add.file",
           "when": "sfdx:project_opened"
->>>>>>> stage components from file explorer
         }
       ],
       "commandPalette": [
