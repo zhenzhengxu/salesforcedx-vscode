@@ -22,6 +22,7 @@ import {
   forceDataSoqlQuery,
   forceDebuggerStop,
   forceFunctionCreate,
+  forceFunctionDebugInvoke,
   forceFunctionInvoke,
   forceFunctionStart,
   forceFunctionStop,
@@ -357,6 +358,11 @@ function registerCommands(
     forceFunctionInvoke
   );
 
+  const forceFunctionDebugInvokeCmd = vscode.commands.registerCommand(
+    'sfdx.force.function.debugInvoke',
+    forceFunctionDebugInvoke
+  );
+
   const forceFunctionStopCmd = vscode.commands.registerCommand(
     'sfdx.force.function.stop',
     forceFunctionStop
@@ -374,6 +380,7 @@ function registerCommands(
     forceDiffFile,
     forceFunctionCreateCmd,
     forceFunctionInvokeCmd,
+    forceFunctionDebugInvokeCmd,
     forceFunctionStartCmd,
     forceFunctionStopCmd,
     forceOrgCreateCmd,
