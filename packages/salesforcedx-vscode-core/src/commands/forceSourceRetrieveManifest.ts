@@ -48,7 +48,7 @@ export class ForceSourceRetrieveManifestExecutor extends SfdxCommandletExecutor<
 
 export class LibrarySourceRetrieveManifestExecutor extends LibraryCommandletExecutor<string> {
   protected logName = 'force_source_retrieve_with_manifest_beta';
-  protected executionName = 'Retrieve With Manifest (beta)';
+  protected executionName = 'Retrieve With Manifest (Beta)';
 
   protected async run(response: ContinueResponse<string>): Promise<boolean> {
     const packageDirs = await SfdxPackageDirectories.getPackageDirectoryFullPaths();

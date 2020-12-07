@@ -44,7 +44,7 @@ export class ForceSourceDeployManifestExecutor extends BaseDeployExecutor {
 
 export class LibrarySourceDeployManifestExecutor extends LibraryCommandletExecutor<string> {
   protected logName = 'force_source_deploy_with_manifest';
-  protected executionName = 'Deploy With Manifest (beta)';
+  protected executionName = 'Deploy With Manifest (Beta)';
 
   protected async run(response: ContinueResponse<string>): Promise<boolean> {
     try {
