@@ -44,21 +44,31 @@ export const enum PlatformName {
   iOS = 'iOS'
 }
 
-interface IOSSimulatorDevice {
-  name: string;
-  udid: string;
-  state: string;
-  runtimeId: string;
-  isAvailable: boolean;
+export enum IOSDeviceType {
+  Simulator = 'Simulator',
+  Device = 'Device'
 }
 
-interface AndroidVirtualDevice {
+export enum AndroidDeviceType {
+  Emulator = 'Emulator',
+  Device = 'Device'
+}
+
+interface IOSDevice {
+  name: string;
+  udid: string;
+  runtimeVersion: string;
+  deviceType: IOSDeviceType;
+}
+
+interface AndroidDevice {
   name: string;
   displayName: string;
   deviceName: string;
   path: string;
   target: string;
   api: string;
+  deviceType: AndroidDeviceType;
 }
 
 interface PreviewQuickPickItem extends vscode.QuickPickItem {
@@ -357,8 +367,8 @@ async function selectTargetDevice(
 
     // populate quick pick list of devices from the parsed JSON data
     if (isAndroid) {
-      const devices: AndroidVirtualDevice[] = JSON.parse(jsonString)
-        .result as AndroidVirtualDevice[];
+      const devices: AndroidDevice[] = JSON.parse(jsonString)
+        .result as AndroidDevice[];
       devices.forEach(device => {
         const label: string = device.displayName;
         const detail: string = `${device.target}, ${device.api}`;
@@ -366,11 +376,14 @@ async function selectTargetDevice(
         items.push({ label, detail, name });
       });
     } else {
-      const devices: IOSSimulatorDevice[] = JSON.parse(jsonString)
-        .result as IOSSimulatorDevice[];
+      const devices: IOSDevice[] = JSON.parse(jsonString).result as IOSDevice[];
       devices.forEach(device => {
+        const deviceTypeLabel =
+          device.deviceType === IOSDeviceType.Device
+            ? 'Physical Device'
+            : 'Simulator';
         const label: string = device.name;
-        const detail: string = device.runtimeId;
+        const detail: string = `${deviceTypeLabel}, iOS ${device.runtimeVersion}`;
         const name: string = device.name;
         items.push({ label, detail, name });
       });

@@ -66,23 +66,23 @@ export const messages = {
   force_lightning_lwc_platform_selection:
     'Select the platform for previewing the component',
   force_lightning_lwc_android_target_default:
-    'Enter a name for the Android emulator (leave blank for default)',
+    'Enter a name for the Android device (leave blank for default)',
   force_lightning_lwc_ios_target_default:
-    'Enter a name for the iOS simulator (leave blank for default)',
+    'Enter a name for the iOS device (leave blank for default)',
   force_lightning_lwc_android_target_remembered:
-    "Enter a name for the Android emulator (leave blank for '%s')",
+    "Enter a name for the Android device (leave blank for '%s')",
   force_lightning_lwc_ios_target_remembered:
-    "Enter a name for the iOS simulator (leave blank for '%s')",
+    "Enter a name for the iOS device (leave blank for '%s')",
   force_lightning_lwc_operation_cancelled:
     'Preview operation cancelled by user.',
-  force_lightning_lwc_ios_label: 'Use iOS Simulator',
+  force_lightning_lwc_ios_label: 'Use iOS device',
   force_lightning_lwc_ios_description: 'Preview component on iOS',
-  force_lightning_lwc_android_label: 'Use Android Emulator',
+  force_lightning_lwc_android_label: 'Use Android device',
   force_lightning_lwc_android_description: 'Preview component on Android',
-  force_lightning_lwc_android_failure: "Failed to start Android Emulator '%s'.",
-  force_lightning_lwc_ios_failure: "Failed to start iOS Simulator '%s'.",
-  force_lightning_lwc_android_start: "Starting Android Emulator '%s'.",
-  force_lightning_lwc_ios_start: "Starting iOS Simulator '%s'.",
+  force_lightning_lwc_android_failure: "Failed to start Android device '%s'.",
+  force_lightning_lwc_ios_failure: "Failed to start iOS device '%s'.",
+  force_lightning_lwc_android_start: "Starting Android device '%s'.",
+  force_lightning_lwc_ios_start: "Starting iOS device '%s'.",
   force_lightning_lwc_browserapp_label: 'Browser',
   force_lightning_lwc_browserapp_description: 'Your mobile browser.',
   force_lightning_lwc_preview_create_virtual_device_label: 'New...',
