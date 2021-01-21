@@ -1,3 +1,27 @@
+# 50.14.0 - Month DD, YYYY
+
+## Added
+
+#### salesforcedx-vscode-core
+
+- Remove channelService from core extension ([PR #2853](https://github.com/forcedotcom/salesforcedx-vscode/pull/2853))
+
+#### salesforcedx-vscode-soql
+
+- Do not emit message from custom editor to webview if soql has not changed ([PR #2818](https://github.com/forcedotcom/salesforcedx-vscode/pull/2818))
+
+## Fixed
+
+#### salesforcedx-vscode-soql
+
+- Do not show toggle command in palette ([PR #2867](https://github.com/forcedotcom/salesforcedx-vscode/pull/2867))
+
+- Disable remote query checks. Make it an experimental option ([PR #2847](https://github.com/forcedotcom/salesforcedx-vscode/pull/2847))
+
+- Revert auto-publish of SOQL extension  (#2859) ([PR #2843](https://github.com/forcedotcom/salesforcedx-vscode/pull/2843))
+
+- Fix local test environment ([PR #2857](https://github.com/forcedotcom/salesforcedx-vscode/pull/2857))
+
 # 50.14.0 - January 21, 2021
 
 ## Fixed
