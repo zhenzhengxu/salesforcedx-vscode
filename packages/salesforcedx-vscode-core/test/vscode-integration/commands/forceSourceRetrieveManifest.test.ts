@@ -12,7 +12,7 @@ import { RetrieveStatus } from '@salesforce/source-deploy-retrieve/lib/src/clien
 import { expect } from 'chai';
 import * as path from 'path';
 import { createSandbox, SinonStub } from 'sinon';
-import { OUTPUT_CHANNEL } from '../../../src/channels';
+import { channelService, OUTPUT_CHANNEL } from '../../../src/channels';
 import { ForceSourceRetrieveManifestExecutor } from '../../../src/commands';
 import { LibrarySourceRetrieveManifestExecutor } from '../../../src/commands/forceSourceRetrieveManifest';
 import { createRetrieveOutput } from '../../../src/commands/util';
@@ -82,7 +82,7 @@ describe('Force Source Retrieve with Manifest Option', () => {
       retrieveStub = env
         .stub(mockComponents, 'retrieve')
         .withArgs(mockConnection, packageDirFullPaths[0], { merge: true });
-      outputStub = env.stub(OUTPUT_CHANNEL, 'appendLine');
+      outputStub = env.stub(channelService, 'appendLine');
     });
 
     afterEach(() => {

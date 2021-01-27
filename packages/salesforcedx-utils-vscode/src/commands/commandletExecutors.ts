@@ -116,22 +116,18 @@ export abstract class LibraryCommandletExecutor<T>
   implements CommandletExecutor<T> {
   private readonly executionName: string;
   private readonly logName: string;
-  private readonly outputChannel: vscode.OutputChannel;
+  private readonly channelName: string;
   protected readonly telemetry = new TelemetryBuilder();
 
   /**
    * @param name Name visible to user while executing.
    * @param logName Name for logging purposes such as telemetry.
-   * @param outputChannel VS Code output channel to report execution status to.
+   * @param channelName Name of the VS Code output channel to report execution status to.
    */
-  constructor(
-    executionName: string,
-    logName: string,
-    outputChannel: vscode.OutputChannel
-  ) {
+  constructor(executionName: string, logName: string, channelName: string) {
     this.executionName = executionName;
     this.logName = logName;
-    this.outputChannel = outputChannel;
+    this.channelName = channelName;
   }
 
   /**
@@ -144,8 +140,8 @@ export abstract class LibraryCommandletExecutor<T>
 
   public async execute(response: ContinueResponse<T>): Promise<void> {
     const startTime = process.hrtime();
-    const channelService = new ChannelService(this.outputChannel);
     const telemetryService = TelemetryService.getInstance();
+    const channelService = ChannelService.getInstance(this.channelName);
 
     channelService.showCommandWithTimestamp(
       `${nls.localize('channel_starting_message')}${this.executionName}\n`

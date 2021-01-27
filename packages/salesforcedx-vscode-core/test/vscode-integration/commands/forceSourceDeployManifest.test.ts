@@ -15,7 +15,7 @@ import {
 import { expect } from 'chai';
 import * as path from 'path';
 import { createSandbox, SinonStub } from 'sinon';
-import { OUTPUT_CHANNEL } from '../../../src/channels';
+import { channelService, OUTPUT_CHANNEL } from '../../../src/channels';
 
 import { ForceSourceDeployManifestExecutor } from '../../../src/commands';
 import { LibrarySourceDeployManifestExecutor } from '../../../src/commands/forceSourceDeployManifest';
@@ -78,7 +78,7 @@ describe('Force Source Deploy Using Manifest Option', () => {
         })
         .returns(mockComponents);
       deployStub = env.stub(mockComponents, 'deploy').withArgs(mockConnection);
-      outputStub = env.stub(OUTPUT_CHANNEL, 'appendLine');
+      outputStub = env.stub(channelService, 'appendLine');
     });
 
     afterEach(() => {
