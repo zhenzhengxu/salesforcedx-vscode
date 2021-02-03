@@ -26,6 +26,7 @@ export {
   Properties,
   Measurements
 } from './telemetry/telemetry';
+export { TelemetryReporter } from './telemetry/telemetryReporter';
 export {
   hasRootWorkspace,
   getRootWorkspace,
