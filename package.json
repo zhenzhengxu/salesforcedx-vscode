@@ -27,7 +27,7 @@
     "webpack-cli": "3.3.5"
   },
   "scripts": {
-    "postinstall": "lerna bootstrap --no-ci -- --no-package-lock && node scripts/reformat-with-prettier && ./scripts/install-node-prune.sh && lerna exec --ignore salesforcedx-vscode-expanded --ignore salesforcedx-vscode --ignore docs --concurrency 1 --stream --bail=false -- node-prune",
+    "postinstall": "lerna bootstrap --no-ci -- --no-package-lock && node scripts/reformat-with-prettier && ./scripts/install-node-prune.sh && lerna exec --ignore salesforcedx-vscode-expanded --ignore salesforcedx-vscode --ignore docs --ignore salesforcedx-visualforce-markup-language-server --ignore salesforcedx-utils-vscode --concurrency 1 --stream --bail=false -- node-prune",
     "bootstrap": "lerna bootstrap --no-ci -- --no-package-lock && node scripts/reformat-with-prettier",
     "circleci:artifacts": "node scripts/download-vsix-from-circleci.js",
     "commit-init": "commitizen init cz-conventional-changelog --save-dev --save-exact --force",
