@@ -14,6 +14,7 @@
     "lerna": "3.13.1",
     "ncp": "^2.0.0",
     "prettier": "1.19.1",
+    "rimraf": "^3.0.2",
     "remap-istanbul": "^0.9.5",
     "shelljs": "0.8.3",
     "shx": "0.2.2",
@@ -27,8 +28,8 @@
     "webpack-cli": "3.3.5"
   },
   "scripts": {
-    "postinstall": "lerna bootstrap --no-ci -- --no-package-lock && node scripts/reformat-with-prettier",
-    "bootstrap": "lerna bootstrap --no-ci -- --no-package-lock && node scripts/reformat-with-prettier",
+    "postinstall": "lerna bootstrap --no-ci -- --no-package-lock && node scripts/reformat-with-prettier && node scripts/trim-node-modules",
+    "bootstrap": "lerna bootstrap --no-ci -- --no-package-lock && node scripts/reformat-with-prettier && node scripts/trim-node-modules",
     "circleci:artifacts": "node scripts/download-vsix-from-circleci.js",
     "commit-init": "commitizen init cz-conventional-changelog --save-dev --save-exact --force",
     "commit": "git-cz",
